@@ -1,0 +1,74 @@
+// Lomaria Constants - Study Programs, Intents, Interests
+
+export const STUDY_PROGRAMS = [
+  { value: "WiSo-BW", label: "WiSo – Betriebswirtschaft (BW)" },
+  { value: "WiSo-IBW", label: "WiSo – Internationale BWL (IBW)" },
+  { value: "WiSo-VW", label: "WiSo – Volkswirtschaft (VW)" },
+  { value: "WiSo-WUP", label: "WiSo – Wirtschafts- und Sozialpolitik (WUP)" },
+  { value: "WiSo-WINF", label: "WiSo – Wirtschaftsinformatik (WINF)" },
+  { value: "WiRe", label: "Wirtschaftsrecht (WiRe)" },
+  { value: "BBE", label: "Business and Economics (BBE)" },
+] as const;
+
+export const SEMESTERS = [
+  { value: "1", label: "1. Semester" },
+  { value: "2", label: "2. Semester" },
+  { value: "3", label: "3. Semester" },
+  { value: "4", label: "4. Semester" },
+  { value: "5", label: "5. Semester" },
+  { value: "6", label: "6. Semester" },
+  { value: "7", label: "7. Semester" },
+  { value: "8", label: "8. Semester" },
+  { value: "9", label: "9. Semester" },
+  { value: "10", label: "10. Semester" },
+  { value: "Master", label: "Master" },
+  { value: "Doktorat", label: "Doktorat" },
+] as const;
+
+export const GENDERS = [
+  { value: "maennlich", label: "Männlich" },
+  { value: "weiblich", label: "Weiblich" },
+  { value: "divers", label: "Divers" },
+  { value: "keine_angabe", label: "Keine Angabe" },
+] as const;
+
+export const INTENTS = [
+  { value: "neue_leute", label: "Neue Leute kennenlernen" },
+  { value: "projektpartner", label: "Projektpartner finden" },
+  { value: "startup", label: "Startup / Gründer-Mitstreiter" },
+  { value: "nachhilfe_anbieten", label: "Nachhilfe anbieten" },
+  { value: "networking", label: "Networking / Karriere" },
+  { value: "freundschaften", label: "Freundschaften (neutral)" },
+] as const;
+
+export const INTERESTS = [
+  { value: "startup", label: "Startup / Entrepreneurship" },
+  { value: "marketing_branding", label: "Marketing & Branding" },
+  { value: "finance_investing", label: "Finance & Investing" },
+  { value: "consulting_strategie", label: "Consulting & Strategie" },
+  { value: "tech_digitalisierung", label: "Tech & Digitalisierung" },
+  { value: "nachhaltigkeit", label: "Nachhaltigkeit" },
+  { value: "politik_gesellschaft", label: "Politik & Gesellschaft" },
+  { value: "design_kreativitaet", label: "Design & Kreativität" },
+  { value: "sport_fitness", label: "Sport & Fitness" },
+  { value: "lifestyle_events", label: "Lifestyle & Events" },
+] as const;
+
+export const TUTORING_SUGGESTIONS = [
+  "Statistik 1",
+  "Statistik 2",
+  "Accounting 1",
+  "Accounting 2",
+  "Finance Basics",
+  "Mathematik",
+  "Mikroökonomie",
+  "Makroökonomie",
+  "Marketing",
+  "Wirtschaftsrecht",
+] as const;
+
+export type StudyProgram = typeof STUDY_PROGRAMS[number]["value"];
+export type Semester = typeof SEMESTERS[number]["value"];
+export type Gender = typeof GENDERS[number]["value"];
+export type Intent = typeof INTENTS[number]["value"];
+export type Interest = typeof INTERESTS[number]["value"];
