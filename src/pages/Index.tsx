@@ -12,17 +12,17 @@ const Index = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen bg-background flex flex-col px-6 pt-8">
+        {/* Logo - Top Left */}
+        <img 
+          src={lomariaLogo}
+          alt="Lomaria Logo"
+          className="w-28 opacity-0 animate-fade-in"
+          style={{ animationDelay: "0s", animationFillMode: "forwards" }}
+        />
+        
         {/* Main Content - Centered */}
-        <div className="flex flex-col items-center text-center w-full max-w-md">
-          
-          {/* Logo */}
-          <img 
-            src={lomariaLogo}
-            alt="Lomaria Logo"
-            className="w-[45%] mb-8 opacity-0 animate-fade-in"
-            style={{ animationDelay: "0s", animationFillMode: "forwards" }}
-          />
+        <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-md mx-auto">
 
           {/* Headline - Film Title Card */}
           <h1 
