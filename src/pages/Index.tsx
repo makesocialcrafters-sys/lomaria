@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageTransition } from "@/components/ui/page-transition";
-import lomariaLogo from "@/assets/lomaria-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -12,17 +11,9 @@ const Index = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-background flex flex-col px-6 pt-8">
-        {/* Logo - Top Left */}
-        <img 
-          src={lomariaLogo}
-          alt="Lomaria Logo"
-          className="w-28 opacity-0 animate-fade-in"
-          style={{ animationDelay: "0s", animationFillMode: "forwards" }}
-        />
-        
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
         {/* Main Content - Centered */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center w-full max-w-md mx-auto">
+        <div className="flex flex-col items-center text-center w-full max-w-md">
 
           {/* Headline - Film Title Card */}
           <h1 
