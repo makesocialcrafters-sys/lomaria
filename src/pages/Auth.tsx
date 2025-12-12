@@ -58,10 +58,13 @@ export default function Auth() {
           }
           toast({ title: message, variant: "destructive" });
         } else {
+          // If email confirmation is disabled, user is logged in immediately
+          // The onAuthStateChange will pick up the session and redirect
           toast({
             title: "Registrierung erfolgreich",
-            description: "Bitte überprüfe deine E-Mail zur Bestätigung.",
+            description: "Willkommen bei Lomaria!",
           });
+          navigate("/onboarding");
         }
       }
     } catch (err) {
