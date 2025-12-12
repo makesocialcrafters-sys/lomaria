@@ -14,7 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      users: {
+        Row: {
+          auth_user_id: string
+          bio: string | null
+          birthyear: number | null
+          created_at: string | null
+          email: string
+          first_name: string | null
+          focus: string | null
+          gender: string | null
+          id: string
+          intents: string[] | null
+          interests: string[] | null
+          last_active_at: string | null
+          last_name: string | null
+          profile_image: string | null
+          semester: string | null
+          study_program: string | null
+          tutoring_desc: string | null
+          tutoring_price: number | null
+          tutoring_subject: string | null
+        }
+        Insert: {
+          auth_user_id: string
+          bio?: string | null
+          birthyear?: number | null
+          created_at?: string | null
+          email: string
+          first_name?: string | null
+          focus?: string | null
+          gender?: string | null
+          id?: string
+          intents?: string[] | null
+          interests?: string[] | null
+          last_active_at?: string | null
+          last_name?: string | null
+          profile_image?: string | null
+          semester?: string | null
+          study_program?: string | null
+          tutoring_desc?: string | null
+          tutoring_price?: number | null
+          tutoring_subject?: string | null
+        }
+        Update: {
+          auth_user_id?: string
+          bio?: string | null
+          birthyear?: number | null
+          created_at?: string | null
+          email?: string
+          first_name?: string | null
+          focus?: string | null
+          gender?: string | null
+          id?: string
+          intents?: string[] | null
+          interests?: string[] | null
+          last_active_at?: string | null
+          last_name?: string | null
+          profile_image?: string | null
+          semester?: string | null
+          study_program?: string | null
+          tutoring_desc?: string | null
+          tutoring_price?: number | null
+          tutoring_subject?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
