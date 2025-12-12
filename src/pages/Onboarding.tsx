@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
 import { Step1Identity } from "@/components/onboarding/Step1Identity";
@@ -16,17 +14,10 @@ import { Step8Preview } from "@/components/onboarding/Step8Preview";
 import lomariaLogo from "@/assets/lomaria-logo.png";
 
 export default function Onboarding() {
-  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { step, data, updateData, nextStep, prevStep, showTutoringStep } = useOnboarding();
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
 
   const handleNext = () => {
     // Skip tutoring step if not needed
@@ -50,33 +41,10 @@ export default function Onboarding() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
-
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("users")
-        .update({
-          first_name: data.first_name,
-          last_name: data.last_name,
-          profile_image: data.profile_image,
-          birthyear: data.birthyear,
-          gender: data.gender,
-          study_program: data.study_program,
-          semester: data.semester,
-          focus: data.focus || null,
-          intents: data.intents,
-          interests: data.interests,
-          tutoring_subject: data.tutoring_subject || null,
-          tutoring_desc: data.tutoring_desc || null,
-          tutoring_price: data.tutoring_price,
-          bio: data.bio || null,
-          last_active_at: new Date().toISOString(),
-        })
-        .eq("auth_user_id", user.id);
-
-      if (error) throw error;
-
+      // TODO: Save to database when auth is implemented
+      console.log("Onboarding data to save:", data);
       toast({ title: "Profil gespeichert!" });
       navigate("/discover");
     } catch (err) {
@@ -87,15 +55,6 @@ export default function Onboarding() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-0.5 w-32 bg-muted overflow-hidden rounded-full">
-          <div className="h-full bg-primary animate-loader" />
-        </div>
-      </div>
-    );
-  }
 
   // Calculate total steps (7 if tutoring skipped, 8 otherwise)
   const totalSteps = showTutoringStep ? 8 : 7;
