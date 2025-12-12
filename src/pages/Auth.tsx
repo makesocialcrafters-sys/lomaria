@@ -47,7 +47,7 @@ export default function Auth() {
           }
           toast({ title: message, variant: "destructive" });
         } else {
-          navigate("/discover");
+          navigate("/onboarding");
         }
       } else {
         const { error } = await signUp(data.email, data.password);
