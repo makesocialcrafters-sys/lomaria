@@ -65,7 +65,7 @@ export default function Onboarding() {
       <div className="max-w-md mx-auto">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src={lomariaLogo} alt="Lomaria" className="h-8 w-auto opacity-60" />
+          <img src={lomariaLogo} alt="Lomaria" className="h-12 w-auto opacity-60" />
         </div>
 
         {/* Step Indicator */}
