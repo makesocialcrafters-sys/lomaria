@@ -28,7 +28,8 @@ export default function Auth() {
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
-      navigate("/onboarding");
+      // User is logged in, check profile in ProtectedRoute
+      navigate("/discover");
     }
   }, [user, loading, navigate]);
 
@@ -47,7 +48,8 @@ export default function Auth() {
           }
           toast({ title: message, variant: "destructive" });
         } else {
-          navigate("/onboarding");
+          toast({ title: "Erfolgreich angemeldet!" });
+          navigate("/discover");
         }
       } else {
         const { error } = await signUp(data.email, data.password);
@@ -58,13 +60,12 @@ export default function Auth() {
           }
           toast({ title: message, variant: "destructive" });
         } else {
-          // If email confirmation is disabled, user is logged in immediately
-          // The onAuthStateChange will pick up the session and redirect
+          // Email confirmation required
           toast({
-            title: "Registrierung erfolgreich",
-            description: "Willkommen bei Lomaria!",
+            title: "Bestätigungs-E-Mail gesendet",
+            description: "Bitte öffne deine E-Mail und klicke auf den Bestätigungs-Link.",
           });
-          navigate("/onboarding");
+          // Stay on auth page, user needs to verify email first
         }
       }
     } catch (err) {
