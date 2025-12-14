@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import lomariaLogo from "@/assets/lomaria-logo.png";
+import { passwordSchema } from "@/lib/validations";
 
 const resetSchema = z.object({
-  password: z.string().min(6, "Passwort muss mindestens 6 Zeichen haben"),
-  confirmPassword: z.string().min(6, "Passwort bestätigen"),
+  password: passwordSchema,
+  confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwörter stimmen nicht überein",
   path: ["confirmPassword"],
