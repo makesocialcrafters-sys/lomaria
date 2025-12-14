@@ -24,24 +24,24 @@ export function DeleteAccountDialog() {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Nicht eingeloggt");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Nicht eingeloggt");
 
-      // Delete user data from public.users
-      const { error: deleteError } = await supabase
-        .from("users")
-        .delete()
-        .eq("auth_user_id", user.id);
+      // Call edge function to delete account completely
+      const { error } = await supabase.functions.invoke("delete-account", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
-      if (deleteError) throw deleteError;
+      if (error) throw error;
 
-      // Sign out the user (the actual user deletion would need to be done via edge function or admin API)
+      // Sign out locally
       await supabase.auth.signOut();
 
       toast({
         title: "Konto gelöscht",
-        description: "Dein Konto wurde erfolgreich gelöscht.",
+        description: "Dein Konto wurde vollständig gelöscht.",
       });
 
       navigate("/");

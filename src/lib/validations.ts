@@ -13,7 +13,7 @@ export const emailSchema = z
 
 export const passwordSchema = z
   .string()
-  .min(8, { message: "Passwort muss mindestens 8 Zeichen haben" });
+  .min(10, { message: "Passwort muss mindestens 10 Zeichen haben" });
 
 export const authSchema = z.object({
   email: emailSchema,

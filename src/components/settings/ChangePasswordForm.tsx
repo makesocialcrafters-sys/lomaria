@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { passwordSchema } from "@/lib/validations";
 
 interface ChangePasswordFormProps {
   onCancel: () => void;
@@ -19,10 +20,9 @@ export function ChangePasswordForm({ onCancel }: ChangePasswordFormProps) {
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!newPassword) {
-      newErrors.newPassword = "Neues Passwort ist erforderlich";
-    } else if (newPassword.length < 6) {
-      newErrors.newPassword = "Passwort muss mindestens 6 Zeichen haben";
+    const passwordResult = passwordSchema.safeParse(newPassword);
+    if (!passwordResult.success) {
+      newErrors.newPassword = passwordResult.error.errors[0]?.message || "Ungültiges Passwort";
     }
 
     if (!confirmPassword) {
