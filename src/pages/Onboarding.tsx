@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
 import { Step1Identity } from "@/components/onboarding/Step1Identity";
 import { Step2Demographics } from "@/components/onboarding/Step2Demographics";
@@ -16,6 +18,7 @@ import lomariaLogo from "@/assets/lomaria-logo.png";
 export default function Onboarding() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const { step, data, updateData, nextStep, prevStep, showTutoringStep } = useOnboarding();
   const [saving, setSaving] = useState(false);
 
@@ -41,10 +44,37 @@ export default function Onboarding() {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      toast({ title: "Nicht angemeldet", variant: "destructive" });
+      return;
+    }
+
     setSaving(true);
     try {
-      // TODO: Save to database when auth is implemented
-      console.log("Onboarding data to save:", data);
+      const { error } = await supabase
+        .from("users")
+        .upsert({
+          auth_user_id: user.id,
+          email: user.email!,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          profile_image: data.profile_image,
+          birthyear: data.birthyear,
+          gender: data.gender,
+          study_program: data.study_program,
+          semester: data.semester,
+          focus: data.focus || null,
+          intents: data.intents,
+          interests: data.interests,
+          tutoring_subject: data.tutoring_subject || null,
+          tutoring_desc: data.tutoring_desc || null,
+          tutoring_price: data.tutoring_price || null,
+          bio: data.bio || null,
+          last_active_at: new Date().toISOString(),
+        }, { onConflict: "auth_user_id" });
+
+      if (error) throw error;
+
       toast({ title: "Profil gespeichert!" });
       navigate("/discover");
     } catch (err) {
