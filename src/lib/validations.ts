@@ -13,7 +13,9 @@ export const emailSchema = z
 
 export const passwordSchema = z
   .string()
-  .min(10, { message: "Passwort muss mindestens 10 Zeichen haben" });
+  .min(8, { message: "Passwort muss mindestens 8 Zeichen haben" })
+  .regex(/[0-9]/, { message: "Passwort muss mindestens 1 Zahl enthalten" })
+  .regex(/[!@#$%^&*(),.?":{}|<>]/, { message: "Passwort muss mindestens 1 Sonderzeichen enthalten" });
 
 export const authSchema = z.object({
   email: emailSchema,
