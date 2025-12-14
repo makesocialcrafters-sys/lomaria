@@ -2,16 +2,25 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { authSchema, type AuthFormData } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import lomariaLogo from "@/assets/lomaria-logo.png";
 
+const emailSchema = z.object({
+  email: z.string().email("Ungültige E-Mail-Adresse"),
+});
+
+type ForgotPasswordView = "auth" | "forgot";
+
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [view, setView] = useState<ForgotPasswordView>("auth");
   const { user, loading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,10 +34,17 @@ export default function Auth() {
     resolver: zodResolver(authSchema),
   });
 
+  const {
+    register: registerForgot,
+    handleSubmit: handleSubmitForgot,
+    formState: { errors: forgotErrors },
+  } = useForm<{ email: string }>({
+    resolver: zodResolver(emailSchema),
+  });
+
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
-      // User is logged in, check profile in ProtectedRoute
       navigate("/discover");
     }
   }, [user, loading, navigate]);
@@ -60,13 +76,35 @@ export default function Auth() {
           }
           toast({ title: message, variant: "destructive" });
         } else {
-          // Email confirmation required
           toast({
             title: "Bestätigungs-E-Mail gesendet",
             description: "Bitte öffne deine E-Mail und klicke auf den Bestätigungs-Link.",
           });
-          // Stay on auth page, user needs to verify email first
         }
+      }
+    } catch (err) {
+      toast({ title: "Ein Fehler ist aufgetreten", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const onForgotSubmit = async (data: { email: string }) => {
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        toast({ title: "Fehler beim Senden", variant: "destructive" });
+      } else {
+        toast({
+          title: "E-Mail gesendet",
+          description: "Falls ein Konto existiert, erhältst du einen Link zum Zurücksetzen.",
+        });
+        setView("auth");
       }
     } catch (err) {
       toast({ title: "Ein Fehler ist aufgetreten", variant: "destructive" });
@@ -90,18 +128,60 @@ export default function Auth() {
     );
   }
 
+  // Forgot Password View
+  if (view === "forgot") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 animate-page-enter">
+        <div className="mb-12">
+          <img src={lomariaLogo} alt="Lomaria" className="h-12 w-auto" />
+        </div>
+
+        <h1 className="font-display text-2xl font-bold uppercase tracking-[0.2em] text-primary mb-2">
+          PASSWORT VERGESSEN
+        </h1>
+        <p className="text-muted-foreground text-sm mb-10 text-center">
+          Gib deine E-Mail ein, um einen Reset-Link zu erhalten
+        </p>
+
+        <form onSubmit={handleSubmitForgot(onForgotSubmit)} className="w-full max-w-sm space-y-6">
+          <div className="space-y-1">
+            <Input
+              type="email"
+              placeholder="E-Mail"
+              className="input-elegant"
+              {...registerForgot("email")}
+            />
+            {forgotErrors.email && (
+              <p className="text-destructive text-xs mt-1">{forgotErrors.email.message}</p>
+            )}
+          </div>
+
+          <div className="pt-4 flex justify-center">
+            <Button type="submit" disabled={isSubmitting} className="btn-premium">
+              {isSubmitting ? "..." : "Link senden"}
+            </Button>
+          </div>
+        </form>
+
+        <div className="mt-8 text-center">
+          <button
+            type="button"
+            onClick={() => setView("auth")}
+            className="text-muted-foreground text-sm hover:text-foreground transition-colors duration-150"
+          >
+            Zurück zur <span className="text-primary">Anmeldung</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 animate-page-enter">
-      {/* Logo */}
       <div className="mb-12">
-        <img 
-          src={lomariaLogo} 
-          alt="Lomaria" 
-          className="h-12 w-auto"
-        />
+        <img src={lomariaLogo} alt="Lomaria" className="h-12 w-auto" />
       </div>
 
-      {/* Title */}
       <h1 className="font-display text-2xl font-bold uppercase tracking-[0.2em] text-primary mb-2">
         {isLogin ? "ANMELDEN" : "REGISTRIEREN"}
       </h1>
@@ -109,7 +189,6 @@ export default function Auth() {
         Exklusives Netzwerk für WU-Studierende
       </p>
 
-      {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm space-y-6">
         <div className="space-y-1">
           <Input
@@ -135,18 +214,25 @@ export default function Auth() {
           )}
         </div>
 
+        {isLogin && (
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={() => setView("forgot")}
+              className="text-muted-foreground text-xs hover:text-primary transition-colors duration-150"
+            >
+              Passwort vergessen?
+            </button>
+          </div>
+        )}
+
         <div className="pt-4 flex justify-center">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="btn-premium"
-          >
+          <Button type="submit" disabled={isSubmitting} className="btn-premium">
             {isSubmitting ? "..." : isLogin ? "Anmelden" : "Registrieren"}
           </Button>
         </div>
       </form>
 
-      {/* Toggle */}
       <div className="mt-8 text-center">
         <button
           type="button"
@@ -161,7 +247,6 @@ export default function Auth() {
         </button>
       </div>
 
-      {/* Testing notice */}
       <p className="mt-8 text-muted-foreground/50 text-xs text-center">
         Testmodus: @gmail.com erlaubt
       </p>
