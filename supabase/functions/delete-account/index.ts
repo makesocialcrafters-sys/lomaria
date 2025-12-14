@@ -47,7 +47,36 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Delete user data from public.users first
+    // First get the user's public.users id
+    const { data: userData } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("auth_user_id", user.id)
+      .single();
+
+    if (userData) {
+      // Delete all messages where user is sender
+      const { error: deleteMessagesError } = await supabaseAdmin
+        .from("messages")
+        .delete()
+        .eq("sender_id", userData.id);
+
+      if (deleteMessagesError) {
+        console.error("Error deleting messages:", deleteMessagesError);
+      }
+
+      // Delete all connections where user is involved
+      const { error: deleteConnectionsError } = await supabaseAdmin
+        .from("connections")
+        .delete()
+        .or(`from_user.eq.${userData.id},to_user.eq.${userData.id}`);
+
+      if (deleteConnectionsError) {
+        console.error("Error deleting connections:", deleteConnectionsError);
+      }
+    }
+
+    // Delete user data from public.users
     const { error: deleteDataError } = await supabaseAdmin
       .from("users")
       .delete()
@@ -55,7 +84,6 @@ serve(async (req) => {
 
     if (deleteDataError) {
       console.error("Error deleting user data:", deleteDataError);
-      // Continue anyway - the auth user deletion is more important
     }
 
     // Delete storage files (avatars)
