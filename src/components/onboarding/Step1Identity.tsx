@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { User, Camera } from "lucide-react";
+import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -86,9 +86,6 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
           ) : (
             <User className="w-12 h-12 text-muted-foreground" />
           )}
-          <div className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-            <Camera className="w-4 h-4 text-primary-foreground" />
-          </div>
           {uploading && (
             <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
               <div className="h-0.5 w-12 bg-muted overflow-hidden rounded-full">
