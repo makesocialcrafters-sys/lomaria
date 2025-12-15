@@ -70,6 +70,52 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          connection_id: string
+          created_at: string
+          id: string
+          sender_id: string
+          text: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          text: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           auth_user_id: string
