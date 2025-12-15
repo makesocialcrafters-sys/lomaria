@@ -45,9 +45,17 @@ export default function Onboarding() {
 
   const handleSave = async () => {
     if (!user) {
+      console.log("[Onboarding] No user found, cannot save");
       toast({ title: "Nicht angemeldet", variant: "destructive" });
       return;
     }
+
+    // DEBUG: Verify session is still active
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log("[Onboarding] Current session before save:", {
+      hasSession: !!sessionData.session,
+      userId: sessionData.session?.user?.id
+    });
 
     setSaving(true);
     try {
@@ -69,6 +77,8 @@ export default function Onboarding() {
         last_active_at: new Date().toISOString(),
       };
 
+      console.log("[Onboarding] Saving profile data for user:", user.id);
+
       // Check if user record already exists
       const { data: existingUser, error: checkError } = await supabase
         .from("users")
@@ -77,9 +87,11 @@ export default function Onboarding() {
         .maybeSingle();
 
       if (checkError) {
-        console.error("Check error:", checkError);
+        console.error("[Onboarding] Check error:", checkError);
         throw checkError;
       }
+
+      console.log("[Onboarding] Existing user check:", { exists: !!existingUser });
 
       let saveError;
       if (existingUser) {
@@ -89,6 +101,7 @@ export default function Onboarding() {
           .update(profileData)
           .eq("auth_user_id", user.id);
         saveError = error;
+        console.log("[Onboarding] Update result:", { error });
       } else {
         // Insert new record
         const { error } = await supabase
@@ -99,17 +112,27 @@ export default function Onboarding() {
             ...profileData,
           });
         saveError = error;
+        console.log("[Onboarding] Insert result:", { error });
       }
 
       if (saveError) throw saveError;
 
+      console.log("[Onboarding] Profile saved successfully");
+      
+      // Verify session is STILL active after save
+      const { data: postSaveSession } = await supabase.auth.getSession();
+      console.log("[Onboarding] Session after save:", {
+        hasSession: !!postSaveSession.session,
+        userId: postSaveSession.session?.user?.id
+      });
+
       toast({ title: "Profil gespeichert!" });
       
-      // Small delay to ensure data is committed before navigation
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Navigate to discover - session should still be active
+      console.log("[Onboarding] Navigating to /discover");
       navigate("/discover", { replace: true });
     } catch (err) {
-      console.error("Save error:", err);
+      console.error("[Onboarding] Save error:", err);
       toast({ title: "Fehler beim Speichern", variant: "destructive" });
     } finally {
       setSaving(false);
