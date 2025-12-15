@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAppState } from "@/contexts/AppStateContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
@@ -19,6 +20,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { refreshOnboardingStatus } = useAppState();
   const { step, data, updateData, nextStep, prevStep, showTutoringStep } = useOnboarding();
   const [saving, setSaving] = useState(false);
 
@@ -127,6 +129,9 @@ export default function Onboarding() {
       });
 
       toast({ title: "Profil gespeichert!" });
+      
+      // Refresh onboarding status in global state before navigating
+      await refreshOnboardingStatus();
       
       // Navigate to discover - session should still be active
       console.log("[Onboarding] Navigating to /discover");
