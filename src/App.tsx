@@ -11,7 +11,9 @@ import Onboarding from "./pages/Onboarding";
 import Discover from "./pages/Discover";
 import ProfileDetail from "./pages/ProfileDetail";
 import Contacts from "./pages/Contacts";
+import RequestDetail from "./pages/RequestDetail";
 import Chats from "./pages/Chats";
+import ChatDetail from "./pages/ChatDetail";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -63,10 +65,26 @@ const App = () => (
               } 
             />
             <Route 
+              path="/contacts/request/:connectionId"
+              element={
+                <ProtectedRoute>
+                  <RequestDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/chats" 
               element={
                 <ProtectedRoute>
                   <Chats />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/chats/:connectionId" 
+              element={
+                <ProtectedRoute>
+                  <ChatDetail />
                 </ProtectedRoute>
               } 
             />
