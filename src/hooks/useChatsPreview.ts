@@ -1,0 +1,98 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+export interface ChatPreview {
+  connectionId: string;
+  otherUser: {
+    id: string;
+    first_name: string;
+    profile_image: string | null;
+    study_program: string | null;
+  };
+  lastMessage: {
+    text: string;
+    created_at: string;
+  } | null;
+}
+
+export function useChatsPreview() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ["chats-preview", user?.id],
+    queryFn: async (): Promise<ChatPreview[]> => {
+      if (!user) return [];
+
+      // Get current user's profile ID
+      const { data: currentUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (!currentUser) return [];
+
+      // Load accepted connections
+      const { data: acceptedData } = await supabase
+        .from("connections")
+        .select("id, from_user, to_user")
+        .eq("status", "accepted")
+        .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`);
+
+      if (!acceptedData || acceptedData.length === 0) return [];
+
+      // Get other user IDs
+      const otherUserIds = acceptedData.map((c) =>
+        c.from_user === currentUser.id ? c.to_user : c.from_user
+      );
+
+      // Get other user profiles
+      const { data: otherProfiles } = await supabase
+        .from("user_profiles")
+        .select("id, first_name, profile_image, study_program")
+        .in("id", otherUserIds);
+
+      // Get last message for each connection
+      const connectionIds = acceptedData.map((c) => c.id);
+      const { data: messages } = await supabase
+        .from("messages")
+        .select("connection_id, text, created_at")
+        .in("connection_id", connectionIds)
+        .order("created_at", { ascending: false });
+
+      // Build chat previews
+      const chatPreviews: ChatPreview[] = acceptedData.map((conn) => {
+        const otherId = conn.from_user === currentUser.id ? conn.to_user : conn.from_user;
+        const other = otherProfiles?.find((p) => p.id === otherId);
+        const lastMsg = messages?.find((m) => m.connection_id === conn.id);
+
+        return {
+          connectionId: conn.id,
+          otherUser: {
+            id: otherId,
+            first_name: other?.first_name || "Unbekannt",
+            profile_image: other?.profile_image || null,
+            study_program: other?.study_program || null,
+          },
+          lastMessage: lastMsg
+            ? { text: lastMsg.text, created_at: lastMsg.created_at }
+            : null,
+        };
+      });
+
+      // Sort by last message timestamp
+      chatPreviews.sort((a, b) => {
+        if (!a.lastMessage && !b.lastMessage) return 0;
+        if (!a.lastMessage) return 1;
+        if (!b.lastMessage) return -1;
+        return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
+      });
+
+      return chatPreviews;
+    },
+    enabled: !!user,
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+}

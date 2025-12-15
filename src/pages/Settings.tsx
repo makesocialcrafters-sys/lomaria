@@ -150,6 +150,14 @@ export default function Settings() {
       <div className="mx-auto max-w-lg px-4 py-8">
         {/* Header */}
         <div className="mb-8">
+          {view === "main" && (
+            <button
+              onClick={() => navigate(-1)}
+              className="mb-4 text-sm text-muted-foreground hover:text-foreground"
+            >
+              ← Zurück
+            </button>
+          )}
           {view !== "main" && (
             <button
               onClick={() => setView("main")}

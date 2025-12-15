@@ -112,6 +112,11 @@ export default function ProfileDetail() {
     keine_angabe: "Keine Angabe",
   };
 
+  // Use navigate(-1) for proper back navigation
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -124,7 +129,7 @@ export default function ProfileDetail() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
         <p className="text-muted-foreground mb-4">Profil nicht gefunden</p>
-        <Button variant="outline" onClick={() => navigate("/discover")}>
+        <Button variant="outline" onClick={handleBack}>
           Zurück
         </Button>
       </div>
@@ -136,7 +141,7 @@ export default function ProfileDetail() {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background border-b border-border/30 px-4 py-3">
         <button
-          onClick={() => navigate("/discover")}
+          onClick={handleBack}
           className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />

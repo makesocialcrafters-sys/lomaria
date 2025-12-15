@@ -174,7 +174,7 @@ export default function RequestDetail() {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background border-b border-border/30 px-4 py-3">
         <button
-          onClick={() => navigate("/contacts")}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
