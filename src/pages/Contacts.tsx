@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { IncomingRequestCard } from "@/components/contacts/IncomingRequestCard";
-import { ConnectionCard } from "@/components/contacts/ConnectionCard";
+
 import { STUDY_PROGRAMS } from "@/lib/onboarding-constants";
 import lomariaLogo from "@/assets/lomaria-logo.png";
 
@@ -19,20 +19,11 @@ interface IncomingRequest {
   };
 }
 
-interface Connection {
-  id: string;
-  otherUser: {
-    first_name: string;
-    profile_image: string | null;
-    study_program: string | null;
-  };
-}
 
 export default function Contacts() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [incomingRequests, setIncomingRequests] = useState<IncomingRequest[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]);
 
   useEffect(() => {
     async function loadContacts() {
@@ -82,38 +73,6 @@ export default function Contacts() {
           setIncomingRequests(requests);
         }
 
-        // Load accepted connections
-        const { data: acceptedData } = await supabase
-          .from("connections")
-          .select("id, from_user, to_user")
-          .eq("status", "accepted")
-          .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`);
-
-        if (acceptedData && acceptedData.length > 0) {
-          // Get other user IDs
-          const otherUserIds = acceptedData.map((c) =>
-            c.from_user === currentUser.id ? c.to_user : c.from_user
-          );
-
-          const { data: otherProfiles } = await supabase
-            .from("user_profiles")
-            .select("id, first_name, profile_image, study_program")
-            .in("id", otherUserIds);
-
-          const conns: Connection[] = acceptedData.map((conn) => {
-            const otherId = conn.from_user === currentUser.id ? conn.to_user : conn.from_user;
-            const other = otherProfiles?.find((p) => p.id === otherId);
-            return {
-              id: conn.id,
-              otherUser: {
-                first_name: other?.first_name || "Unbekannt",
-                profile_image: other?.profile_image || null,
-                study_program: other?.study_program || null,
-              },
-            };
-          });
-          setConnections(conns);
-        }
       } catch (err) {
         console.error("Error loading contacts:", err);
       } finally {
@@ -179,29 +138,6 @@ export default function Contacts() {
             )}
           </section>
 
-          {/* Connections Section */}
-          <section>
-            <h2 className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
-              Verbindungen ({connections.length})
-            </h2>
-            {connections.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center">
-                Noch keine Verbindungen
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {connections.map((conn) => (
-                  <ConnectionCard
-                    key={conn.id}
-                    connectionId={conn.id}
-                    userName={conn.otherUser.first_name}
-                    userImage={conn.otherUser.profile_image}
-                    studyProgram={getStudyProgramLabel(conn.otherUser.study_program)}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
         </div>
       </div>
     </MainLayout>
