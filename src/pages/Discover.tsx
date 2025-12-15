@@ -125,8 +125,7 @@ export default function Discover() {
   };
 
   const handleProfileClick = (profileId: string) => {
-    // TODO: Navigate to profile detail
-    console.log("Profile clicked:", profileId);
+    navigate(`/profile/${profileId}`);
   };
 
   if (loading) {
