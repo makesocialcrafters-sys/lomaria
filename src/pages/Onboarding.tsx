@@ -51,32 +51,63 @@ export default function Onboarding() {
 
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("users")
-        .upsert({
-          auth_user_id: user.id,
-          email: user.email!,
-          first_name: data.first_name,
-          last_name: data.last_name,
-          profile_image: data.profile_image,
-          birthyear: data.birthyear,
-          gender: data.gender,
-          study_program: data.study_program,
-          semester: data.semester,
-          focus: data.focus || null,
-          intents: data.intents,
-          interests: data.interests,
-          tutoring_subject: data.tutoring_subject || null,
-          tutoring_desc: data.tutoring_desc || null,
-          tutoring_price: data.tutoring_price || null,
-          bio: data.bio || null,
-          last_active_at: new Date().toISOString(),
-        }, { onConflict: "auth_user_id" });
+      const profileData = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        profile_image: data.profile_image,
+        birthyear: data.birthyear,
+        gender: data.gender,
+        study_program: data.study_program,
+        semester: data.semester,
+        focus: data.focus || null,
+        intents: data.intents,
+        interests: data.interests,
+        tutoring_subject: data.tutoring_subject || null,
+        tutoring_desc: data.tutoring_desc || null,
+        tutoring_price: data.tutoring_price || null,
+        bio: data.bio || null,
+        last_active_at: new Date().toISOString(),
+      };
 
-      if (error) throw error;
+      // Check if user record already exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error("Check error:", checkError);
+        throw checkError;
+      }
+
+      let saveError;
+      if (existingUser) {
+        // Update existing record
+        const { error } = await supabase
+          .from("users")
+          .update(profileData)
+          .eq("auth_user_id", user.id);
+        saveError = error;
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from("users")
+          .insert({
+            auth_user_id: user.id,
+            email: user.email!,
+            ...profileData,
+          });
+        saveError = error;
+      }
+
+      if (saveError) throw saveError;
 
       toast({ title: "Profil gespeichert!" });
-      navigate("/discover");
+      
+      // Small delay to ensure data is committed before navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      navigate("/discover", { replace: true });
     } catch (err) {
       console.error("Save error:", err);
       toast({ title: "Fehler beim Speichern", variant: "destructive" });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,47 +14,48 @@ export function ProtectedRoute({ children, requireOnboarding = true }: Protected
   const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
   const [checkingProfile, setCheckingProfile] = useState(true);
 
-  useEffect(() => {
-    async function checkProfile() {
-      if (!user) {
-        setCheckingProfile(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("first_name, last_name, study_program, intents, interests")
-          .eq("auth_user_id", user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error("Error checking profile:", error);
-          setProfileComplete(false);
-        } else if (!data) {
-          // No profile exists yet
-          setProfileComplete(false);
-        } else {
-          // Check if essential onboarding fields are filled
-          const isComplete = !!(
-            data.first_name &&
-            data.last_name &&
-            data.study_program &&
-            data.intents?.length >= 3 &&
-            data.interests?.length >= 3
-          );
-          setProfileComplete(isComplete);
-        }
-      } catch (err) {
-        console.error("Profile check error:", err);
-        setProfileComplete(false);
-      } finally {
-        setCheckingProfile(false);
-      }
+  const checkProfile = useCallback(async () => {
+    if (!user) {
+      setCheckingProfile(false);
+      setProfileComplete(null);
+      return;
     }
 
-    checkProfile();
+    setCheckingProfile(true);
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("first_name, last_name, study_program, intents, interests")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking profile:", error);
+        setProfileComplete(false);
+      } else if (!data) {
+        setProfileComplete(false);
+      } else {
+        const isComplete = !!(
+          data.first_name &&
+          data.last_name &&
+          data.study_program &&
+          data.intents?.length >= 3 &&
+          data.interests?.length >= 3
+        );
+        setProfileComplete(isComplete);
+      }
+    } catch (err) {
+      console.error("Profile check error:", err);
+      setProfileComplete(false);
+    } finally {
+      setCheckingProfile(false);
+    }
   }, [user]);
+
+  // Re-check profile when user or pathname changes
+  useEffect(() => {
+    checkProfile();
+  }, [checkProfile, location.pathname]);
 
   // Show loading state
   if (loading || checkingProfile) {
