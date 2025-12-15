@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoldLoader } from "@/components/ui/gold-loader";
+import { useChatData } from "@/hooks/useChatData";
 
 interface Message {
   id: string;
@@ -14,22 +15,13 @@ interface Message {
   created_at: string;
 }
 
-interface OtherUser {
-  id: string;
-  first_name: string | null;
-  profile_image: string | null;
-  study_program: string | null;
-}
-
 export default function ChatDetail() {
   const { connectionId } = useParams<{ connectionId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [otherUser, setOtherUser] = useState<OtherUser | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: chatData, isLoading, addMessage } = useChatData(connectionId, user?.id);
+  
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   
@@ -39,72 +31,12 @@ export default function ChatDetail() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Redirect if no valid chat data after loading
   useEffect(() => {
-    async function loadChat() {
-      if (!connectionId || !user) return;
-
-      try {
-        // Get current user's profile ID
-        const { data: currentUser } = await supabase
-          .from("users")
-          .select("id")
-          .eq("auth_user_id", user.id)
-          .maybeSingle();
-
-        if (!currentUser) {
-          navigate("/chats");
-          return;
-        }
-        setCurrentUserId(currentUser.id);
-
-        // Get the connection
-        const { data: connection, error: connError } = await supabase
-          .from("connections")
-          .select("id, from_user, to_user, status")
-          .eq("id", connectionId)
-          .maybeSingle();
-
-        if (connError || !connection || connection.status !== "accepted") {
-          navigate("/chats");
-          return;
-        }
-
-        // Determine the other user
-        const otherUserId = connection.from_user === currentUser.id 
-          ? connection.to_user 
-          : connection.from_user;
-
-        // Get other user's profile
-        const { data: otherUserProfile } = await supabase
-          .from("user_profiles")
-          .select("id, first_name, profile_image, study_program")
-          .eq("id", otherUserId)
-          .maybeSingle();
-
-        if (otherUserProfile) {
-          setOtherUser(otherUserProfile);
-        }
-
-        // Load messages
-        const { data: messagesData } = await supabase
-          .from("messages")
-          .select("*")
-          .eq("connection_id", connectionId)
-          .order("created_at", { ascending: true });
-
-        if (messagesData) {
-          setMessages(messagesData);
-        }
-      } catch (err) {
-        console.error("Error:", err);
-        navigate("/chats");
-      } finally {
-        setLoading(false);
-      }
+    if (!isLoading && !chatData && connectionId) {
+      navigate("/chats");
     }
-
-    loadChat();
-  }, [connectionId, user, navigate]);
+  }, [isLoading, chatData, connectionId, navigate]);
 
   // Subscribe to realtime messages
   useEffect(() => {
@@ -122,7 +54,7 @@ export default function ChatDetail() {
         },
         (payload) => {
           const newMsg = payload.new as Message;
-          setMessages((prev) => [...prev, newMsg]);
+          addMessage(newMsg);
         }
       )
       .subscribe();
@@ -130,15 +62,15 @@ export default function ChatDetail() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [connectionId]);
+  }, [connectionId, addMessage]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [chatData?.messages]);
 
   const handleSend = async () => {
-    if (!newMessage.trim() || !currentUserId || !connectionId) return;
+    if (!newMessage.trim() || !chatData?.currentUserId || !connectionId) return;
     
     setSending(true);
     const messageText = newMessage.trim();
@@ -147,13 +79,13 @@ export default function ChatDetail() {
     try {
       const { error } = await supabase.from("messages").insert({
         connection_id: connectionId,
-        sender_id: currentUserId,
+        sender_id: chatData.currentUserId,
         text: messageText,
       });
 
       if (error) {
         console.error("Error sending message:", error);
-        setNewMessage(messageText); // Restore message on error
+        setNewMessage(messageText);
       }
     } catch (err) {
       console.error("Error:", err);
@@ -170,13 +102,18 @@ export default function ChatDetail() {
     }
   };
 
-  if (loading) {
+  // Show loader only on initial load when no cached data exists
+  if (isLoading && !chatData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <GoldLoader />
       </div>
     );
   }
+
+  const messages = chatData?.messages || [];
+  const otherUser = chatData?.otherUser;
+  const currentUserId = chatData?.currentUserId;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
