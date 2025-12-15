@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      connections: {
+        Row: {
+          created_at: string
+          from_user: string
+          id: string
+          message: string | null
+          status: string
+          to_user: string
+        }
+        Insert: {
+          created_at?: string
+          from_user: string
+          id?: string
+          message?: string | null
+          status?: string
+          to_user: string
+        }
+        Update: {
+          created_at?: string
+          from_user?: string
+          id?: string
+          message?: string | null
+          status?: string
+          to_user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_from_user_fkey"
+            columns: ["from_user"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_from_user_fkey"
+            columns: ["from_user"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_to_user_fkey"
+            columns: ["to_user"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_to_user_fkey"
+            columns: ["to_user"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           auth_user_id: string

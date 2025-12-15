@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { STUDY_PROGRAMS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 
 interface UserProfile {
@@ -20,7 +21,16 @@ interface UserProfileCardProps {
 }
 
 export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
+
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      navigate(`/profile/${user.id}`);
+    }
+  };
   const age = user.birthyear ? currentYear - user.birthyear : null;
 
   const studyProgramLabel = STUDY_PROGRAMS.find(
@@ -37,8 +47,8 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
 
   return (
     <div
-      onClick={onClick}
-      className="bg-card border border-border/50 rounded-md p-4 cursor-pointer hover:border-primary/30 transition-colors duration-150 animate-fade-in"
+      onClick={handleClick}
+      className="bg-card border border-border/50 rounded-md p-4 cursor-pointer hover:border-primary/30 transition-colors duration-150"
     >
       <div className="flex items-start gap-4">
         {/* Profile Image */}

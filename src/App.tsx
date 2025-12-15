@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Discover from "./pages/Discover";
+import ProfileDetail from "./pages/ProfileDetail";
 import Contacts from "./pages/Contacts";
 import Chats from "./pages/Chats";
 import Profile from "./pages/Profile";
@@ -46,7 +47,15 @@ const App = () => (
               } 
             />
             <Route 
-              path="/contacts" 
+              path="/profile/:userId" 
+              element={
+                <ProtectedRoute>
+                  <ProfileDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/contacts"
               element={
                 <ProtectedRoute>
                   <Contacts />
