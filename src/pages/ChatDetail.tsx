@@ -189,30 +189,35 @@ export default function ChatDetail() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         
-        <div className="w-10 h-10 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
-          {otherUser?.profile_image ? (
-            <img
-              src={otherUser.profile_image}
-              alt={otherUser.first_name || "User"}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm font-medium">
-              {otherUser?.first_name?.charAt(0)?.toUpperCase() || "?"}
-            </div>
-          )}
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground truncate">
-            {otherUser?.first_name || "Chat"}
-          </p>
-          {otherUser?.study_program && (
-            <p className="text-xs text-muted-foreground truncate">
-              {otherUser.study_program}
+        <button
+          onClick={() => otherUser?.id && navigate(`/profile/${otherUser.id}`)}
+          className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+        >
+          <div className="w-10 h-10 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
+            {otherUser?.profile_image ? (
+              <img
+                src={otherUser.profile_image}
+                alt={otherUser.first_name || "User"}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm font-medium">
+                {otherUser?.first_name?.charAt(0)?.toUpperCase() || "?"}
+              </div>
+            )}
+          </div>
+          
+          <div className="flex-1 min-w-0 text-left">
+            <p className="font-medium text-foreground truncate">
+              {otherUser?.first_name || "Chat"}
             </p>
-          )}
-        </div>
+            {otherUser?.study_program && (
+              <p className="text-xs text-muted-foreground truncate">
+                {otherUser.study_program}
+              </p>
+            )}
+          </div>
+        </button>
       </header>
 
       {/* Messages */}
