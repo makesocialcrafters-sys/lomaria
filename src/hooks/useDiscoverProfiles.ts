@@ -8,9 +8,9 @@ export interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
-  birthyear: number | null;
+  age: number | null;
   study_program: string | null;
-  semester: string | null;
+  study_phase: string | null;
   intents: string[] | null;
   interests: string[] | null;
   tutoring_subject: string | null;
@@ -62,8 +62,8 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
       return (data || []) as UserProfile[];
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -82,6 +82,6 @@ export function useTutoringSubjects() {
       }
       return [];
     },
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000,
   });
 }

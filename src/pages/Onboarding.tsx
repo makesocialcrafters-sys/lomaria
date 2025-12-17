@@ -65,11 +65,11 @@ export default function Onboarding() {
         first_name: data.first_name,
         last_name: data.last_name,
         profile_image: data.profile_image,
-        birthyear: data.birthyear,
+        age: data.age,
         gender: data.gender,
         study_program: data.study_program,
-        semester: data.semester,
-        focus: data.focus || null,
+        study_phase: data.study_phase,
+        focus: data.study_phase === "cbk_hauptstudium" ? (data.focus || null) : null,
         intents: data.intents,
         interests: data.interests,
         tutoring_subject: data.tutoring_subject || null,
@@ -173,7 +173,7 @@ export default function Onboarding() {
 
         {step === 2 && (
           <Step2Demographics
-            birthyear={data.birthyear}
+            age={data.age}
             gender={data.gender}
             onUpdate={updateData}
             onNext={handleNext}
@@ -184,7 +184,7 @@ export default function Onboarding() {
         {step === 3 && (
           <Step3Study
             studyProgram={data.study_program}
-            semester={data.semester}
+            studyPhase={data.study_phase}
             focus={data.focus}
             onUpdate={updateData}
             onNext={handleNext}

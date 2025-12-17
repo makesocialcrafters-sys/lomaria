@@ -118,6 +118,7 @@ export type Database = {
       }
       users: {
         Row: {
+          age: number | null
           auth_user_id: string
           bio: string | null
           birthyear: number | null
@@ -133,12 +134,14 @@ export type Database = {
           last_name: string | null
           profile_image: string | null
           semester: string | null
+          study_phase: string | null
           study_program: string | null
           tutoring_desc: string | null
           tutoring_price: number | null
           tutoring_subject: string | null
         }
         Insert: {
+          age?: number | null
           auth_user_id: string
           bio?: string | null
           birthyear?: number | null
@@ -154,12 +157,14 @@ export type Database = {
           last_name?: string | null
           profile_image?: string | null
           semester?: string | null
+          study_phase?: string | null
           study_program?: string | null
           tutoring_desc?: string | null
           tutoring_price?: number | null
           tutoring_subject?: string | null
         }
         Update: {
+          age?: number | null
           auth_user_id?: string
           bio?: string | null
           birthyear?: number | null
@@ -175,6 +180,7 @@ export type Database = {
           last_name?: string | null
           profile_image?: string | null
           semester?: string | null
+          study_phase?: string | null
           study_program?: string | null
           tutoring_desc?: string | null
           tutoring_price?: number | null

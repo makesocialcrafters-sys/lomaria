@@ -1,6 +1,6 @@
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { OnboardingData, STUDY_PROGRAMS, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { OnboardingData, STUDY_PROGRAMS, STUDY_PHASES, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 
 interface Step8Props {
   data: OnboardingData;
@@ -10,9 +10,6 @@ interface Step8Props {
 }
 
 export function Step8Preview({ data, onBack, onSave, saving }: Step8Props) {
-  const currentYear = new Date().getFullYear();
-  const age = data.birthyear ? currentYear - data.birthyear : null;
-
   const getLabel = (value: string | null, options: readonly { value: string; label: string }[]) =>
     options.find((o) => o.value === value)?.label ?? value;
 
@@ -48,7 +45,7 @@ export function Step8Preview({ data, onBack, onSave, saving }: Step8Props) {
           <div>
             <h3 className="font-display font-bold text-lg text-foreground">
               {data.first_name} {data.last_name}
-              {age && <span className="font-normal text-muted-foreground">, {age}</span>}
+              {data.age && <span className="font-normal text-muted-foreground">, {data.age}</span>}
             </h3>
             <p className="text-sm text-muted-foreground">
               {getLabel(data.gender, GENDERS)}
@@ -62,7 +59,7 @@ export function Step8Preview({ data, onBack, onSave, saving }: Step8Props) {
             {getLabel(data.study_program, STUDY_PROGRAMS)}
           </p>
           <p className="text-xs text-muted-foreground">
-            {data.semester}. Semester
+            {getLabel(data.study_phase, STUDY_PHASES)}
             {data.focus && <span> · {data.focus}</span>}
           </p>
         </div>

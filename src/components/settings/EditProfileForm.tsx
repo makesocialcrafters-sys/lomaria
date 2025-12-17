@@ -16,12 +16,12 @@ import {
   GENDERS,
   INTENTS,
   INTERESTS,
-  SEMESTERS,
+  STUDY_PHASES,
   STUDY_PROGRAMS,
   TUTORING_SUGGESTIONS,
 } from "@/lib/constants";
 import type { ProfileFormData } from "@/types/user";
-import type { Gender, Intent, Interest, Semester, StudyProgram } from "@/lib/constants";
+import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
 
 interface EditProfileFormProps {
   initialData: ProfileFormData;
@@ -39,7 +39,7 @@ export function EditProfileForm({
   const [formData, setFormData] = useState<ProfileFormData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const currentYear = new Date().getFullYear();
+  const showSchwerpunkt = formData.study_phase === "cbk_hauptstudium";
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -50,9 +50,9 @@ export function EditProfileForm({
     if (!formData.last_name.trim()) {
       newErrors.last_name = "Nachname ist erforderlich";
     }
-    if (formData.birthyear !== null) {
-      if (formData.birthyear < 1950 || formData.birthyear > currentYear) {
-        newErrors.birthyear = `Geburtsjahr muss zwischen 1950 und ${currentYear} liegen`;
+    if (formData.age !== null) {
+      if (formData.age < 16 || formData.age > 100) {
+        newErrors.age = "Alter muss zwischen 16 und 100 liegen";
       }
     }
     if (formData.intents.length < 3) {
@@ -89,7 +89,21 @@ export function EditProfileForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      await onSave(formData);
+      // Clear focus if not in CBK/Hauptstudium
+      const dataToSave = {
+        ...formData,
+        focus: showSchwerpunkt ? formData.focus : "",
+      };
+      await onSave(dataToSave);
+    }
+  };
+
+  const handleStudyPhaseChange = (value: string) => {
+    // Clear focus when switching to STEOP
+    if (value === "steop") {
+      setFormData((prev) => ({ ...prev, study_phase: value as StudyPhase, focus: "" }));
+    } else {
+      setFormData((prev) => ({ ...prev, study_phase: value as StudyPhase }));
     }
   };
 
@@ -133,22 +147,22 @@ export function EditProfileForm({
       {/* Demographics */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="birthyear">Geburtsjahr</Label>
+          <Label htmlFor="age">Alter</Label>
           <Input
-            id="birthyear"
+            id="age"
             type="number"
-            min={1950}
-            max={currentYear}
-            value={formData.birthyear ?? ""}
+            min={16}
+            max={100}
+            value={formData.age ?? ""}
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
-                birthyear: e.target.value ? parseInt(e.target.value) : null,
+                age: e.target.value ? parseInt(e.target.value) : null,
               }))
             }
-            className={errors.birthyear ? "border-destructive" : ""}
+            className={errors.age ? "border-destructive" : ""}
           />
-          {errors.birthyear && <p className="text-sm text-destructive">{errors.birthyear}</p>}
+          {errors.age && <p className="text-sm text-destructive">{errors.age}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="gender">Geschlecht</Label>
@@ -196,18 +210,16 @@ export function EditProfileForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="semester">Semester</Label>
+          <Label htmlFor="study_phase">Studienphase</Label>
           <Select
-            value={formData.semester ?? ""}
-            onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, semester: value as Semester }))
-            }
+            value={formData.study_phase ?? ""}
+            onValueChange={handleStudyPhaseChange}
           >
             <SelectTrigger>
               <SelectValue placeholder="Auswählen" />
             </SelectTrigger>
             <SelectContent>
-              {SEMESTERS.map((s) => (
+              {STUDY_PHASES.map((s) => (
                 <SelectItem key={s.value} value={s.value}>
                   {s.label}
                 </SelectItem>
@@ -215,15 +227,17 @@ export function EditProfileForm({
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="focus">Schwerpunkt (optional)</Label>
-          <Input
-            id="focus"
-            value={formData.focus}
-            onChange={(e) => setFormData((prev) => ({ ...prev, focus: e.target.value }))}
-            placeholder="z.B. Finance"
-          />
-        </div>
+        {showSchwerpunkt && (
+          <div className="space-y-2">
+            <Label htmlFor="focus">Schwerpunkt (optional)</Label>
+            <Input
+              id="focus"
+              value={formData.focus}
+              onChange={(e) => setFormData((prev) => ({ ...prev, focus: e.target.value }))}
+              placeholder="z.B. Finance"
+            />
+          </div>
+        )}
       </div>
 
       {/* Intents */}

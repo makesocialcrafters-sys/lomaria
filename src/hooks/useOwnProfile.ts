@@ -6,10 +6,10 @@ export interface OwnProfileData {
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
-  birthyear: number | null;
+  age: number | null;
   gender: string | null;
   study_program: string | null;
-  semester: string | null;
+  study_phase: string | null;
   focus: string | null;
   intents: string[] | null;
   interests: string[] | null;

@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOwnProfile } from "@/hooks/useOwnProfile";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
-import { STUDY_PROGRAMS, SEMESTERS, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { STUDY_PROGRAMS, STUDY_PHASES, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import lomariaLogo from "@/assets/lomaria-logo.png";
 
 export default function Profile() {
@@ -21,11 +21,9 @@ export default function Profile() {
     );
   }
 
-  const currentYear = new Date().getFullYear();
-  const age = userData?.birthyear ? currentYear - userData.birthyear : null;
   const genderLabel = GENDERS.find((g) => g.value === userData?.gender)?.label;
   const studyProgramLabel = STUDY_PROGRAMS.find((p) => p.value === userData?.study_program)?.label;
-  const semesterLabel = SEMESTERS.find((s) => s.value === userData?.semester)?.label;
+  const studyPhaseLabel = STUDY_PHASES.find((s) => s.value === userData?.study_phase)?.label;
 
   const intentLabels = (userData?.intents || [])
     .map((i) => INTENTS.find((intent) => intent.value === i)?.label)
@@ -81,8 +79,8 @@ export default function Profile() {
             {userData?.first_name} {userData?.last_name}
           </h2>
           <p className="text-muted-foreground">
-            {age && `${age} Jahre`}
-            {age && genderLabel && " · "}
+            {userData?.age && `${userData.age} Jahre`}
+            {userData?.age && genderLabel && " · "}
             {genderLabel}
           </p>
         </div>
@@ -91,7 +89,7 @@ export default function Profile() {
         <div className="text-center mb-6">
           <p className="text-foreground">{studyProgramLabel}</p>
           <p className="text-muted-foreground">
-            {semesterLabel}
+            {studyPhaseLabel}
             {userData?.focus && ` · ${userData.focus}`}
           </p>
         </div>

@@ -10,27 +10,22 @@ import {
 import { GENDERS } from "@/lib/onboarding-constants";
 
 interface Step2Props {
-  birthyear: number | null;
+  age: number | null;
   gender: string | null;
-  onUpdate: (data: { birthyear?: number | null; gender?: string | null }) => void;
+  onUpdate: (data: { age?: number | null; gender?: string | null }) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-export function Step2Demographics({ birthyear, gender, onUpdate, onNext, onBack }: Step2Props) {
-  const currentYear = new Date().getFullYear();
-  const isValid =
-    birthyear !== null &&
-    birthyear >= 1950 &&
-    birthyear <= currentYear &&
-    gender !== null;
+export function Step2Demographics({ age, gender, onUpdate, onNext, onBack }: Step2Props) {
+  const isValid = age !== null && age >= 16 && age <= 100 && gender !== null;
 
-  const handleBirthyearChange = (value: string) => {
-    const year = parseInt(value, 10);
-    if (!isNaN(year)) {
-      onUpdate({ birthyear: year });
+  const handleAgeChange = (value: string) => {
+    const parsedAge = parseInt(value, 10);
+    if (!isNaN(parsedAge)) {
+      onUpdate({ age: parsedAge });
     } else {
-      onUpdate({ birthyear: null });
+      onUpdate({ age: null });
     }
   };
 
@@ -45,14 +40,14 @@ export function Step2Demographics({ birthyear, gender, onUpdate, onNext, onBack 
 
       <div className="space-y-6">
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Geburtsjahr</label>
+          <label className="text-sm text-muted-foreground mb-2 block">Alter</label>
           <Input
             type="number"
-            placeholder="z.B. 2000"
-            value={birthyear ?? ""}
-            onChange={(e) => handleBirthyearChange(e.target.value)}
-            min={1950}
-            max={currentYear}
+            placeholder="z.B. 21"
+            value={age ?? ""}
+            onChange={(e) => handleAgeChange(e.target.value)}
+            min={16}
+            max={100}
             className="input-elegant"
           />
         </div>

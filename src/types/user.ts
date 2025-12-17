@@ -1,4 +1,4 @@
-import type { Gender, Intent, Interest, Semester, StudyProgram } from "@/lib/constants";
+import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
 
 export interface UserProfile {
   id: string;
@@ -7,10 +7,10 @@ export interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
-  birthyear: number | null;
+  age: number | null;
   gender: Gender | null;
   study_program: StudyProgram | null;
-  semester: Semester | null;
+  study_phase: StudyPhase | null;
   focus: string | null;
   intents: Intent[] | null;
   interests: Interest[] | null;
@@ -26,10 +26,10 @@ export interface ProfileFormData {
   first_name: string;
   last_name: string;
   profile_image: string | null;
-  birthyear: number | null;
+  age: number | null;
   gender: Gender | null;
   study_program: StudyProgram | null;
-  semester: Semester | null;
+  study_phase: StudyPhase | null;
   focus: string;
   intents: Intent[];
   interests: Interest[];
