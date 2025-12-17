@@ -28,6 +28,7 @@ interface EditProfileFormProps {
   onSave: (data: ProfileFormData) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
+  userId: string;
 }
 
 export function EditProfileForm({
@@ -35,6 +36,7 @@ export function EditProfileForm({
   onSave,
   onCancel,
   isLoading,
+  userId,
 }: EditProfileFormProps) {
   const [formData, setFormData] = useState<ProfileFormData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -117,6 +119,7 @@ export function EditProfileForm({
         <ProfileImageUpload
           value={formData.profile_image}
           onChange={(url) => setFormData((prev) => ({ ...prev, profile_image: url }))}
+          userId={userId}
         />
       </div>
 

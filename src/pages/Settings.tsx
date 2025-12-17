@@ -13,6 +13,7 @@ type SettingsView = "main" | "edit-profile" | "change-password";
 export default function Settings() {
   const [view, setView] = useState<SettingsView>("main");
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ export default function Settings() {
         navigate("/");
         return;
       }
+
+      setUserId(user.id);
 
       const { data, error } = await supabase
         .from("users")
@@ -207,12 +210,13 @@ export default function Settings() {
         )}
 
         {/* Edit Profile View */}
-        {view === "edit-profile" && (
+        {view === "edit-profile" && userId && (
           <EditProfileForm
             initialData={getInitialFormData()}
             onSave={handleSaveProfile}
             onCancel={() => setView("main")}
             isLoading={isSaving}
+            userId={userId}
           />
         )}
 
