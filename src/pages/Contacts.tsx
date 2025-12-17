@@ -1,7 +1,7 @@
 import { useIncomingRequests } from "@/hooks/useIncomingRequests";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { IncomingRequestCard } from "@/components/contacts/IncomingRequestCard";
-import { STUDY_PROGRAMS } from "@/lib/onboarding-constants";
+import { STUDY_PROGRAMS, STUDY_PHASES } from "@/lib/onboarding-constants";
 import lomariaLogo from "@/assets/lomaria-logo.png";
 
 export default function Contacts() {
@@ -10,6 +10,11 @@ export default function Contacts() {
   const getStudyProgramLabel = (value: string | null) => {
     if (!value) return null;
     return STUDY_PROGRAMS.find((p) => p.value === value)?.label || value;
+  };
+
+  const getStudyPhaseLabel = (value: string | null) => {
+    if (!value) return null;
+    return STUDY_PHASES.find((p) => p.value === value)?.label || value;
   };
 
   if (isLoading) {
@@ -23,17 +28,14 @@ export default function Contacts() {
   return (
     <div className="px-6 py-8 animate-page-enter">
       <div className="max-w-md mx-auto">
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src={lomariaLogo} alt="Lomaria" className="h-10 w-auto opacity-60" />
         </div>
 
-        {/* Title */}
         <h1 className="font-display text-lg font-bold uppercase tracking-[0.2em] text-primary text-center mb-8">
           KONTAKTE
         </h1>
 
-        {/* Incoming Requests Section */}
         <section className="mb-8">
           <h2 className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
             Anfragen ({incomingRequests.length})
@@ -51,7 +53,7 @@ export default function Contacts() {
                   senderName={req.sender.first_name}
                   senderImage={req.sender.profile_image}
                   studyProgram={getStudyProgramLabel(req.sender.study_program)}
-                  semester={req.sender.semester}
+                  studyPhase={getStudyPhaseLabel(req.sender.study_phase)}
                   message={req.message}
                 />
               ))}

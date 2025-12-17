@@ -14,10 +14,12 @@ interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
-  age: number | null;
+  age?: number | null;
+  birthyear?: number | null;
   gender: string | null;
   study_program: string | null;
-  study_phase: string | null;
+  study_phase?: string | null;
+  semester?: string | null;
   intents: string[] | null;
   interests: string[] | null;
   tutoring_subject: string | null;
@@ -63,7 +65,7 @@ export default function ProfileDetail() {
           return;
         }
 
-        setProfile(data);
+        setProfile(data as unknown as UserProfile);
 
         if (currentUserData) {
           const { data: connectionData } = await supabase
@@ -87,6 +89,10 @@ export default function ProfileDetail() {
   }, [userId, user]);
 
   const isOwnProfile = profile?.auth_user_id === user?.id;
+  const currentYear = new Date().getFullYear();
+  
+  // Support both age (new) and birthyear (old) fields
+  const age = profile?.age ?? (profile?.birthyear ? currentYear - profile.birthyear : null);
 
   const studyProgramLabel = STUDY_PROGRAMS.find((p) => p.value === profile?.study_program)?.label;
   const studyPhaseLabel = STUDY_PHASES.find((p) => p.value === profile?.study_phase)?.label;
@@ -145,7 +151,7 @@ export default function ProfileDetail() {
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-foreground">
             {profile.first_name}
-            {profile.age && <span className="font-normal text-muted-foreground ml-2">{profile.age}</span>}
+            {age && <span className="font-normal text-muted-foreground ml-2">{age}</span>}
           </h1>
           {profile.gender && (
             <p className="text-sm text-muted-foreground mt-1">{genderLabels[profile.gender] || profile.gender}</p>
