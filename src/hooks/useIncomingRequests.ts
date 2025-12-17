@@ -9,7 +9,7 @@ export interface IncomingRequest {
     first_name: string;
     profile_image: string | null;
     study_program: string | null;
-    semester: string | null;
+    study_phase: string | null;
   };
 }
 
@@ -21,7 +21,6 @@ export function useIncomingRequests() {
     queryFn: async (): Promise<IncomingRequest[]> => {
       if (!user) return [];
 
-      // Get current user's profile ID
       const { data: currentUser } = await supabase
         .from("users")
         .select("id")
@@ -30,7 +29,6 @@ export function useIncomingRequests() {
 
       if (!currentUser) return [];
 
-      // Load incoming pending requests
       const { data: pendingData } = await supabase
         .from("connections")
         .select("id, message, from_user")
@@ -39,11 +37,10 @@ export function useIncomingRequests() {
 
       if (!pendingData || pendingData.length === 0) return [];
 
-      // Get sender profiles
       const senderIds = pendingData.map((r) => r.from_user);
       const { data: senderProfiles } = await supabase
-        .from("user_profiles")
-        .select("id, first_name, profile_image, study_program, semester")
+        .from("users")
+        .select("id, first_name, profile_image, study_program, study_phase")
         .in("id", senderIds);
 
       return pendingData.map((req) => {
@@ -55,13 +52,13 @@ export function useIncomingRequests() {
             first_name: sender?.first_name || "Unbekannt",
             profile_image: sender?.profile_image || null,
             study_program: sender?.study_program || null,
-            semester: sender?.semester || null,
+            study_phase: sender?.study_phase || null,
           },
         };
       });
     },
     enabled: !!user,
-    staleTime: 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }

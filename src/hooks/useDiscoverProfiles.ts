@@ -8,9 +8,12 @@ export interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
-  age: number | null;
+  // Support both old and new fields
+  age?: number | null;
+  birthyear?: number | null;
   study_program: string | null;
-  study_phase: string | null;
+  study_phase?: string | null;
+  semester?: string | null;
   intents: string[] | null;
   interests: string[] | null;
   tutoring_subject: string | null;
@@ -59,7 +62,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         throw error;
       }
 
-      return (data || []) as UserProfile[];
+      return (data || []) as unknown as UserProfile[];
     },
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
