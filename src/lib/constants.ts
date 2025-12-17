@@ -1,28 +1,14 @@
 // Lomaria Constants - Study Programs, Intents, Interests
 
 export const STUDY_PROGRAMS = [
-  { value: "WiSo-BW", label: "WiSo – Betriebswirtschaft (BW)" },
-  { value: "WiSo-IBW", label: "WiSo – Internationale BWL (IBW)" },
-  { value: "WiSo-VW", label: "WiSo – Volkswirtschaft (VW)" },
-  { value: "WiSo-WUP", label: "WiSo – Wirtschafts- und Sozialpolitik (WUP)" },
-  { value: "WiSo-WINF", label: "WiSo – Wirtschaftsinformatik (WINF)" },
+  { value: "WiSo", label: "WiSo" },
   { value: "WiRe", label: "Wirtschaftsrecht (WiRe)" },
-  { value: "BBE", label: "Business and Economics (BBE)" },
+  { value: "BEE", label: "Business and Economics (BEE)" },
 ] as const;
 
-export const SEMESTERS = [
-  { value: "1", label: "1. Semester" },
-  { value: "2", label: "2. Semester" },
-  { value: "3", label: "3. Semester" },
-  { value: "4", label: "4. Semester" },
-  { value: "5", label: "5. Semester" },
-  { value: "6", label: "6. Semester" },
-  { value: "7", label: "7. Semester" },
-  { value: "8", label: "8. Semester" },
-  { value: "9", label: "9. Semester" },
-  { value: "10", label: "10. Semester" },
-  { value: "Master", label: "Master" },
-  { value: "Doktorat", label: "Doktorat" },
+export const STUDY_PHASES = [
+  { value: "steop", label: "STEOP-Phase" },
+  { value: "cbk_hauptstudium", label: "CBK / Hauptstudium" },
 ] as const;
 
 export const GENDERS = [
@@ -68,7 +54,7 @@ export const TUTORING_SUGGESTIONS = [
 ] as const;
 
 export type StudyProgram = typeof STUDY_PROGRAMS[number]["value"];
-export type Semester = typeof SEMESTERS[number]["value"];
+export type StudyPhase = typeof STUDY_PHASES[number]["value"];
 export type Gender = typeof GENDERS[number]["value"];
 export type Intent = typeof INTENTS[number]["value"];
 export type Interest = typeof INTERESTS[number]["value"];
