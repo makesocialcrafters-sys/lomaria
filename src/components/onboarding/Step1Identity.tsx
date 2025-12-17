@@ -5,6 +5,8 @@ import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { ImageCropDialog } from "@/components/ui/image-crop-dialog";
+import { validateImageFile, readFileAsDataURL } from "@/lib/image-utils";
 
 interface Step1Props {
   firstName: string;
@@ -16,48 +18,87 @@ interface Step1Props {
 
 export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onNext }: Step1Props) {
   const [uploading, setUploading] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const isValid = firstName.trim().length > 0 && lastName.trim().length > 0;
+  // Profile image is REQUIRED
+  const isValid = firstName.trim().length > 0 && lastName.trim().length > 0 && !!profileImage;
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast({ title: "Bitte wähle ein Bild aus", variant: "destructive" });
-      return;
-    }
+    // Reset input so same file can be selected again
+    e.target.value = "";
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Bild darf maximal 5MB groß sein", variant: "destructive" });
-      return;
-    }
-
-    setUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}/avatar.${fileExt}`;
+      // Validate file (type, size, resolution)
+      await validateImageFile(file);
 
+      // Read file as data URL for cropping
+      const dataUrl = await readFileAsDataURL(file);
+      setSelectedImageSrc(dataUrl);
+      setCropDialogOpen(true);
+    } catch (err) {
+      toast({
+        title: "Ungültiges Bild",
+        description: err instanceof Error ? err.message : "Bild konnte nicht geladen werden",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (!user) return;
+
+    setCropDialogOpen(false);
+    setUploading(true);
+
+    try {
+      const filePath = `${user.id}/avatar.jpg`;
+
+      // Upload to Supabase storage (upsert)
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, croppedBlob, {
+          upsert: true,
+          contentType: "image/jpeg",
+        });
 
       if (uploadError) throw uploadError;
 
+      // Get public URL
       const { data: publicUrl } = supabase.storage
         .from("avatars")
         .getPublicUrl(filePath);
 
-      onUpdate({ profile_image: publicUrl.publicUrl });
+      // Add cache buster to force reload
+      const urlWithCacheBuster = `${publicUrl.publicUrl}?t=${Date.now()}`;
+      onUpdate({ profile_image: urlWithCacheBuster });
+
+      toast({
+        title: "Bild hochgeladen",
+        description: "Dein Profilbild wurde gespeichert",
+      });
     } catch (err) {
       console.error("Upload error:", err);
-      toast({ title: "Fehler beim Hochladen", variant: "destructive" });
+      toast({
+        title: "Fehler beim Hochladen",
+        description: err instanceof Error ? err.message : "Bild konnte nicht hochgeladen werden",
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
+      setSelectedImageSrc(null);
     }
+  };
+
+  const handleCropDialogClose = () => {
+    setCropDialogOpen(false);
+    setSelectedImageSrc(null);
   };
 
   return (
@@ -70,7 +111,7 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
       </div>
 
       {/* Profile Image */}
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-2">
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -97,10 +138,13 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
+          accept="image/jpeg,image/jpg,image/png"
+          onChange={handleFileSelect}
           className="hidden"
         />
+        <p className="text-xs text-muted-foreground">
+          {profileImage ? "Tippen zum Ändern" : "Profilbild hochladen *"}
+        </p>
       </div>
 
       {/* Name Fields */}
@@ -124,6 +168,14 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
           Weiter
         </Button>
       </div>
+
+      {/* Crop Dialog */}
+      <ImageCropDialog
+        imageSrc={selectedImageSrc}
+        open={cropDialogOpen}
+        onClose={handleCropDialogClose}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 }
