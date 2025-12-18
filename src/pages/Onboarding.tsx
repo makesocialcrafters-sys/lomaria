@@ -21,7 +21,7 @@ export default function Onboarding() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { refreshOnboardingStatus } = useAppState();
-  const { step, data, updateData, nextStep, prevStep, showTutoringStep } = useOnboarding();
+  const { step, data, updateData, clearData, nextStep, prevStep, showTutoringStep } = useOnboarding();
   const [saving, setSaving] = useState(false);
 
   const handleNext = () => {
@@ -128,6 +128,9 @@ export default function Onboarding() {
         userId: postSaveSession.session?.user?.id
       });
 
+      // Clear localStorage draft after successful save
+      clearData();
+      
       toast({ title: "Profil gespeichert!" });
       
       // Refresh onboarding status in global state before navigating

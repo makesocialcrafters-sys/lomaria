@@ -1,12 +1,40 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { OnboardingData, initialOnboardingData } from "@/lib/onboarding-constants";
+
+const STORAGE_KEY = "lomaria_onboarding_draft";
 
 export function useOnboarding() {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<OnboardingData>(initialOnboardingData);
+  
+  // Initialize from localStorage
+  const [data, setData] = useState<OnboardingData>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return initialOnboardingData;
+  });
+
+  // Persist data to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [data]);
 
   const updateData = useCallback((updates: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const clearData = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setData(initialOnboardingData);
   }, []);
 
   const nextStep = useCallback(() => {
@@ -39,6 +67,7 @@ export function useOnboarding() {
     step,
     data,
     updateData,
+    clearData,
     nextStep,
     prevStep,
     goToStep,
