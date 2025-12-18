@@ -23,6 +23,12 @@ const Index = () => {
         Lomaria
       </h1>
       
+      {/* Gold Divider - Subtle, cinematic */}
+      <div 
+        className="w-16 h-px bg-primary/40 mb-6 opacity-0"
+        style={{ animation: "cinematic-fade 1s ease-out 1.1s forwards" }}
+      />
+      
       {/* Subline - Editorial tone */}
       <p 
         className="font-display text-base md:text-lg text-foreground/60 tracking-[0.08em] mb-3 opacity-0"
