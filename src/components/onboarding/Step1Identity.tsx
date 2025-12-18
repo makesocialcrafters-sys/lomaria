@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
@@ -26,6 +26,28 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
 
   // Profile image is REQUIRED
   const isValid = firstName.trim().length > 0 && lastName.trim().length > 0 && !!profileImage;
+
+  // Check for existing avatar on mount if no profile image in state
+  useEffect(() => {
+    if (!profileImage && user) {
+      const checkExistingAvatar = async () => {
+        const { data: publicUrl } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(`${user.id}/avatar.jpg`);
+        
+        // Verify the image actually exists by loading it
+        const img = new Image();
+        img.onload = () => {
+          onUpdate({ profile_image: `${publicUrl.publicUrl}?t=${Date.now()}` });
+        };
+        img.onerror = () => {
+          // No existing avatar, do nothing
+        };
+        img.src = publicUrl.publicUrl;
+      };
+      checkExistingAvatar();
+    }
+  }, [user]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
