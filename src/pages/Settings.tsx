@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { DeleteAccountDialog } from "@/components/settings/DeleteAccountDialog";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 type SettingsView = "main" | "change-password";
 
 export default function Settings() {
   const [view, setView] = useState<SettingsView>("main");
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -47,6 +49,16 @@ export default function Settings() {
         {/* Main View */}
         {view === "main" && (
           <div className="space-y-4">
+            {/* Email Display */}
+            <div className="p-4 border border-border/40 rounded-lg bg-muted/20">
+              <p className="text-xs font-display tracking-wide text-muted-foreground mb-1">
+                Angemeldet als
+              </p>
+              <p className="font-display text-foreground">
+                {user?.email}
+              </p>
+            </div>
+
             <Button
               variant="outline"
               className="w-full justify-start"
