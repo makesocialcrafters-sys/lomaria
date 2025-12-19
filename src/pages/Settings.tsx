@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { DeleteAccountDialog } from "@/components/settings/DeleteAccountDialog";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 type SettingsView = "main" | "change-password";
