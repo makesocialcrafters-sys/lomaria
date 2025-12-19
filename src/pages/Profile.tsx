@@ -1,20 +1,139 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOwnProfile } from "@/hooks/useOwnProfile";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import { Settings, Pencil } from "lucide-react";
 import { STUDY_PROGRAMS, STUDY_PHASES, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { EditProfileForm } from "@/components/settings/EditProfileForm";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
+import type { ProfileFormData } from "@/types/user";
+import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
 
 export default function Profile() {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const navigate = useNavigate();
-  const { data: userData, isLoading } = useOwnProfile();
+  const { data: userData, isLoading, refetch } = useOwnProfile();
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveProfile = async (data: ProfileFormData) => {
+    setIsSaving(true);
+    try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) throw new Error("Nicht eingeloggt");
+
+      const { error } = await supabase
+        .from("users")
+        .update({
+          first_name: data.first_name,
+          last_name: data.last_name,
+          profile_image: data.profile_image,
+          age: data.age,
+          gender: data.gender,
+          study_program: data.study_program,
+          study_phase: data.study_phase,
+          focus: data.study_phase === "cbk_hauptstudium" ? (data.focus || null) : null,
+          intents: data.intents,
+          interests: data.interests,
+          tutoring_subject: data.tutoring_subject || null,
+          tutoring_desc: data.tutoring_desc || null,
+          tutoring_price: data.tutoring_price,
+          bio: data.bio || null,
+          last_active_at: new Date().toISOString(),
+        })
+        .eq("auth_user_id", authUser.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profil gespeichert",
+        description: "Deine Änderungen wurden gespeichert.",
+      });
+      await refetch();
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: error instanceof Error ? error.message : "Profil konnte nicht gespeichert werden",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const getInitialFormData = (): ProfileFormData => {
+    if (!userData) {
+      return {
+        first_name: "",
+        last_name: "",
+        profile_image: null,
+        age: null,
+        gender: null,
+        study_program: null,
+        study_phase: null,
+        focus: "",
+        intents: [],
+        interests: [],
+        tutoring_subject: "",
+        tutoring_desc: "",
+        tutoring_price: null,
+        bio: "",
+      };
+    }
+    return {
+      first_name: userData.first_name ?? "",
+      last_name: userData.last_name ?? "",
+      profile_image: userData.profile_image,
+      age: userData.age,
+      gender: userData.gender as Gender | null,
+      study_program: userData.study_program as StudyProgram | null,
+      study_phase: userData.study_phase as StudyPhase | null,
+      focus: userData.focus ?? "",
+      intents: (userData.intents ?? []) as Intent[],
+      interests: (userData.interests ?? []) as Interest[],
+      tutoring_subject: userData.tutoring_subject ?? "",
+      tutoring_desc: userData.tutoring_desc ?? "",
+      tutoring_price: userData.tutoring_price,
+      bio: userData.bio ?? "",
+    };
+  };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="h-0.5 w-32 bg-muted overflow-hidden rounded-full">
           <div className="h-full bg-primary animate-loader" />
+        </div>
+      </div>
+    );
+  }
+
+  // Edit Mode
+  if (isEditing && user) {
+    return (
+      <div className="px-6 py-8 animate-cinematic-enter">
+        <div className="max-w-md mx-auto">
+          <div className="mb-8">
+            <button
+              onClick={() => setIsEditing(false)}
+              className="mb-4 font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500"
+            >
+              ← Zurück
+            </button>
+            <h1 className="heading-page text-left mb-3">Profil bearbeiten</h1>
+            <div className="w-16 h-px bg-primary/40" />
+          </div>
+          <EditProfileForm
+            initialData={getInitialFormData()}
+            onSave={handleSaveProfile}
+            onCancel={() => setIsEditing(false)}
+            isLoading={isSaving}
+            userId={user.id}
+          />
         </div>
       </div>
     );
@@ -35,19 +154,29 @@ export default function Profile() {
   return (
     <div className="px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
-        {/* Title with Settings Button */}
+        {/* Title with Edit and Settings Buttons */}
         <div className="flex items-center justify-between mb-3">
           <h1 className="font-display text-lg uppercase tracking-[0.15em] text-primary">
             MEIN PROFIL
           </h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/settings")}
-            className="text-foreground/60 hover:text-primary transition-all duration-500"
-          >
-            <Settings className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsEditing(true)}
+              className="text-foreground/60 hover:text-primary transition-all duration-500"
+            >
+              <Pencil className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/settings")}
+              className="text-foreground/60 hover:text-primary transition-all duration-500"
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
         <div className="divider-subtle mb-8" />
 
