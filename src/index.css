@@ -259,3 +259,25 @@
     transform: translateY(0);
   }
 }
+
+/* Cinematic fade - used by landing page */
+@keyframes cinematic-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Cinematic slide - used by landing page */
+@keyframes cinematic-slide {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
