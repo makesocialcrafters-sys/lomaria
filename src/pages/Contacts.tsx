@@ -2,7 +2,6 @@ import { useIncomingRequests } from "@/hooks/useIncomingRequests";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { IncomingRequestCard } from "@/components/contacts/IncomingRequestCard";
 import { STUDY_PROGRAMS, STUDY_PHASES } from "@/lib/onboarding-constants";
-import lomariaLogo from "@/assets/lomaria-logo.png";
 
 export default function Contacts() {
   const { data: incomingRequests = [], isLoading } = useIncomingRequests();
@@ -26,18 +25,14 @@ export default function Contacts() {
   }
 
   return (
-    <div className="px-6 py-8 animate-page-enter">
+    <div className="px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
-        <div className="flex justify-center mb-6">
-          <img src={lomariaLogo} alt="Lomaria" className="h-10 w-auto opacity-60" />
-        </div>
-
-        <h1 className="font-display text-lg font-bold uppercase tracking-[0.2em] text-primary text-center mb-8">
-          KONTAKTE
-        </h1>
+        {/* Title */}
+        <h1 className="heading-page mb-3">KONTAKTE</h1>
+        <div className="divider-subtle mb-8" />
 
         <section className="mb-8">
-          <h2 className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+          <h2 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-4">
             Anfragen ({incomingRequests.length})
           </h2>
           {incomingRequests.length === 0 ? (

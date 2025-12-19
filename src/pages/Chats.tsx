@@ -4,7 +4,6 @@ import { GoldLoader } from "@/components/ui/gold-loader";
 import { STUDY_PROGRAMS } from "@/lib/onboarding-constants";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
-import lomariaLogo from "@/assets/lomaria-logo.png";
 
 export default function Chats() {
   const navigate = useNavigate();
@@ -33,17 +32,11 @@ export default function Chats() {
   }
 
   return (
-    <div className="px-6 py-8 animate-page-enter">
+    <div className="px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src={lomariaLogo} alt="Lomaria" className="h-10 w-auto opacity-60" />
-        </div>
-
         {/* Title */}
-        <h1 className="font-display text-lg font-bold uppercase tracking-[0.2em] text-primary text-center mb-8">
-          CHATS
-        </h1>
+        <h1 className="heading-page mb-3">CHATS</h1>
+        <div className="divider-subtle mb-8" />
 
         {/* Chats List */}
         {chats.length === 0 ? (
@@ -58,7 +51,7 @@ export default function Chats() {
               <button
                 key={chat.connectionId}
                 onClick={() => navigate(`/chats/${chat.connectionId}`)}
-                className="w-full bg-card border border-border/30 rounded-md p-4 flex items-center gap-4 hover:bg-card/80 transition-colors text-left"
+                className="w-full bg-card border border-primary/20 rounded-md p-4 flex items-center gap-4 hover:border-primary/40 transition-all duration-500 text-left"
               >
                 {/* Profile Image */}
                 <div className="w-12 h-12 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
@@ -69,7 +62,7 @@ export default function Chats() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-lg font-medium">
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground text-lg font-display">
                       {chat.otherUser.first_name.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -78,7 +71,7 @@ export default function Chats() {
                 {/* Chat Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
-                    <h3 className="font-medium text-foreground truncate">
+                    <h3 className="font-display text-foreground truncate">
                       {chat.otherUser.first_name}
                     </h3>
                     {chat.lastMessage && (

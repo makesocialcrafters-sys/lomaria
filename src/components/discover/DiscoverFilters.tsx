@@ -40,7 +40,7 @@ export function DiscoverFilters({
           value={studyProgram || ""}
           onValueChange={(v) => onStudyProgramChange(v || null)}
         >
-          <SelectTrigger className="bg-secondary border-border">
+          <SelectTrigger className="bg-transparent border-primary/20 font-display hover:border-primary/40 transition-all duration-500">
             <SelectValue placeholder="Studienrichtung" />
           </SelectTrigger>
           <SelectContent>
@@ -57,7 +57,7 @@ export function DiscoverFilters({
           value={tutoringSubject || ""}
           onValueChange={(v) => onTutoringSubjectChange(v || null)}
         >
-          <SelectTrigger className="bg-secondary border-border">
+          <SelectTrigger className="bg-transparent border-primary/20 font-display hover:border-primary/40 transition-all duration-500">
             <SelectValue placeholder="Nachhilfe-Fach" />
           </SelectTrigger>
           <SelectContent>
@@ -74,7 +74,7 @@ export function DiscoverFilters({
           value={intent || ""}
           onValueChange={(v) => onIntentChange(v || null)}
         >
-          <SelectTrigger className="bg-secondary border-border">
+          <SelectTrigger className="bg-transparent border-primary/20 font-display hover:border-primary/40 transition-all duration-500">
             <SelectValue placeholder="Intent" />
           </SelectTrigger>
           <SelectContent>

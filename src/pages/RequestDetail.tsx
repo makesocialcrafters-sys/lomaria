@@ -170,15 +170,15 @@ export default function RequestDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-cinematic-enter">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background border-b border-border/30 px-4 py-3">
+      <header className="sticky top-0 z-10 bg-background border-b border-primary/20 px-4 py-3">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
+          className="flex items-center gap-2 text-foreground/60 hover:text-primary transition-all duration-500"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm">Zurück</span>
+          <span className="font-display text-sm tracking-wide">Zurück</span>
         </button>
       </header>
 
@@ -194,7 +194,7 @@ export default function RequestDetail() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-medium">
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-display">
                 {request.sender.first_name?.charAt(0)?.toUpperCase() || "?"}
               </div>
             )}
@@ -203,7 +203,7 @@ export default function RequestDetail() {
 
         {/* Name */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-display text-foreground">
             {request.sender.first_name} {request.sender.last_name}
           </h1>
           {studyProgramLabel && (
@@ -216,10 +216,12 @@ export default function RequestDetail() {
           )}
         </div>
 
+        <div className="divider-subtle mb-6" />
+
         {/* Message */}
         {request.message && (
-          <div className="bg-card border border-border/30 rounded-md p-4">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+          <div className="bg-card border border-primary/20 rounded-md p-4">
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Nachricht
             </h3>
             <p className="text-foreground/80 leading-relaxed">{request.message}</p>
@@ -228,7 +230,7 @@ export default function RequestDetail() {
       </div>
 
       {/* Action Buttons - Fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border/30 flex gap-3">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-primary/20 flex gap-3">
         <Button
           variant="outline"
           width="full"

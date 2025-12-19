@@ -14,7 +14,6 @@ import { Step5Interests } from "@/components/onboarding/Step5Interests";
 import { Step6Tutoring } from "@/components/onboarding/Step6Tutoring";
 import { Step7Bio } from "@/components/onboarding/Step7Bio";
 import { Step8Preview } from "@/components/onboarding/Step8Preview";
-import lomariaLogo from "@/assets/lomaria-logo.png";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -153,13 +152,8 @@ export default function Onboarding() {
   const displayStep = !showTutoringStep && step > 5 ? step - 1 : step;
 
   return (
-    <div className="min-h-screen bg-background px-6 py-8 animate-page-enter">
+    <div className="min-h-screen bg-background px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src={lomariaLogo} alt="Lomaria" className="h-12 w-auto opacity-60" />
-        </div>
-
         {/* Step Indicator */}
         <StepIndicator currentStep={displayStep} totalSteps={totalSteps} />
 

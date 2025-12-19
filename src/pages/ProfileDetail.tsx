@@ -127,11 +127,11 @@ export default function ProfileDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-background border-b border-border/30 px-4 py-3">
-        <button onClick={handleBack} className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+    <div className="min-h-screen bg-background animate-cinematic-enter">
+      <header className="sticky top-0 z-10 bg-background border-b border-primary/20 px-4 py-3">
+        <button onClick={handleBack} className="flex items-center gap-2 text-foreground/60 hover:text-primary transition-all duration-500">
           <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm">Zurück</span>
+          <span className="font-display text-sm tracking-wide">Zurück</span>
         </button>
       </header>
 
@@ -141,7 +141,7 @@ export default function ProfileDetail() {
             {profile.profile_image ? (
               <img src={profile.profile_image} alt={profile.first_name || "Profile"} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-4xl font-medium">
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-4xl font-display">
                 {profile.first_name?.charAt(0)?.toUpperCase() || "?"}
               </div>
             )}
@@ -149,7 +149,7 @@ export default function ProfileDetail() {
         </div>
 
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-display text-foreground">
             {profile.first_name}
             {age && <span className="font-normal text-muted-foreground ml-2">{age}</span>}
           </h1>
@@ -158,6 +158,8 @@ export default function ProfileDetail() {
           )}
         </div>
 
+        <div className="divider-subtle mb-6" />
+
         <div className="text-center mb-6">
           <p className="text-foreground">{studyProgramLabel}</p>
           {studyPhaseLabel && <p className="text-sm text-muted-foreground">{studyPhaseLabel}</p>}
@@ -165,7 +167,7 @@ export default function ProfileDetail() {
 
         {intentLabels.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Suche nach</h3>
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">Suche nach</h3>
             <div className="flex flex-wrap gap-2">
               {intentLabels.map((label) => (
                 <span key={label} className="text-sm px-3 py-1 bg-primary/20 text-primary rounded">{label}</span>
@@ -176,7 +178,7 @@ export default function ProfileDetail() {
 
         {interestLabels.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Interessen</h3>
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">Interessen</h3>
             <div className="flex flex-wrap gap-2">
               {interestLabels.map((label) => (
                 <span key={label} className="text-sm px-3 py-1 bg-secondary text-foreground/80 rounded">{label}</span>
@@ -186,9 +188,9 @@ export default function ProfileDetail() {
         )}
 
         {profile.tutoring_subject && (
-          <div className="mb-6 p-4 bg-card border border-border/50 rounded-md">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Bietet Nachhilfe an</h3>
-            <p className="text-foreground font-medium">{profile.tutoring_subject}</p>
+          <div className="mb-6 p-4 bg-card border border-primary/20 rounded-md">
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">Bietet Nachhilfe an</h3>
+            <p className="text-foreground font-display">{profile.tutoring_subject}</p>
             {profile.tutoring_desc && <p className="text-sm text-muted-foreground mt-2">{profile.tutoring_desc}</p>}
             {profile.tutoring_price && <p className="text-sm text-primary mt-2">{profile.tutoring_price} € / Stunde</p>}
           </div>
@@ -196,14 +198,14 @@ export default function ProfileDetail() {
 
         {profile.bio && (
           <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Über mich</h3>
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">Über mich</h3>
             <p className="text-foreground/80 text-sm leading-relaxed">{profile.bio}</p>
           </div>
         )}
       </div>
 
       {!isOwnProfile && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border/30">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-primary/20">
           {existingConnection === "pending" ? (
             <Button disabled width="full" variant="outline">Anfrage gesendet</Button>
           ) : existingConnection === "accepted" ? (

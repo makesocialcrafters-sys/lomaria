@@ -116,19 +116,19 @@ export default function ChatDetail() {
   const currentUserId = chatData?.currentUserId;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col animate-cinematic-enter">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background border-b border-border/30 px-4 py-3 flex items-center gap-3">
+      <header className="sticky top-0 z-10 bg-background border-b border-primary/20 px-4 py-3 flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
-          className="text-foreground hover:text-primary transition-colors"
+          className="text-foreground/60 hover:text-primary transition-all duration-500"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         
         <button
           onClick={() => otherUser?.id && navigate(`/profile/${otherUser.id}`)}
-          className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-all duration-500"
         >
           <div className="w-10 h-10 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
             {otherUser?.profile_image ? (
@@ -138,14 +138,14 @@ export default function ChatDetail() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm font-medium">
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm font-display">
                 {otherUser?.first_name?.charAt(0)?.toUpperCase() || "?"}
               </div>
             )}
           </div>
           
           <div className="flex-1 min-w-0 text-left">
-            <p className="font-medium text-foreground truncate">
+            <p className="font-display text-foreground truncate">
               {otherUser?.first_name || "Chat"}
             </p>
             {otherUser?.study_program && (
@@ -174,8 +174,8 @@ export default function ChatDetail() {
               <div
                 className={`max-w-[75%] px-4 py-2 rounded-2xl ${
                   msg.sender_id === currentUserId
-                    ? "bg-primary text-primary-foreground rounded-br-sm"
-                    : "bg-card border border-border/30 text-foreground rounded-bl-sm"
+                    ? "bg-primary text-primary-foreground rounded-br-md"
+                    : "bg-card border border-primary/20 text-foreground rounded-bl-md"
                 }`}
               >
                 <p className="text-sm break-words">{msg.text}</p>
@@ -187,14 +187,14 @@ export default function ChatDetail() {
       </div>
 
       {/* Input */}
-      <div className="sticky bottom-0 bg-background border-t border-border/30 p-4">
+      <div className="sticky bottom-0 bg-background border-t border-primary/20 p-4">
         <div className="flex gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Nachricht schreiben..."
-            className="flex-1 bg-card border-border/50"
+            className="flex-1 bg-card border-primary/20"
             disabled={sending}
           />
           <Button
