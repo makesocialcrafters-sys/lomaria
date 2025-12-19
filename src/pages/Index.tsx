@@ -17,7 +17,7 @@ const Index = () => {
       
       {/* Main Headline - "Lomaria" */}
       <h1 
-        className="font-display text-4xl md:text-5xl text-foreground tracking-[0.12em] mb-6 opacity-0"
+        className="font-display text-4xl md:text-5xl text-primary tracking-[0.12em] mb-6 opacity-0"
         style={{ animation: "cinematic-slide 1.2s ease-out 0.8s forwards" }}
       >
         Lomaria
