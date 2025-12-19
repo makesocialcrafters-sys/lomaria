@@ -26,7 +26,7 @@ export function IncomingRequestCard({
   return (
     <button
       onClick={() => navigate(`/contacts/request/${connectionId}`)}
-      className="w-full flex items-center gap-4 p-4 bg-card border border-border/30 rounded-md hover:border-primary/50 transition-colors text-left"
+      className="w-full flex items-center gap-4 p-4 bg-card border border-primary/20 rounded-md hover:border-primary/40 transition-all duration-500 ease-out text-left"
     >
       <div className="w-14 h-14 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
         {senderImage ? (
@@ -39,7 +39,7 @@ export function IncomingRequestCard({
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-foreground truncate">{senderName}</p>
+        <p className="font-display text-foreground truncate">{senderName}</p>
         {studyProgram && (
           <p className="text-sm text-muted-foreground truncate">
             {studyProgram}{studyPhase ? ` · ${studyPhase}` : ""}

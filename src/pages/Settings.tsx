@@ -143,20 +143,20 @@ export default function Settings() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-muted-foreground">Laden...</p>
+        <p className="text-muted-foreground font-display">Laden...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-lg px-4 py-8">
+    <div className="min-h-screen bg-background animate-cinematic-enter">
+      <div className="mx-auto max-w-lg px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           {view === "main" && (
             <button
               onClick={() => navigate(-1)}
-              className="mb-4 text-sm text-muted-foreground hover:text-foreground"
+              className="mb-4 font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500"
             >
               ← Zurück
             </button>
@@ -164,23 +164,24 @@ export default function Settings() {
           {view !== "main" && (
             <button
               onClick={() => setView("main")}
-              className="mb-4 text-sm text-muted-foreground hover:text-foreground"
+              className="mb-4 font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500"
             >
               ← Zurück
             </button>
           )}
-          <h1 className="text-2xl font-bold text-primary">
+          <h1 className="heading-page text-left mb-3">
             {view === "main" && "Einstellungen"}
             {view === "edit-profile" && "Profil bearbeiten"}
             {view === "change-password" && "Passwort ändern"}
           </h1>
+          <div className="w-16 h-px bg-primary/40" />
         </div>
 
         {/* Main View */}
         {view === "main" && (
           <div className="space-y-4">
             <Button
-              variant="secondary"
+              variant="outline"
               className="w-full justify-start"
               onClick={() => setView("edit-profile")}
             >
@@ -188,7 +189,7 @@ export default function Settings() {
             </Button>
 
             <Button
-              variant="secondary"
+              variant="outline"
               className="w-full justify-start"
               onClick={() => setView("change-password")}
             >
@@ -196,7 +197,7 @@ export default function Settings() {
             </Button>
 
             <Button
-              variant="secondary"
+              variant="outline"
               className="w-full justify-start"
               onClick={handleSignOut}
             >

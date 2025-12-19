@@ -4,7 +4,6 @@ import { useOwnProfile } from "@/hooks/useOwnProfile";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { STUDY_PROGRAMS, STUDY_PHASES, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
-import lomariaLogo from "@/assets/lomaria-logo.png";
 
 export default function Profile() {
   const { signOut } = useAuth();
@@ -34,27 +33,23 @@ export default function Profile() {
     .filter(Boolean);
 
   return (
-    <div className="px-6 py-8 animate-page-enter">
+    <div className="px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src={lomariaLogo} alt="Lomaria" className="h-10 w-auto opacity-60" />
-        </div>
-
         {/* Title with Settings Button */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-display text-lg font-bold uppercase tracking-[0.2em] text-primary">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="font-display text-lg uppercase tracking-[0.15em] text-primary">
             MEIN PROFIL
           </h1>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/settings")}
-            className="text-foreground hover:text-primary"
+            className="text-foreground/60 hover:text-primary transition-all duration-500"
           >
             <Settings className="w-5 h-5" />
           </Button>
         </div>
+        <div className="divider-subtle mb-8" />
 
         {/* Profile Image */}
         <div className="flex justify-center mb-6">
@@ -66,7 +61,7 @@ export default function Profile() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-medium">
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-display">
                 {userData?.first_name?.charAt(0)?.toUpperCase() || "?"}
               </div>
             )}
@@ -75,7 +70,7 @@ export default function Profile() {
 
         {/* Name + Age + Gender */}
         <div className="text-center mb-6">
-          <h2 className="text-xl font-medium text-foreground">
+          <h2 className="text-xl font-display text-foreground">
             {userData?.first_name} {userData?.last_name}
           </h2>
           <p className="text-muted-foreground">
@@ -97,7 +92,7 @@ export default function Profile() {
         {/* Intents */}
         {intentLabels.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Ich suche
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -116,7 +111,7 @@ export default function Profile() {
         {/* Interests */}
         {interestLabels.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Interessen
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -134,11 +129,11 @@ export default function Profile() {
 
         {/* Tutoring */}
         {userData?.tutoring_subject && (
-          <div className="mb-6 p-4 bg-card border border-border/50 rounded-md">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+          <div className="mb-6 p-4 bg-card border border-primary/20 rounded-md">
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Nachhilfe
             </h3>
-            <p className="text-foreground font-medium">{userData.tutoring_subject}</p>
+            <p className="text-foreground font-display">{userData.tutoring_subject}</p>
             {userData.tutoring_desc && (
               <p className="text-sm text-muted-foreground mt-1">{userData.tutoring_desc}</p>
             )}
@@ -151,7 +146,7 @@ export default function Profile() {
         {/* Bio */}
         {userData?.bio && (
           <div className="mb-8">
-            <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Über mich
             </h3>
             <p className="text-foreground/90 text-sm leading-relaxed">{userData.bio}</p>
@@ -162,7 +157,7 @@ export default function Profile() {
         <div className="pt-4 border-t border-border">
           <button
             onClick={signOut}
-            className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+            className="w-full text-center font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500 py-2"
           >
             Abmelden
           </button>

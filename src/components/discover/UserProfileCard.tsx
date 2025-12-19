@@ -36,7 +36,7 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
   return (
     <div
       onClick={handleClick}
-      className="bg-card border border-border/50 rounded-md p-4 cursor-pointer hover:border-primary/30 transition-colors duration-150"
+      className="bg-card border border-primary/20 rounded-md p-4 cursor-pointer hover:border-primary/40 transition-all duration-500 ease-out"
     >
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
@@ -56,7 +56,7 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
-            <h3 className="font-medium text-foreground truncate">{user.first_name}</h3>
+            <h3 className="font-display text-foreground truncate">{user.first_name}</h3>
             {age && <span className="text-sm text-muted-foreground">{age}</span>}
           </div>
 

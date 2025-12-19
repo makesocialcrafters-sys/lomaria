@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useDiscoverProfiles, useTutoringSubjects } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
-import lomariaLogo from "@/assets/lomaria-logo.png";
 
 const PAGE_SIZE = 20;
 
@@ -52,17 +51,11 @@ export default function Discover() {
   };
 
   return (
-    <div className="px-6 py-8 animate-page-enter">
+    <div className="px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img src={lomariaLogo} alt="Lomaria" className="h-10 w-auto opacity-60" />
-        </div>
-
         {/* Title */}
-        <h1 className="font-display text-lg font-bold uppercase tracking-[0.2em] text-primary text-center mb-6">
-          ENTDECKEN
-        </h1>
+        <h1 className="heading-page mb-3">ENTDECKEN</h1>
+        <div className="divider-subtle mb-8" />
 
         {/* Filters */}
         <div className="mb-6">
@@ -120,7 +113,7 @@ export default function Discover() {
             <button
               onClick={handleLoadMore}
               disabled={isFetching}
-              className="w-full py-3 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+              className="w-full py-3 font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500 disabled:opacity-50"
             >
               Mehr laden
             </button>
