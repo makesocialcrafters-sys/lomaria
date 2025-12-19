@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Settings, Pencil } from "lucide-react";
 import { STUDY_PROGRAMS, STUDY_PHASES, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import { EditProfileForm } from "@/components/settings/EditProfileForm";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { ProfileFormData } from "@/types/user";
 import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
