@@ -1,19 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import lomariaLogo from "@/assets/lomaria-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
-      
-      {/* Logo - Top area, small, slow cinematic fade */}
-      <img 
-        src={lomariaLogo}
-        alt="Lomaria"
-        className="h-8 md:h-10 mb-20 opacity-0"
-        style={{ animation: "cinematic-fade 1.8s ease-out 0.3s forwards" }}
-      />
       
       {/* Main Headline - "Lomaria" */}
       <h1 
