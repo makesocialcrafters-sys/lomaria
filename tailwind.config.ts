@@ -98,6 +98,14 @@ export default {
           "50%": { width: "70%" },
           "100%": { width: "100%" },
         },
+        "cinematic-fade": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "cinematic-slide": {
+          from: { opacity: "0", transform: "translateY(4px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -106,6 +114,8 @@ export default {
         "slide-up": "slide-up 0.3s ease-out forwards",
         "page-enter": "page-enter 0.4s ease-out forwards",
         "loader": "loader-progress 1.5s ease-in-out infinite",
+        "cinematic-fade": "cinematic-fade 1s ease-out forwards",
+        "cinematic-slide": "cinematic-slide 1.2s ease-out forwards",
       },
     },
   },
