@@ -127,7 +127,7 @@ export default function ChatDetail() {
         </button>
         
         <button
-          onClick={() => otherUser?.id && navigate(`/profile/${otherUser.id}`)}
+          onClick={() => otherUser?.id && navigate(`/discover/profile/${otherUser.id}`)}
           className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-all duration-500"
         >
           <div className="w-10 h-10 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
