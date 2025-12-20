@@ -36,14 +36,37 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
     queryFn: async () => {
       if (!user) return [];
 
+      // 1. Get current user's internal ID
+      const { data: currentUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (!currentUser) return [];
+
+      // 2. Get ALL connections for this user (any status)
+      const { data: connections } = await supabase
+        .from("connections")
+        .select("from_user, to_user")
+        .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`);
+
+      // 3. Collect all connected user IDs
+      const connectedUserIds = new Set<string>();
+      connectedUserIds.add(currentUser.id); // Exclude self
+      connections?.forEach(conn => {
+        connectedUserIds.add(conn.from_user);
+        connectedUserIds.add(conn.to_user);
+      });
+
+      // 4. Query profiles with filters
       let query = supabase
-        .from("user_profiles")
-        .select("*")
+        .from("users")
+        .select("id, auth_user_id, first_name, last_name, profile_image, birthyear, study_program, semester, intents, interests, tutoring_subject, last_active_at")
         .neq("auth_user_id", user.id)
         .not("first_name", "is", null)
         .not("study_program", "is", null)
-        .order("last_active_at", { ascending: false })
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+        .order("last_active_at", { ascending: false, nullsFirst: false });
 
       if (studyProgram) {
         query = query.eq("study_program", studyProgram);
@@ -62,7 +85,16 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         throw error;
       }
 
-      return (data || []) as unknown as UserProfile[];
+      // 5. Filter out connected profiles client-side
+      const filteredProfiles = (data || []).filter(
+        profile => !connectedUserIds.has(profile.id)
+      );
+
+      // 6. Apply pagination client-side
+      const startIndex = page * PAGE_SIZE;
+      const endIndex = startIndex + PAGE_SIZE;
+
+      return filteredProfiles.slice(startIndex, endIndex) as UserProfile[];
     },
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
