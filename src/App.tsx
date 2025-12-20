@@ -66,7 +66,7 @@ const App = () => (
                 }
               >
                 <Route path="/discover" element={<Discover />} />
-                <Route path="/profile/:userId" element={<ProfileDetail />} />
+                <Route path="/discover/profile/:userId" element={<ProfileDetail />} />
                 <Route path="/contacts" element={<Contacts />} />
                 <Route path="/contacts/request/:connectionId" element={<RequestDetail />} />
                 <Route path="/chats" element={<Chats />} />

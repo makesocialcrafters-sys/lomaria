@@ -63,7 +63,7 @@ export default function Discover() {
   };
 
   const handleProfileClick = (profileId: string) => {
-    navigate(`/profile/${profileId}`);
+    navigate(`/discover/profile/${profileId}`);
   };
 
   return (
