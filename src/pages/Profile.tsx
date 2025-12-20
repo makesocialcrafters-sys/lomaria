@@ -10,47 +10,54 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { ProfileFormData } from "@/types/user";
 import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
-
 export default function Profile() {
-  const { signOut, user } = useAuth();
+  const {
+    signOut,
+    user
+  } = useAuth();
   const navigate = useNavigate();
-  const { data: userData, isLoading, refetch } = useOwnProfile();
-  const { toast } = useToast();
+  const {
+    data: userData,
+    isLoading,
+    refetch
+  } = useOwnProfile();
+  const {
+    toast
+  } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
   const handleSaveProfile = async (data: ProfileFormData) => {
     setIsSaving(true);
     try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user: authUser
+        }
+      } = await supabase.auth.getUser();
       if (!authUser) throw new Error("Nicht eingeloggt");
-
-      const { error } = await supabase
-        .from("users")
-        .update({
-          first_name: data.first_name,
-          last_name: data.last_name,
-          profile_image: data.profile_image,
-          age: data.age,
-          gender: data.gender,
-          study_program: data.study_program,
-          study_phase: data.study_phase,
-          focus: data.study_phase === "cbk_hauptstudium" ? (data.focus || null) : null,
-          intents: data.intents,
-          interests: data.interests,
-          tutoring_subject: data.tutoring_subject || null,
-          tutoring_desc: data.tutoring_desc || null,
-          tutoring_price: data.tutoring_price,
-          bio: data.bio || null,
-          last_active_at: new Date().toISOString(),
-        })
-        .eq("auth_user_id", authUser.id);
-
+      const {
+        error
+      } = await supabase.from("users").update({
+        first_name: data.first_name,
+        last_name: data.last_name,
+        profile_image: data.profile_image,
+        age: data.age,
+        gender: data.gender,
+        study_program: data.study_program,
+        study_phase: data.study_phase,
+        focus: data.study_phase === "cbk_hauptstudium" ? data.focus || null : null,
+        intents: data.intents,
+        interests: data.interests,
+        tutoring_subject: data.tutoring_subject || null,
+        tutoring_desc: data.tutoring_desc || null,
+        tutoring_price: data.tutoring_price,
+        bio: data.bio || null,
+        last_active_at: new Date().toISOString()
+      }).eq("auth_user_id", authUser.id);
       if (error) throw error;
-
       toast({
         title: "Profil gespeichert",
-        description: "Deine Änderungen wurden gespeichert.",
+        description: "Deine Änderungen wurden gespeichert."
       });
       await refetch();
       setIsEditing(false);
@@ -58,13 +65,12 @@ export default function Profile() {
       toast({
         title: "Fehler",
         description: error instanceof Error ? error.message : "Profil konnte nicht gespeichert werden",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSaving(false);
     }
   };
-
   const getInitialFormData = (): ProfileFormData => {
     if (!userData) {
       return {
@@ -81,7 +87,7 @@ export default function Profile() {
         tutoring_subject: "",
         tutoring_desc: "",
         tutoring_price: null,
-        bio: "",
+        bio: ""
       };
     }
     return {
@@ -98,61 +104,38 @@ export default function Profile() {
       tutoring_subject: userData.tutoring_subject ?? "",
       tutoring_desc: userData.tutoring_desc ?? "",
       tutoring_price: userData.tutoring_price,
-      bio: userData.bio ?? "",
+      bio: userData.bio ?? ""
     };
   };
-
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
+    return <div className="flex items-center justify-center py-20">
         <div className="h-0.5 w-32 bg-muted overflow-hidden rounded-full">
           <div className="h-full bg-primary animate-loader" />
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Edit Mode
   if (isEditing && user) {
-    return (
-      <div className="px-6 py-8 animate-cinematic-enter">
+    return <div className="px-6 py-8 animate-cinematic-enter">
         <div className="max-w-md mx-auto">
           <div className="mb-8">
-            <button
-              onClick={() => setIsEditing(false)}
-              className="mb-4 font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500"
-            >
+            <button onClick={() => setIsEditing(false)} className="mb-4 font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500">
               ← Zurück
             </button>
             <h1 className="heading-page text-left mb-3">Profil bearbeiten</h1>
             <div className="w-16 h-px bg-primary/40" />
           </div>
-          <EditProfileForm
-            initialData={getInitialFormData()}
-            onSave={handleSaveProfile}
-            onCancel={() => setIsEditing(false)}
-            isLoading={isSaving}
-            userId={user.id}
-          />
+          <EditProfileForm initialData={getInitialFormData()} onSave={handleSaveProfile} onCancel={() => setIsEditing(false)} isLoading={isSaving} userId={user.id} />
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  const genderLabel = GENDERS.find((g) => g.value === userData?.gender)?.label;
-  const studyProgramLabel = STUDY_PROGRAMS.find((p) => p.value === userData?.study_program)?.label;
-  const studyPhaseLabel = STUDY_PHASES.find((s) => s.value === userData?.study_phase)?.label;
-
-  const intentLabels = (userData?.intents || [])
-    .map((i) => INTENTS.find((intent) => intent.value === i)?.label)
-    .filter(Boolean);
-
-  const interestLabels = (userData?.interests || [])
-    .map((i) => INTERESTS.find((interest) => interest.value === i)?.label)
-    .filter(Boolean);
-
-  return (
-    <div className="px-6 py-8 animate-cinematic-enter">
+  const genderLabel = GENDERS.find(g => g.value === userData?.gender)?.label;
+  const studyProgramLabel = STUDY_PROGRAMS.find(p => p.value === userData?.study_program)?.label;
+  const studyPhaseLabel = STUDY_PHASES.find(s => s.value === userData?.study_phase)?.label;
+  const intentLabels = (userData?.intents || []).map(i => INTENTS.find(intent => intent.value === i)?.label).filter(Boolean);
+  const interestLabels = (userData?.interests || []).map(i => INTERESTS.find(interest => interest.value === i)?.label).filter(Boolean);
+  return <div className="px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
         {/* Title with Edit and Settings Buttons */}
         <div className="flex items-center justify-between mb-3">
@@ -160,20 +143,10 @@ export default function Profile() {
             MEIN PROFIL
           </h1>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsEditing(true)}
-              className="text-foreground/60 hover:text-primary transition-all duration-500"
-            >
+            <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} className="text-foreground/60 hover:text-primary transition-all duration-500">
               <Pencil className="w-5 h-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/settings")}
-              className="text-foreground/60 hover:text-primary transition-all duration-500"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate("/settings")} className="text-foreground/60 hover:text-primary transition-all duration-500">
               <Settings className="w-5 h-5" />
             </Button>
           </div>
@@ -183,17 +156,9 @@ export default function Profile() {
         {/* Profile Image */}
         <div className="flex justify-center mb-6">
           <div className="w-28 h-28 rounded-full bg-skeleton overflow-hidden">
-            {userData?.profile_image ? (
-              <img
-                src={userData.profile_image}
-                alt={userData.first_name || "Profile"}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-display">
+            {userData?.profile_image ? <img src={userData.profile_image} alt={userData.first_name || "Profile"} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-display">
                 {userData?.first_name?.charAt(0)?.toUpperCase() || "?"}
-              </div>
-            )}
+              </div>}
           </div>
         </div>
 
@@ -219,79 +184,51 @@ export default function Profile() {
         </div>
 
         {/* Intents */}
-        {intentLabels.length > 0 && (
-          <div className="mb-6">
+        {intentLabels.length > 0 && <div className="mb-6">
             <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Ich suche
             </h3>
             <div className="flex flex-wrap gap-2">
-              {intentLabels.map((label) => (
-                <span
-                  key={label}
-                  className="text-xs px-3 py-1 bg-primary/20 text-primary rounded"
-                >
+              {intentLabels.map(label => <span key={label} className="text-xs px-3 py-1 bg-primary/20 text-primary rounded">
                   {label}
-                </span>
-              ))}
+                </span>)}
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Interests */}
-        {interestLabels.length > 0 && (
-          <div className="mb-6">
+        {interestLabels.length > 0 && <div className="mb-6">
             <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Interessen
             </h3>
             <div className="flex flex-wrap gap-2">
-              {interestLabels.map((label) => (
-                <span
-                  key={label}
-                  className="text-xs px-3 py-1 bg-secondary text-foreground/80 rounded"
-                >
+              {interestLabels.map(label => <span key={label} className="text-xs px-3 py-1 bg-secondary text-foreground/80 rounded">
                   {label}
-                </span>
-              ))}
+                </span>)}
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Tutoring */}
-        {userData?.tutoring_subject && (
-          <div className="mb-6 p-4 bg-card border border-primary/20 rounded-md">
+        {userData?.tutoring_subject && <div className="mb-6 p-4 bg-card border border-primary/20 rounded-md">
             <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Nachhilfe
             </h3>
             <p className="text-foreground font-display">{userData.tutoring_subject}</p>
-            {userData.tutoring_desc && (
-              <p className="text-sm text-muted-foreground mt-1">{userData.tutoring_desc}</p>
-            )}
-            {userData.tutoring_price && (
-              <p className="text-sm text-primary mt-2">{userData.tutoring_price}€ / Stunde</p>
-            )}
-          </div>
-        )}
+            {userData.tutoring_desc && <p className="text-sm text-muted-foreground mt-1">{userData.tutoring_desc}</p>}
+            {userData.tutoring_price && <p className="text-sm text-primary mt-2">{userData.tutoring_price}€ / Stunde</p>}
+          </div>}
 
         {/* Bio */}
-        {userData?.bio && (
-          <div className="mb-8">
+        {userData?.bio && <div className="mb-8">
             <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
               Über mich
             </h3>
             <p className="text-foreground/90 text-sm leading-relaxed">{userData.bio}</p>
-          </div>
-        )}
+          </div>}
 
         {/* Sign Out */}
         <div className="pt-4 border-t border-border">
-          <button
-            onClick={signOut}
-            className="w-full text-center font-display text-sm tracking-wide text-muted-foreground hover:text-foreground transition-all duration-500 py-2"
-          >
-            Abmelden
-          </button>
+          
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
