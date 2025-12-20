@@ -43,7 +43,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         .not("first_name", "is", null)
         .not("study_program", "is", null)
         .order("last_active_at", { ascending: false })
-        .range(0, (page + 1) * PAGE_SIZE - 1);
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
       if (studyProgram) {
         query = query.eq("study_program", studyProgram);

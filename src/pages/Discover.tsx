@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDiscoverProfiles, useTutoringSubjects } from "@/hooks/useDiscoverProfiles";
+import { useDiscoverProfiles, useTutoringSubjects, UserProfile } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
 
@@ -14,9 +14,10 @@ export default function Discover() {
   const [tutoringSubject, setTutoringSubject] = useState<string | null>(null);
   const [intent, setIntent] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
 
   // React Query for cached data
-  const { data: profiles = [], isLoading, isFetching } = useDiscoverProfiles({
+  const { data: pageProfiles, isLoading, isFetching } = useDiscoverProfiles({
     studyProgram,
     tutoringSubject,
     intent,
@@ -24,7 +25,21 @@ export default function Discover() {
   });
   const { data: tutoringSubjects = [] } = useTutoringSubjects();
 
-  const hasMore = profiles.length === (page + 1) * PAGE_SIZE;
+  // Accumulate profiles when new page is loaded
+  useEffect(() => {
+    if (!pageProfiles) return;
+    if (page === 0) {
+      setAllProfiles(pageProfiles);
+    } else if (pageProfiles.length > 0) {
+      setAllProfiles(prev => {
+        const existingIds = new Set(prev.map(p => p.id));
+        const newProfiles = pageProfiles.filter(p => !existingIds.has(p.id));
+        return [...prev, ...newProfiles];
+      });
+    }
+  }, [pageProfiles, page]);
+
+  const hasMore = pageProfiles?.length === PAGE_SIZE;
 
   const handleLoadMore = () => {
     if (!isFetching && hasMore) {
@@ -37,6 +52,7 @@ export default function Discover() {
     setTutoringSubject(null);
     setIntent(null);
     setPage(0);
+    setAllProfiles([]);
   };
 
   const handleFilterChange = (
@@ -73,7 +89,7 @@ export default function Discover() {
 
         {/* Profile Cards */}
         <div className="space-y-4">
-          {profiles.map((profile) => (
+          {allProfiles.map((profile) => (
             <UserProfileCard
               key={profile.id}
               user={profile}
@@ -100,7 +116,7 @@ export default function Discover() {
           )}
 
           {/* Empty state */}
-          {!isLoading && profiles.length === 0 && (
+          {!isLoading && allProfiles.length === 0 && (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
                 Keine Profile gefunden.
@@ -109,7 +125,7 @@ export default function Discover() {
           )}
 
           {/* Load more button */}
-          {!isLoading && hasMore && profiles.length > 0 && (
+          {!isLoading && hasMore && allProfiles.length > 0 && (
             <button
               onClick={handleLoadMore}
               disabled={isFetching}
