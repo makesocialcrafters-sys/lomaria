@@ -41,6 +41,11 @@ export function ChangePasswordForm({ onCancel }: ChangePasswordFormProps) {
 
     setIsLoading(true);
     try {
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !data.session) {
+        throw new Error("Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.");
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -54,10 +59,13 @@ export function ChangePasswordForm({ onCancel }: ChangePasswordFormProps) {
       setNewPassword("");
       setConfirmPassword("");
       onCancel();
-    } catch (error) {
+    } catch (err) {
       toast({
         title: "Fehler",
-        description: error instanceof Error ? error.message : "Passwort konnte nicht geändert werden",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Passwort konnte nicht geändert werden",
         variant: "destructive",
       });
     } finally {
