@@ -45,18 +45,34 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
 
       if (!currentUser) return [];
 
-      // 2. Get ALL connections for this user (any status)
+      // 2. Get ALL connections for this user (with status and rejected_at)
       const { data: connections } = await supabase
         .from("connections")
-        .select("from_user, to_user")
-        .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`);
+        .select("from_user, to_user, status, rejected_at")
+        .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`) as { data: Array<{ from_user: string; to_user: string; status: string; rejected_at: string | null }> | null };
 
-      // 3. Collect all connected user IDs
+      // 3. Collect user IDs to exclude based on connection status
+      const COOLDOWN_MS = 72 * 60 * 60 * 1000; // 72 hours
+      const now = Date.now();
       const connectedUserIds = new Set<string>();
       connectedUserIds.add(currentUser.id); // Exclude self
+
       connections?.forEach(conn => {
-        connectedUserIds.add(conn.from_user);
-        connectedUserIds.add(conn.to_user);
+        const otherUserId = conn.from_user === currentUser.id ? conn.to_user : conn.from_user;
+        
+        // Exclude pending and accepted connections
+        if (conn.status === "pending" || conn.status === "accepted") {
+          connectedUserIds.add(otherUserId);
+          return;
+        }
+        
+        // For rejected: only exclude if still in 72h cooldown
+        if (conn.status === "rejected" && conn.rejected_at) {
+          const rejectedTime = new Date(conn.rejected_at).getTime();
+          if (now - rejectedTime < COOLDOWN_MS) {
+            connectedUserIds.add(otherUserId);
+          }
+        }
       });
 
       // 4. Query profiles with filters

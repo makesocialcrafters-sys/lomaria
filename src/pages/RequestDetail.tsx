@@ -127,7 +127,10 @@ export default function RequestDetail() {
     try {
       const { error } = await supabase
         .from("connections")
-        .update({ status: "rejected" })
+        .update({ 
+          status: "rejected",
+          rejected_at: new Date().toISOString()
+        })
         .eq("id", request.id);
 
       if (error) {
