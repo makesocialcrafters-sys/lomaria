@@ -20,6 +20,8 @@ interface ContactRequestDialogProps {
   recipientName: string;
 }
 
+const COOLDOWN_MS = 72 * 60 * 60 * 1000; // 72 hours
+
 export function ContactRequestDialog({
   open,
   onOpenChange,
@@ -42,6 +44,36 @@ export function ContactRequestDialog({
     setSending(true);
 
     try {
+      // Check for existing rejected connection with cooldown
+      const { data: existingRejection } = await supabase
+        .from("connections")
+        .select("id, rejected_at")
+        .eq("from_user", fromUserId)
+        .eq("to_user", toUserId)
+        .eq("status", "rejected")
+        .maybeSingle() as { data: { id: string; rejected_at: string | null } | null };
+
+      if (existingRejection?.rejected_at) {
+        const rejectedTime = new Date(existingRejection.rejected_at).getTime();
+        const cooldownEnd = rejectedTime + COOLDOWN_MS;
+        const now = Date.now();
+
+        if (now < cooldownEnd) {
+          // Still in cooldown
+          const hoursLeft = Math.ceil((cooldownEnd - now) / (60 * 60 * 1000));
+          toast.error(`Diese Person hat deine Anfrage kürzlich abgelehnt. Bitte warte noch ${hoursLeft} Stunden.`);
+          setSending(false);
+          return;
+        } else {
+          // Cooldown expired - delete old rejected connection
+          await supabase
+            .from("connections")
+            .delete()
+            .eq("id", existingRejection.id);
+        }
+      }
+
+      // Create new connection request
       const { error } = await supabase.from("connections").insert({
         from_user: fromUserId,
         to_user: toUserId,
