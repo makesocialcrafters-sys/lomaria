@@ -55,6 +55,24 @@ export default function Discover() {
     setAllProfiles([]);
   };
 
+  const handleClearStudyProgram = () => {
+    setStudyProgram(null);
+    setPage(0);
+    setAllProfiles([]);
+  };
+
+  const handleClearTutoringSubject = () => {
+    setTutoringSubject(null);
+    setPage(0);
+    setAllProfiles([]);
+  };
+
+  const handleClearIntent = () => {
+    setIntent(null);
+    setPage(0);
+    setAllProfiles([]);
+  };
+
   const handleFilterChange = (
     setter: React.Dispatch<React.SetStateAction<string | null>>
   ) => (value: string | null) => {
@@ -83,6 +101,9 @@ export default function Discover() {
             onStudyProgramChange={handleFilterChange(setStudyProgram)}
             onTutoringSubjectChange={handleFilterChange(setTutoringSubject)}
             onIntentChange={handleFilterChange(setIntent)}
+            onClearStudyProgram={handleClearStudyProgram}
+            onClearTutoringSubject={handleClearTutoringSubject}
+            onClearIntent={handleClearIntent}
             onReset={handleResetFilters}
           />
         </div>
