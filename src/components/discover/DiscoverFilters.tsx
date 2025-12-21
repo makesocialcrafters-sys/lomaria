@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { STUDY_PROGRAMS, INTENTS } from "@/lib/onboarding-constants";
 import { X } from "lucide-react";
+import { ActiveFilterChips } from "./ActiveFilterChips";
 
 interface DiscoverFiltersProps {
   studyProgram: string | null;
@@ -17,6 +18,9 @@ interface DiscoverFiltersProps {
   onStudyProgramChange: (value: string | null) => void;
   onTutoringSubjectChange: (value: string | null) => void;
   onIntentChange: (value: string | null) => void;
+  onClearStudyProgram: () => void;
+  onClearTutoringSubject: () => void;
+  onClearIntent: () => void;
   onReset: () => void;
 }
 
@@ -28,6 +32,9 @@ export function DiscoverFilters({
   onStudyProgramChange,
   onTutoringSubjectChange,
   onIntentChange,
+  onClearStudyProgram,
+  onClearTutoringSubject,
+  onClearIntent,
   onReset,
 }: DiscoverFiltersProps) {
   const hasFilters = studyProgram || tutoringSubject || intent;
@@ -87,7 +94,17 @@ export function DiscoverFilters({
         </Select>
       </div>
 
-      {/* Reset Button */}
+      {/* Active Filter Chips */}
+      <ActiveFilterChips
+        studyProgram={studyProgram}
+        tutoringSubject={tutoringSubject}
+        intent={intent}
+        onClearStudyProgram={onClearStudyProgram}
+        onClearTutoringSubject={onClearTutoringSubject}
+        onClearIntent={onClearIntent}
+      />
+
+      {/* Reset All Button */}
       {hasFilters && (
         <Button
           variant="ghost"
@@ -96,7 +113,7 @@ export function DiscoverFilters({
           className="text-muted-foreground hover:text-foreground"
         >
           <X className="w-4 h-4 mr-1" />
-          Filter zurücksetzen
+          Alle Filter zurücksetzen
         </Button>
       )}
     </div>
