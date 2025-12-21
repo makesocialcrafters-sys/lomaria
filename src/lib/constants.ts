@@ -1,9 +1,13 @@
 // Lomaria Constants - Study Programs, Intents, Interests
 
 export const STUDY_PROGRAMS = [
-  { value: "WiSo", label: "WiSo" },
+  { value: "WiSo-BW", label: "WiSo - Betriebswirtschaft" },
+  { value: "WiSo-IBW", label: "WiSo - Internationale Betriebswirtschaft" },
+  { value: "WiSo-VW", label: "WiSo - Volkswirtschaft" },
+  { value: "WiSo-WUP", label: "WiSo - Wirtschaft und Recht" },
+  { value: "WiSo-WINF", label: "WiSo - Wirtschaftsinformatik" },
   { value: "WiRe", label: "Wirtschaftsrecht (WiRe)" },
-  { value: "BEE", label: "Business and Economics (BEE)" },
+  { value: "BBE", label: "Business and Economics (BBE)" },
 ] as const;
 
 export const STUDY_PHASES = [
