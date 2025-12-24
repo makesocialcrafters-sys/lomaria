@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Message {
+export interface Message {
   id: string;
   sender_id: string;
   text: string;
   created_at: string;
+  read_at?: string | null;
 }
 
 interface OtherUser {
@@ -15,7 +16,7 @@ interface OtherUser {
   study_program: string | null;
 }
 
-interface ChatData {
+export interface ChatData {
   messages: Message[];
   otherUser: OtherUser | null;
   currentUserId: string;
@@ -65,7 +66,7 @@ export function useChatData(connectionId: string | undefined, authUserId: string
       // Load messages
       const { data: messagesData } = await supabase
         .from("messages")
-        .select("*")
+        .select("id, sender_id, text, created_at, read_at")
         .eq("connection_id", connectionId)
         .order("created_at", { ascending: true });
 
@@ -77,15 +78,33 @@ export function useChatData(connectionId: string | undefined, authUserId: string
       };
     },
     enabled: !!connectionId && !!authUserId,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 
+  // Add a new message (from realtime or optimistic update)
   const addMessage = (message: Message) => {
     queryClient.setQueryData<ChatData | null>(["chat", connectionId], (old) => {
       if (!old) return old;
-      // Avoid duplicates
+      
+      // Check for exact ID duplicate
       if (old.messages.some((m) => m.id === message.id)) return old;
+      
+      // Check for temp message to replace (same text + sender within 5 seconds)
+      const tempIndex = old.messages.findIndex(
+        (m) => 
+          m.id.startsWith("temp-") &&
+          m.text === message.text && 
+          m.sender_id === message.sender_id
+      );
+      
+      if (tempIndex >= 0) {
+        // Replace temp message with real one
+        const updated = [...old.messages];
+        updated[tempIndex] = message;
+        return { ...old, messages: updated };
+      }
+      
       return {
         ...old,
         messages: [...old.messages, message],
@@ -93,8 +112,48 @@ export function useChatData(connectionId: string | undefined, authUserId: string
     });
   };
 
+  // Remove a message (for rollback on error)
+  const removeMessage = (messageId: string) => {
+    queryClient.setQueryData<ChatData | null>(["chat", connectionId], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        messages: old.messages.filter((m) => m.id !== messageId),
+      };
+    });
+  };
+
+  // Replace a temp message with real one
+  const replaceMessage = (tempId: string, realMessage: Message) => {
+    queryClient.setQueryData<ChatData | null>(["chat", connectionId], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        messages: old.messages.map((m) => 
+          m.id === tempId ? realMessage : m
+        ),
+      };
+    });
+  };
+
+  // Update read_at for messages
+  const markMessagesAsRead = (messageIds: string[]) => {
+    queryClient.setQueryData<ChatData | null>(["chat", connectionId], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        messages: old.messages.map((m) =>
+          messageIds.includes(m.id) ? { ...m, read_at: new Date().toISOString() } : m
+        ),
+      };
+    });
+  };
+
   return {
     ...query,
     addMessage,
+    removeMessage,
+    replaceMessage,
+    markMessagesAsRead,
   };
 }

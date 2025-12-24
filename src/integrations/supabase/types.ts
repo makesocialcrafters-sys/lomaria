@@ -75,6 +75,7 @@ export type Database = {
           connection_id: string
           created_at: string
           id: string
+          read_at: string | null
           sender_id: string
           text: string
         }
@@ -82,6 +83,7 @@ export type Database = {
           connection_id: string
           created_at?: string
           id?: string
+          read_at?: string | null
           sender_id: string
           text: string
         }
@@ -89,6 +91,7 @@ export type Database = {
           connection_id?: string
           created_at?: string
           id?: string
+          read_at?: string | null
           sender_id?: string
           text?: string
         }
