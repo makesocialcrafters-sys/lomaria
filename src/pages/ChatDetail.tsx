@@ -9,6 +9,17 @@ import { Input } from "@/components/ui/input";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { useChatData, Message, ChatData } from "@/hooks/useChatData";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { ConversationStarters } from "@/components/chat/ConversationStarters";
+
+const INTENT_LABELS: Record<string, string> = {
+  neue_leute: "Kennenlernen",
+  projektpartner: "Projektpartner",
+  startup: "Gründen",
+  nachhilfe_anbieten: "Nachhilfe",
+  nachhilfe_suchen: "Nachhilfe",
+  networking: "Networking",
+  freundschaften: "Freundschaften",
+};
 
 export default function ChatDetail() {
   const { connectionId } = useParams<{ connectionId: string }>();
@@ -29,6 +40,7 @@ export default function ChatDetail() {
   
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [showStarters, setShowStarters] = useState(true);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -150,6 +162,7 @@ export default function ChatDetail() {
     
     setSending(true);
     setTyping(false);
+    setShowStarters(false); // Hide starters after first message
     const messageText = newMessage.trim();
     setNewMessage("");
 
@@ -193,6 +206,10 @@ export default function ChatDetail() {
     } finally {
       setSending(false);
     }
+  };
+
+  const handleStarterSelect = (text: string) => {
+    setNewMessage(text);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -249,8 +266,12 @@ export default function ChatDetail() {
               {otherUser?.first_name || "Chat"}
             </p>
             {isOtherTyping ? (
-              <p className="text-xs text-primary animate-pulse">
+              <p className="text-xs text-primary/80">
                 tippt...
+              </p>
+            ) : chatData?.sharedIntents && chatData.sharedIntents.length > 0 ? (
+              <p className="text-xs text-muted-foreground/60 truncate">
+                Verbunden für: {chatData.sharedIntents.map(i => INTENT_LABELS[i] || i).join(" · ")}
               </p>
             ) : otherUser?.study_program ? (
               <p className="text-xs text-muted-foreground truncate">
@@ -264,9 +285,10 @@ export default function ChatDetail() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-sm">
-              Starte die Unterhaltung mit einer Nachricht.
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-muted-foreground/60 text-sm text-center leading-relaxed">
+              Das ist der Anfang einer Unterhaltung.<br />
+              Nimm dir Zeit.
             </p>
           </div>
         ) : (
@@ -298,14 +320,14 @@ export default function ChatDetail() {
           ))
         )}
         
-        {/* Typing indicator bubble */}
+        {/* Subtle typing indicator */}
         {isOtherTyping && (
           <div className="flex justify-start">
-            <div className="bg-card border border-primary/20 rounded-2xl rounded-bl-md px-4 py-2">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+            <div className="bg-card border border-primary/10 rounded-2xl rounded-bl-md px-4 py-2">
+              <div className="flex gap-1.5 items-center">
+                <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-pulse" />
+                <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-pulse" style={{ animationDelay: "300ms" }} />
+                <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-pulse" style={{ animationDelay: "600ms" }} />
               </div>
             </div>
           </div>
@@ -314,9 +336,13 @@ export default function ChatDetail() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="sticky bottom-0 bg-background border-t border-primary/20 p-4">
-        <div className="flex gap-2">
+      {/* Input area with conversation starters */}
+      <div className="sticky bottom-0 bg-background border-t border-primary/20">
+        <ConversationStarters 
+          onSelect={handleStarterSelect} 
+          visible={showStarters && messages.length === 0} 
+        />
+        <div className="flex gap-2 p-4 pt-0">
           <Input
             value={newMessage}
             onChange={handleInputChange}

@@ -14,6 +14,7 @@ interface OtherUser {
   first_name: string | null;
   profile_image: string | null;
   study_program: string | null;
+  intents: string[] | null;
 }
 
 export interface ChatData {
@@ -21,6 +22,7 @@ export interface ChatData {
   otherUser: OtherUser | null;
   currentUserId: string;
   connectionId: string;
+  sharedIntents: string[];
 }
 
 export function useChatData(connectionId: string | undefined, authUserId: string | undefined) {
@@ -31,10 +33,10 @@ export function useChatData(connectionId: string | undefined, authUserId: string
     queryFn: async (): Promise<ChatData | null> => {
       if (!connectionId || !authUserId) return null;
 
-      // Get current user's profile ID
+      // Get current user's profile with intents
       const { data: currentUser } = await supabase
         .from("users")
-        .select("id")
+        .select("id, intents")
         .eq("auth_user_id", authUserId)
         .maybeSingle();
 
@@ -56,10 +58,10 @@ export function useChatData(connectionId: string | undefined, authUserId: string
         ? connection.to_user 
         : connection.from_user;
 
-      // Get other user's profile
+      // Get other user's profile with intents
       const { data: otherUserProfile } = await supabase
         .from("user_profiles")
-        .select("id, first_name, profile_image, study_program")
+        .select("id, first_name, profile_image, study_program, intents")
         .eq("id", otherUserId)
         .maybeSingle();
 
@@ -70,11 +72,17 @@ export function useChatData(connectionId: string | undefined, authUserId: string
         .eq("connection_id", connectionId)
         .order("created_at", { ascending: true });
 
+      // Calculate shared intents
+      const currentIntents = currentUser.intents || [];
+      const otherIntents = otherUserProfile?.intents || [];
+      const sharedIntents = currentIntents.filter((i: string) => otherIntents.includes(i));
+
       return {
         messages: messagesData || [],
         otherUser: otherUserProfile,
         currentUserId: currentUser.id,
         connectionId,
+        sharedIntents,
       };
     },
     enabled: !!connectionId && !!authUserId,
