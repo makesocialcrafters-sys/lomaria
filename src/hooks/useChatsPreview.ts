@@ -14,6 +14,7 @@ export interface ChatPreview {
     text: string;
     created_at: string;
   } | null;
+  unreadCount: number;
 }
 
 export function useChatsPreview() {
@@ -53,11 +54,11 @@ export function useChatsPreview() {
         .select("id, first_name, profile_image, study_program")
         .in("id", otherUserIds);
 
-      // Get last message for each connection
+      // Get all messages for connections (for last message and unread count)
       const connectionIds = acceptedData.map((c) => c.id);
       const { data: messages } = await supabase
         .from("messages")
-        .select("connection_id, text, created_at")
+        .select("connection_id, sender_id, text, created_at, read_at")
         .in("connection_id", connectionIds)
         .order("created_at", { ascending: false });
 
@@ -65,7 +66,15 @@ export function useChatsPreview() {
       const chatPreviews: ChatPreview[] = acceptedData.map((conn) => {
         const otherId = conn.from_user === currentUser.id ? conn.to_user : conn.from_user;
         const other = otherProfiles?.find((p) => p.id === otherId);
-        const lastMsg = messages?.find((m) => m.connection_id === conn.id);
+        
+        // Get messages for this connection
+        const connMessages = messages?.filter((m) => m.connection_id === conn.id) || [];
+        const lastMsg = connMessages[0]; // Already sorted desc
+        
+        // Count unread messages from other user (not from current user, no read_at)
+        const unreadCount = connMessages.filter(
+          (m) => m.sender_id !== currentUser.id && !m.read_at
+        ).length;
 
         return {
           connectionId: conn.id,
@@ -78,6 +87,7 @@ export function useChatsPreview() {
           lastMessage: lastMsg
             ? { text: lastMsg.text, created_at: lastMsg.created_at }
             : null,
+          unreadCount,
         };
       });
 
@@ -92,7 +102,7 @@ export function useChatsPreview() {
       return chatPreviews;
     },
     enabled: !!user,
-    staleTime: 30 * 1000, // 30 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }

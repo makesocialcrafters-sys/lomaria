@@ -1,31 +1,37 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Check, CheckCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoldLoader } from "@/components/ui/gold-loader";
-import { useChatData } from "@/hooks/useChatData";
-
-interface Message {
-  id: string;
-  sender_id: string;
-  text: string;
-  created_at: string;
-}
+import { useChatData, Message, ChatData } from "@/hooks/useChatData";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 
 export default function ChatDetail() {
   const { connectionId } = useParams<{ connectionId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
-  const { data: chatData, isLoading, addMessage } = useChatData(connectionId, user?.id);
+  const { 
+    data: chatData, 
+    isLoading, 
+    addMessage, 
+    removeMessage, 
+    replaceMessage,
+    markMessagesAsRead 
+  } = useChatData(connectionId, user?.id);
+  
+  const { isOtherTyping, setTyping } = useTypingIndicator(connectionId, chatData?.currentUserId);
   
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,38 +63,132 @@ export default function ChatDetail() {
           addMessage(newMsg);
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `connection_id=eq.${connectionId}`,
+        },
+        (payload) => {
+          const updatedMsg = payload.new as Message;
+          // Update read_at status
+          queryClient.setQueryData<ChatData | null>(
+            ["chat", connectionId],
+            (old) => {
+              if (!old) return old;
+              return {
+                ...old,
+                messages: old.messages.map((m) =>
+                  m.id === updatedMsg.id ? { ...m, read_at: updatedMsg.read_at } : m
+                ),
+              };
+            }
+          );
+        }
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [connectionId, addMessage]);
+  }, [connectionId, addMessage, queryClient]);
+
+  // Mark unread messages as read when viewing
+  useEffect(() => {
+    if (!chatData?.messages || !chatData.currentUserId) return;
+    
+    // Find unread messages from other user
+    const unreadFromOther = chatData.messages.filter(
+      (m) => m.sender_id !== chatData.currentUserId && !m.read_at && !m.id.startsWith("temp-")
+    );
+    
+    if (unreadFromOther.length > 0) {
+      const unreadIds = unreadFromOther.map(m => m.id);
+      
+      // Optimistically mark as read
+      markMessagesAsRead(unreadIds);
+      
+      // Update in database
+      supabase
+        .from("messages")
+        .update({ read_at: new Date().toISOString() })
+        .in("id", unreadIds)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
+        });
+    }
+  }, [chatData?.messages, chatData?.currentUserId, markMessagesAsRead, queryClient]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
-  }, [chatData?.messages]);
+  }, [chatData?.messages, isOtherTyping]);
+
+  // Handle input change with typing indicator
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    
+    // Debounce typing indicator
+    if (typingDebounceRef.current) {
+      clearTimeout(typingDebounceRef.current);
+    }
+    
+    if (e.target.value.trim()) {
+      setTyping(true);
+      typingDebounceRef.current = setTimeout(() => {
+        setTyping(false);
+      }, 2000);
+    } else {
+      setTyping(false);
+    }
+  }, [setTyping]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || !chatData?.currentUserId || !connectionId) return;
     
     setSending(true);
+    setTyping(false);
     const messageText = newMessage.trim();
     setNewMessage("");
 
+    // Create temp message for optimistic update
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const tempMessage: Message = {
+      id: tempId,
+      sender_id: chatData.currentUserId,
+      text: messageText,
+      created_at: new Date().toISOString(),
+      read_at: null,
+    };
+
+    // Immediately show in UI
+    addMessage(tempMessage);
+
     try {
-      const { error } = await supabase.from("messages").insert({
-        connection_id: connectionId,
-        sender_id: chatData.currentUserId,
-        text: messageText,
-      });
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          connection_id: connectionId,
+          sender_id: chatData.currentUserId,
+          text: messageText,
+        })
+        .select("id, sender_id, text, created_at, read_at")
+        .single();
 
       if (error) {
         console.error("Error sending message:", error);
+        removeMessage(tempId);
         setNewMessage(messageText);
+      } else if (data) {
+        replaceMessage(tempId, data);
+        // Invalidate chats preview to update last message
+        queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
       }
     } catch (err) {
       console.error("Error:", err);
+      removeMessage(tempId);
       setNewMessage(messageText);
     } finally {
       setSending(false);
@@ -148,11 +248,15 @@ export default function ChatDetail() {
             <p className="font-display text-foreground truncate">
               {otherUser?.first_name || "Chat"}
             </p>
-            {otherUser?.study_program && (
+            {isOtherTyping ? (
+              <p className="text-xs text-primary animate-pulse">
+                tippt...
+              </p>
+            ) : otherUser?.study_program ? (
               <p className="text-xs text-muted-foreground truncate">
                 {otherUser.study_program}
               </p>
-            )}
+            ) : null}
           </div>
         </button>
       </header>
@@ -179,10 +283,34 @@ export default function ChatDetail() {
                 }`}
               >
                 <p className="text-sm break-words">{msg.text}</p>
+                {/* Read receipt for own messages */}
+                {msg.sender_id === currentUserId && (
+                  <div className="flex justify-end mt-1">
+                    {msg.read_at ? (
+                      <CheckCheck className="w-3.5 h-3.5 text-primary-foreground/70" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5 text-primary-foreground/50" />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))
         )}
+        
+        {/* Typing indicator bubble */}
+        {isOtherTyping && (
+          <div className="flex justify-start">
+            <div className="bg-card border border-primary/20 rounded-2xl rounded-bl-md px-4 py-2">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 
@@ -191,7 +319,7 @@ export default function ChatDetail() {
         <div className="flex gap-2">
           <Input
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="Nachricht schreiben..."
             className="flex-1 bg-card border-primary/20"
