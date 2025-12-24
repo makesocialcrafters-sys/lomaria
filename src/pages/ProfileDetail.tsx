@@ -54,11 +54,11 @@ export default function ProfileDetail() {
           setCurrentUserId(currentUserData.id);
         }
 
-        const { data, error } = await supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("id", userId)
-          .maybeSingle();
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
         if (error) {
           console.error("Error loading profile:", error);
