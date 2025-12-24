@@ -1,0 +1,21 @@
+{
+  "name": "Lomaria",
+  "short_name": "Lomaria",
+  "description": "Exklusives Networking für WU-Studierende",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2d2d2d",
+  "theme_color": "#c9a961",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
