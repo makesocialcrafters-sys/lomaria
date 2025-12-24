@@ -100,12 +100,6 @@ export default function ProfileDetail() {
   const intentLabels = profile?.intents?.map((i) => INTENTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
   const interestLabels = profile?.interests?.map((i) => INTERESTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
 
-  const genderLabels: Record<string, string> = {
-    maennlich: "Männlich",
-    weiblich: "Weiblich",
-    divers: "Divers",
-    keine_angabe: "Keine Angabe",
-  };
 
   const handleBack = () => navigate(-1);
 
@@ -151,10 +145,9 @@ export default function ProfileDetail() {
         <div className="text-center mb-6">
           <h1 className="text-2xl font-display text-foreground">
             {profile.first_name}
-            {age && <span className="font-normal text-muted-foreground ml-2">{age}</span>}
           </h1>
-          {profile.gender && (
-            <p className="text-sm text-muted-foreground mt-1">{genderLabels[profile.gender] || profile.gender}</p>
+          {age && (
+            <p className="text-sm text-muted-foreground mt-1">{age}</p>
           )}
         </div>
 
