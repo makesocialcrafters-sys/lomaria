@@ -109,7 +109,7 @@ export default function Discover() {
         </div>
 
         {/* Profile Cards */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {allProfiles.map((profile) => (
             <UserProfileCard
               key={profile.id}
