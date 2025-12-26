@@ -1,9 +1,5 @@
 export const STUDY_PROGRAMS = [
-  { value: "WiSo-BW", label: "WiSo - Betriebswirtschaft" },
-  { value: "WiSo-IBW", label: "WiSo - Internationale Betriebswirtschaft" },
-  { value: "WiSo-VW", label: "WiSo - Volkswirtschaft" },
-  { value: "WiSo-WUP", label: "WiSo - Wirtschaft und Recht" },
-  { value: "WiSo-WINF", label: "WiSo - Wirtschaftsinformatik" },
+  { value: "WiSo", label: "Wirtschafts- und Sozialwissenschaften (WiSo)" },
   { value: "WiRe", label: "Wirtschaftsrecht (WiRe)" },
   { value: "BBE", label: "Business and Economics (BBE)" },
 ] as const;
