@@ -36,10 +36,10 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
   return (
     <div
       onClick={handleClick}
-      className="bg-card border border-primary/20 rounded-md p-4 cursor-pointer hover:border-primary/40 transition-all duration-500 ease-out"
+      className="bg-card border border-primary/10 rounded-xl p-6 cursor-pointer hover:border-primary/30 transition-all duration-500 ease-out"
     >
-      <div className="flex items-start gap-4">
-        <div className="w-16 h-16 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
+      <div className="flex items-start gap-5">
+        <div className="w-20 h-20 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
           {user.profile_image ? (
             <img
               src={user.profile_image}
@@ -48,7 +48,7 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xl font-medium">
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-2xl font-medium">
               {user.first_name?.charAt(0)?.toUpperCase() || "?"}
             </div>
           )}
@@ -56,31 +56,31 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
-            <h3 className="font-display text-foreground truncate">{user.first_name}</h3>
-            {age && <span className="text-sm text-muted-foreground">{age}</span>}
+            <h3 className="text-lg font-display tracking-wide text-foreground truncate">{user.first_name}</h3>
+            {age && <span className="text-sm text-muted-foreground/70">· {age}</span>}
           </div>
 
-          <p className="text-sm text-muted-foreground truncate mt-0.5">
+          <p className="text-sm text-muted-foreground truncate mt-1.5">
             {studyProgramLabel}
             {studyPhaseLabel && ` · ${studyPhaseLabel}`}
           </p>
 
           {interestLabels.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
+            <div className="flex flex-wrap gap-2.5 mt-4">
               {interestLabels.map((label) => (
-                <span key={label} className="text-xs px-2 py-0.5 bg-secondary rounded text-foreground/80">
+                <span key={label} className="text-xs px-3 py-1 bg-secondary rounded-md text-foreground/80">
                   {label}
                 </span>
               ))}
             </div>
           )}
 
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-2.5 mt-4">
             {intentLabel && (
-              <span className="text-xs px-2 py-0.5 bg-primary/20 text-primary rounded">{intentLabel}</span>
+              <span className="text-xs px-3 py-1 bg-primary/15 text-primary rounded-md">{intentLabel}</span>
             )}
             {user.tutoring_subject && (
-              <span className="text-xs px-2 py-0.5 bg-accent/20 text-accent rounded">
+              <span className="text-xs px-3 py-1 bg-accent/15 text-accent rounded-md">
                 Nachhilfe: {user.tutoring_subject}
               </span>
             )}
