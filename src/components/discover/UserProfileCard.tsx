@@ -39,7 +39,7 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
       className="bg-card border border-primary/10 rounded-xl p-6 cursor-pointer hover:border-primary/30 transition-all duration-500 ease-out"
     >
       <div className="flex items-start gap-5">
-        <div className="w-20 h-20 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
+        <div className="w-24 h-24 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
           {user.profile_image ? (
             <img
               src={user.profile_image}
