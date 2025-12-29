@@ -28,6 +28,16 @@ interface UserProfile {
   bio: string | null;
 }
 
+// Connection types for role-based CTA logic
+type ConnectionStatus = "pending" | "accepted" | "rejected";
+type ConnectionRole = "sender" | "receiver" | null;
+
+type ConnectionRow = {
+  status: ConnectionStatus;
+  from_user: string;
+  to_user: string;
+};
+
 export default function ProfileDetail() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
@@ -36,8 +46,17 @@ export default function ProfileDetail() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [existingConnection, setExistingConnection] = useState<string | null>(null);
+  const [connectionData, setConnectionData] = useState<ConnectionRow | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Derived states from connectionData
+  const existingConnection: ConnectionStatus | null = connectionData?.status ?? null;
+  const connectionRole: ConnectionRole =
+    connectionData?.from_user === currentUserId
+      ? "sender"
+      : connectionData?.to_user === currentUserId
+      ? "receiver"
+      : null;
 
   useEffect(() => {
     async function loadProfile() {
@@ -68,14 +87,14 @@ export default function ProfileDetail() {
         setProfile(data as unknown as UserProfile);
 
         if (currentUserData) {
-          const { data: connectionData } = await supabase
+          const { data: connectionResult } = await supabase
             .from("connections")
-            .select("status")
+            .select("status, from_user, to_user")
             .or(`and(from_user.eq.${currentUserData.id},to_user.eq.${userId}),and(from_user.eq.${userId},to_user.eq.${currentUserData.id})`)
             .maybeSingle();
 
-          if (connectionData) {
-            setExistingConnection(connectionData.status);
+          if (connectionResult) {
+            setConnectionData(connectionResult as ConnectionRow);
           }
         }
       } catch (err) {
@@ -100,6 +119,45 @@ export default function ProfileDetail() {
   const intentLabels = profile?.intents?.map((i) => INTENTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
   const interestLabels = profile?.interests?.map((i) => INTERESTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
 
+  // CTA helper function with role-based logic
+  function getConnectionCTA(
+    status: ConnectionStatus | null,
+    role: ConnectionRole
+  ): React.ReactNode {
+    if (status === "pending" && role === "sender") {
+      return <Button disabled width="full" variant="outline">Anfrage gesendet</Button>;
+    }
+
+    if (status === "pending" && role === "receiver") {
+      return (
+        <Button width="full" variant="outline" onClick={() => navigate("/contacts")}>
+          Eingehende Anfrage ansehen
+        </Button>
+      );
+    }
+
+    if (status === "accepted") {
+      return (
+        <Button width="full" variant="outline" onClick={() => navigate("/chats")}>
+          Chat öffnen
+        </Button>
+      );
+    }
+
+    if (status === "rejected" && role === "sender") {
+      return <Button disabled width="full" variant="outline">Anfrage abgelehnt</Button>;
+    }
+
+    if (status === "rejected" && role === "receiver") {
+      return <Button disabled width="full" variant="outline">Bereits bearbeitet</Button>;
+    }
+
+    return (
+      <Button width="full" onClick={() => setIsDialogOpen(true)}>
+        Kontakt anfragen
+      </Button>
+    );
+  }
 
   const handleBack = () => navigate(-1);
 
@@ -199,15 +257,7 @@ export default function ProfileDetail() {
 
       {!isOwnProfile && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-primary/20">
-          {existingConnection === "pending" ? (
-            <Button disabled width="full" variant="outline">Anfrage gesendet</Button>
-          ) : existingConnection === "accepted" ? (
-            <Button width="full" variant="outline" onClick={() => navigate("/chats")}>Chat öffnen</Button>
-          ) : existingConnection === "rejected" ? (
-            <Button disabled width="full" variant="outline">Anfrage abgelehnt</Button>
-          ) : (
-            <Button width="full" onClick={() => setIsDialogOpen(true)}>Kontakt anfragen</Button>
-          )}
+          {getConnectionCTA(existingConnection, connectionRole)}
         </div>
       )}
 
