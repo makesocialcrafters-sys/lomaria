@@ -11,7 +11,6 @@ import { getCooldownInfo, type CooldownInfo } from "@/lib/cooldown-utils";
 
 interface UserProfile {
   id: string;
-  auth_user_id: string;
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
@@ -75,11 +74,12 @@ export default function ProfileDetail() {
           setCurrentUserId(currentUserData.id);
         }
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle();
+        // Use user_profiles view (excludes email, auth_user_id)
+        const { data, error } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("id", userId)
+          .maybeSingle();
 
         if (error) {
           console.error("Error loading profile:", error);
@@ -109,7 +109,7 @@ export default function ProfileDetail() {
     loadProfile();
   }, [userId, user]);
 
-  const isOwnProfile = profile?.auth_user_id === user?.id;
+  const isOwnProfile = profile?.id === currentUserId;
   const currentYear = new Date().getFullYear();
   
   // Support both age (new) and birthyear (old) fields
