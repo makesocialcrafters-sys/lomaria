@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { useChatData, Message, ChatData } from "@/hooks/useChatData";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
-import { ConversationStarters } from "@/components/chat/ConversationStarters";
+
 
 const INTENT_LABELS: Record<string, string> = {
   neue_leute: "Kennenlernen",
@@ -40,7 +40,7 @@ export default function ChatDetail() {
   
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [showStarters, setShowStarters] = useState(true);
+  
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -162,7 +162,7 @@ export default function ChatDetail() {
     
     setSending(true);
     setTyping(false);
-    setShowStarters(false); // Hide starters after first message
+    
     const messageText = newMessage.trim();
     setNewMessage("");
 
@@ -208,9 +208,6 @@ export default function ChatDetail() {
     }
   };
 
-  const handleStarterSelect = (text: string) => {
-    setNewMessage(text);
-  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -336,13 +333,9 @@ export default function ChatDetail() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area with conversation starters */}
+      {/* Input area */}
       <div className="sticky bottom-0 bg-background border-t border-primary/20">
-        <ConversationStarters 
-          onSelect={handleStarterSelect} 
-          visible={showStarters && messages.length === 0} 
-        />
-        <div className="flex gap-2 p-4 pt-0">
+        <div className="flex gap-2 p-4">
           <Input
             value={newMessage}
             onChange={handleInputChange}
