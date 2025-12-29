@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +25,8 @@ export default function ResetPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidSession, setIsValidSession] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -116,25 +119,39 @@ export default function ResetPassword() {
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm space-y-6">
-        <div className="space-y-1">
+        <div className="space-y-1 relative">
           <Input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Neues Passwort"
-            className="input-elegant"
+            className="input-elegant pr-10"
             {...register("password")}
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
           {errors.password && (
             <p className="text-destructive text-xs mt-1">{errors.password.message}</p>
           )}
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 relative">
           <Input
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             placeholder="Passwort bestätigen"
-            className="input-elegant"
+            className="input-elegant pr-10"
             {...register("confirmPassword")}
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
           {errors.confirmPassword && (
             <p className="text-destructive text-xs mt-1">{errors.confirmPassword.message}</p>
           )}
