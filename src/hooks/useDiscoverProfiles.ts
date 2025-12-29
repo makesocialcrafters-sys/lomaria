@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { getCooldownInfo, type CooldownInfo } from "@/lib/cooldown-utils";
 
 export interface UserProfile {
   id: string;
@@ -8,7 +9,6 @@ export interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
-  // Support both old and new fields
   age?: number | null;
   birthyear?: number | null;
   study_program: string | null;
@@ -17,6 +17,7 @@ export interface UserProfile {
   intents: string[] | null;
   interests: string[] | null;
   tutoring_subject: string | null;
+  cooldownInfo?: CooldownInfo;
 }
 
 interface UseDiscoverProfilesParams {
@@ -51,31 +52,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         .select("from_user, to_user, status, rejected_at")
         .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`) as { data: Array<{ from_user: string; to_user: string; status: string; rejected_at: string | null }> | null };
 
-      // 3. Collect user IDs to exclude based on connection status
-      const COOLDOWN_MS = 72 * 60 * 60 * 1000; // 72 hours
-      const now = Date.now();
-      const connectedUserIds = new Set<string>();
-      connectedUserIds.add(currentUser.id); // Exclude self
-
-      connections?.forEach(conn => {
-        const otherUserId = conn.from_user === currentUser.id ? conn.to_user : conn.from_user;
-        
-        // Exclude pending and accepted connections
-        if (conn.status === "pending" || conn.status === "accepted") {
-          connectedUserIds.add(otherUserId);
-          return;
-        }
-        
-        // For rejected: only exclude if still in 72h cooldown
-        if (conn.status === "rejected" && conn.rejected_at) {
-          const rejectedTime = new Date(conn.rejected_at).getTime();
-          if (now - rejectedTime < COOLDOWN_MS) {
-            connectedUserIds.add(otherUserId);
-          }
-        }
-      });
-
-      // 4. Query profiles with filters
+      // 3. Query profiles with filters
       let query = supabase
         .from("users")
         .select("id, auth_user_id, first_name, last_name, profile_image, birthyear, study_program, semester, intents, interests, tutoring_subject, last_active_at")
@@ -101,16 +78,48 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         throw error;
       }
 
-      // 5. Filter out connected profiles client-side
-      const filteredProfiles = (data || []).filter(
-        profile => !connectedUserIds.has(profile.id)
-      );
+      // 4. Filter profiles based on connection status and attach cooldown info
+      // Rules:
+      // - pending → hide
+      // - accepted → hide
+      // - rejected → show with cooldownInfo
+      // - no connection → show
+      const profilesWithCooldown = (data || [])
+        .filter(profile => {
+          const conn = connections?.find(c =>
+            (c.from_user === currentUser.id && c.to_user === profile.id) ||
+            (c.from_user === profile.id && c.to_user === currentUser.id)
+          );
 
-      // 6. Apply pagination client-side
+          // Hide pending and accepted connections
+          if (conn?.status === "pending" || conn?.status === "accepted") {
+            return false;
+          }
+
+          // Show rejected and no-connection profiles
+          return true;
+        })
+        .map(profile => {
+          const conn = connections?.find(c =>
+            (c.from_user === currentUser.id && c.to_user === profile.id) ||
+            (c.from_user === profile.id && c.to_user === currentUser.id)
+          );
+
+          if (conn?.status === "rejected" && conn.rejected_at) {
+            return {
+              ...profile,
+              cooldownInfo: getCooldownInfo(conn.rejected_at),
+            };
+          }
+
+          return profile;
+        });
+
+      // 5. Apply pagination client-side
       const startIndex = page * PAGE_SIZE;
       const endIndex = startIndex + PAGE_SIZE;
 
-      return filteredProfiles.slice(startIndex, endIndex) as UserProfile[];
+      return profilesWithCooldown.slice(startIndex, endIndex) as UserProfile[];
     },
     enabled: !!user,
     staleTime: 5 * 60 * 1000,

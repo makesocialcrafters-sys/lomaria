@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { ContactRequestDialog } from "@/components/profile/ContactRequestDialog";
 import { STUDY_PROGRAMS, STUDY_PHASES, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { getCooldownInfo, type CooldownInfo } from "@/lib/cooldown-utils";
 
 interface UserProfile {
   id: string;
@@ -36,6 +37,7 @@ type ConnectionRow = {
   status: ConnectionStatus;
   from_user: string;
   to_user: string;
+  rejected_at: string | null;
 };
 
 export default function ProfileDetail() {
@@ -89,7 +91,7 @@ export default function ProfileDetail() {
         if (currentUserData) {
           const { data: connectionResult } = await supabase
             .from("connections")
-            .select("status, from_user, to_user")
+            .select("status, from_user, to_user, rejected_at")
             .or(`and(from_user.eq.${currentUserData.id},to_user.eq.${userId}),and(from_user.eq.${userId},to_user.eq.${currentUserData.id})`)
             .maybeSingle();
 
@@ -119,6 +121,11 @@ export default function ProfileDetail() {
   const intentLabels = profile?.intents?.map((i) => INTENTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
   const interestLabels = profile?.interests?.map((i) => INTERESTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
 
+  // Calculate cooldown info for rejected connections
+  const cooldownInfo: CooldownInfo | null = connectionData?.rejected_at
+    ? getCooldownInfo(connectionData.rejected_at)
+    : null;
+
   // CTA helper function with role-based logic
   function getConnectionCTA(
     status: ConnectionStatus | null,
@@ -145,7 +152,16 @@ export default function ProfileDetail() {
     }
 
     if (status === "rejected" && role === "sender") {
-      return <Button disabled width="full" variant="outline">Anfrage abgelehnt</Button>;
+      return (
+        <div className="space-y-2">
+          <Button disabled width="full" variant="outline">Anfrage nicht möglich</Button>
+          {cooldownInfo?.isActive && (
+            <p className="text-xs text-center text-muted-foreground">
+              Du kannst diese Person in {cooldownInfo.remainingText} erneut kontaktieren.
+            </p>
+          )}
+        </div>
+      );
     }
 
     if (status === "rejected" && role === "receiver") {
