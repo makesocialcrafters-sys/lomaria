@@ -5,7 +5,6 @@ import { getCooldownInfo, type CooldownInfo } from "@/lib/cooldown-utils";
 
 export interface UserProfile {
   id: string;
-  auth_user_id: string;
   first_name: string | null;
   last_name: string | null;
   profile_image: string | null;
@@ -52,11 +51,11 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         .select("from_user, to_user, status, rejected_at")
         .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`) as { data: Array<{ from_user: string; to_user: string; status: string; rejected_at: string | null }> | null };
 
-      // 3. Query profiles with filters
+      // 3. Query profiles with filters (use user_profiles view - excludes email, auth_user_id)
       let query = supabase
-        .from("users")
-        .select("id, auth_user_id, first_name, last_name, profile_image, birthyear, study_program, semester, intents, interests, tutoring_subject, last_active_at")
-        .neq("auth_user_id", user.id)
+        .from("user_profiles")
+        .select("id, first_name, last_name, profile_image, birthyear, age, study_program, semester, intents, interests, tutoring_subject, last_active_at")
+        .neq("id", currentUser.id)
         .not("first_name", "is", null)
         .not("study_program", "is", null)
         .order("last_active_at", { ascending: false, nullsFirst: false });

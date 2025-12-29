@@ -198,7 +198,7 @@ export type Database = {
     Views: {
       user_profiles: {
         Row: {
-          auth_user_id: string | null
+          age: number | null
           bio: string | null
           birthyear: number | null
           created_at: string | null
@@ -212,13 +212,14 @@ export type Database = {
           last_name: string | null
           profile_image: string | null
           semester: string | null
+          study_phase: string | null
           study_program: string | null
           tutoring_desc: string | null
           tutoring_price: number | null
           tutoring_subject: string | null
         }
         Insert: {
-          auth_user_id?: string | null
+          age?: number | null
           bio?: string | null
           birthyear?: number | null
           created_at?: string | null
@@ -232,13 +233,14 @@ export type Database = {
           last_name?: string | null
           profile_image?: string | null
           semester?: string | null
+          study_phase?: string | null
           study_program?: string | null
           tutoring_desc?: string | null
           tutoring_price?: number | null
           tutoring_subject?: string | null
         }
         Update: {
-          auth_user_id?: string | null
+          age?: number | null
           bio?: string | null
           birthyear?: number | null
           created_at?: string | null
@@ -252,6 +254,7 @@ export type Database = {
           last_name?: string | null
           profile_image?: string | null
           semester?: string | null
+          study_phase?: string | null
           study_program?: string | null
           tutoring_desc?: string | null
           tutoring_price?: number | null
