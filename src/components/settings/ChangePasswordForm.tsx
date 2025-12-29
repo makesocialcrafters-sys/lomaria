@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,8 @@ export function ChangePasswordForm({ onCancel }: ChangePasswordFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { toast } = useToast();
 
   const validate = (): boolean => {
@@ -77,13 +80,22 @@ export function ChangePasswordForm({ onCancel }: ChangePasswordFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="newPassword">Neues Passwort</Label>
-        <Input
-          id="newPassword"
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className={errors.newPassword ? "border-destructive" : ""}
-        />
+        <div className="relative">
+          <Input
+            id="newPassword"
+            type={showNewPassword ? "text" : "password"}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className={`pr-10 ${errors.newPassword ? "border-destructive" : ""}`}
+          />
+          <button
+            type="button"
+            onClick={() => setShowNewPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
         {errors.newPassword && (
           <p className="text-sm text-destructive">{errors.newPassword}</p>
         )}
@@ -91,13 +103,22 @@ export function ChangePasswordForm({ onCancel }: ChangePasswordFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Neues Passwort wiederholen</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className={errors.confirmPassword ? "border-destructive" : ""}
-        />
+        <div className="relative">
+          <Input
+            id="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={`pr-10 ${errors.confirmPassword ? "border-destructive" : ""}`}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
         {errors.confirmPassword && (
           <p className="text-sm text-destructive">{errors.confirmPassword}</p>
         )}
