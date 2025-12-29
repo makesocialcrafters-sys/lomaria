@@ -152,15 +152,24 @@ export default function ProfileDetail() {
     }
 
     if (status === "rejected" && role === "sender") {
-      return (
-        <div className="space-y-2">
-          <Button disabled width="full" variant="outline">Anfrage nicht möglich</Button>
-          {cooldownInfo?.isActive && (
+      // Cooldown still active → disabled button with hint
+      if (cooldownInfo?.isActive) {
+        return (
+          <div className="space-y-2">
+            <Button disabled width="full" variant="outline">Anfrage nicht möglich</Button>
             <p className="text-xs text-center text-muted-foreground">
               Du kannst diese Person in {cooldownInfo.remainingText} erneut kontaktieren.
             </p>
-          )}
-        </div>
+          </div>
+        );
+      }
+      
+      // Cooldown expired → show normal "Kontakt anfragen" button
+      // Old rejected connection will be auto-deleted when new request is sent
+      return (
+        <Button width="full" onClick={() => setIsDialogOpen(true)}>
+          Kontakt anfragen
+        </Button>
       );
     }
 
