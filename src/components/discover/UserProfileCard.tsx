@@ -85,6 +85,12 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
               </span>
             )}
           </div>
+
+          {user.cooldownInfo?.isActive && (
+            <p className="mt-4 text-xs text-muted-foreground/60 italic">
+              Erneut anfragbar in {user.cooldownInfo.remainingText}
+            </p>
+          )}
         </div>
       </div>
     </div>
