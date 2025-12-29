@@ -20,6 +20,7 @@ export type Database = {
           from_user: string
           id: string
           message: string | null
+          rejected_at: string | null
           status: string
           to_user: string
         }
@@ -28,6 +29,7 @@ export type Database = {
           from_user: string
           id?: string
           message?: string | null
+          rejected_at?: string | null
           status?: string
           to_user: string
         }
@@ -36,6 +38,7 @@ export type Database = {
           from_user?: string
           id?: string
           message?: string | null
+          rejected_at?: string | null
           status?: string
           to_user?: string
         }
