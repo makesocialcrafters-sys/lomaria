@@ -184,9 +184,13 @@ export default function RequestDetail() {
 
       {/* Content */}
       <div className="px-6 py-8 pb-32">
-        {/* Profile Image */}
-        <div className="flex justify-center mb-6">
-          <div className="w-28 h-28 rounded-full bg-skeleton overflow-hidden">
+        {/* Clickable Profile Area */}
+        <button
+          onClick={() => navigate(`/discover/profile/${request.sender.id}`)}
+          className="w-full flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity duration-300 mb-6"
+        >
+          {/* Profile Image */}
+          <div className="w-28 h-28 rounded-full bg-skeleton overflow-hidden mb-4">
             {request.sender.profile_image ? (
               <img
                 src={request.sender.profile_image}
@@ -199,10 +203,8 @@ export default function RequestDetail() {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Name */}
-        <div className="text-center mb-6">
+          {/* Name */}
           <h1 className="text-2xl font-display text-foreground">
             {request.sender.first_name} {request.sender.last_name}
           </h1>
@@ -214,7 +216,10 @@ export default function RequestDetail() {
               {request.sender.semester}. Semester
             </p>
           )}
-        </div>
+          <p className="text-xs text-muted-foreground/60 mt-2">
+            Tippe, um das Profil anzusehen
+          </p>
+        </button>
 
         <div className="divider-subtle mb-6" />
 

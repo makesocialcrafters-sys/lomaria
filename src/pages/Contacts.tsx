@@ -54,6 +54,7 @@ export default function Contacts() {
                 <IncomingRequestCard
                   key={req.id}
                   connectionId={req.id}
+                  senderId={req.sender.id}
                   senderName={req.sender.first_name}
                   senderImage={req.sender.profile_image}
                   studyProgram={getStudyProgramLabel(req.sender.study_program)}

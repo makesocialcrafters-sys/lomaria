@@ -6,6 +6,7 @@ export interface IncomingRequest {
   id: string;
   message: string | null;
   sender: {
+    id: string;
     first_name: string;
     profile_image: string | null;
     study_program: string | null;
@@ -49,6 +50,7 @@ export function useIncomingRequests() {
           id: req.id,
           message: req.message,
           sender: {
+            id: sender?.id || "",
             first_name: sender?.first_name || "Unbekannt",
             profile_image: sender?.profile_image || null,
             study_program: sender?.study_program || null,
