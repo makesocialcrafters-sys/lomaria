@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 interface IncomingRequestCardProps {
   connectionId: string;
+  senderId?: string;
   senderName: string;
   senderImage: string | null;
   studyProgram: string | null;
@@ -11,6 +12,7 @@ interface IncomingRequestCardProps {
 
 export function IncomingRequestCard({
   connectionId,
+  senderId,
   senderName,
   senderImage,
   studyProgram,
