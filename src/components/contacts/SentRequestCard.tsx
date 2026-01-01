@@ -21,7 +21,7 @@ export function SentRequestCard({
 
   return (
     <button
-      onClick={() => navigate(`/profile/${recipientId}`)}
+      onClick={() => navigate(`/discover/profile/${recipientId}`)}
       className="w-full flex items-center gap-4 p-4 bg-card border border-border/30 rounded-md hover:border-primary/50 transition-colors text-left"
     >
       {/* Profile Image */}
