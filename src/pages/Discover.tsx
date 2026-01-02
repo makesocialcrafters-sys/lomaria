@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDiscoverProfiles, useTutoringSubjects, UserProfile } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
@@ -8,11 +8,14 @@ const PAGE_SIZE = 20;
 
 export default function Discover() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Filter state persists because component doesn't unmount
-  const [studyProgram, setStudyProgram] = useState<string | null>(null);
-  const [tutoringSubject, setTutoringSubject] = useState<string | null>(null);
-  const [intent, setIntent] = useState<string | null>(null);
+  // Filter aus URL lesen (Source of Truth)
+  const studyProgram = searchParams.get("study");
+  const tutoringSubject = searchParams.get("tutoring");
+  const intent = searchParams.get("intent");
+
+  // Nur page und allProfiles bleiben als lokaler State
   const [page, setPage] = useState(0);
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
 
@@ -24,6 +27,12 @@ export default function Discover() {
     page,
   });
   const { data: tutoringSubjects = [] } = useTutoringSubjects();
+
+  // Reset page and profiles when filters change
+  useEffect(() => {
+    setPage(0);
+    setAllProfiles([]);
+  }, [studyProgram, tutoringSubject, intent]);
 
   // Accumulate profiles when new page is loaded
   useEffect(() => {
@@ -47,37 +56,23 @@ export default function Discover() {
     }
   };
 
+  // Generische Filter-Update-Funktion
+  const updateFilter = (key: string, value: string | null) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    setSearchParams(newParams, { replace: true });
+  };
+
+  const handleStudyProgramChange = (value: string | null) => updateFilter("study", value);
+  const handleTutoringSubjectChange = (value: string | null) => updateFilter("tutoring", value);
+  const handleIntentChange = (value: string | null) => updateFilter("intent", value);
+
   const handleResetFilters = () => {
-    setStudyProgram(null);
-    setTutoringSubject(null);
-    setIntent(null);
-    setPage(0);
-    setAllProfiles([]);
-  };
-
-  const handleClearStudyProgram = () => {
-    setStudyProgram(null);
-    setPage(0);
-    setAllProfiles([]);
-  };
-
-  const handleClearTutoringSubject = () => {
-    setTutoringSubject(null);
-    setPage(0);
-    setAllProfiles([]);
-  };
-
-  const handleClearIntent = () => {
-    setIntent(null);
-    setPage(0);
-    setAllProfiles([]);
-  };
-
-  const handleFilterChange = (
-    setter: React.Dispatch<React.SetStateAction<string | null>>
-  ) => (value: string | null) => {
-    setter(value);
-    setPage(0);
+    setSearchParams({}, { replace: true });
   };
 
   const handleProfileClick = (profileId: string) => {
@@ -98,12 +93,12 @@ export default function Discover() {
             tutoringSubject={tutoringSubject}
             intent={intent}
             tutoringSubjects={tutoringSubjects}
-            onStudyProgramChange={handleFilterChange(setStudyProgram)}
-            onTutoringSubjectChange={handleFilterChange(setTutoringSubject)}
-            onIntentChange={handleFilterChange(setIntent)}
-            onClearStudyProgram={handleClearStudyProgram}
-            onClearTutoringSubject={handleClearTutoringSubject}
-            onClearIntent={handleClearIntent}
+            onStudyProgramChange={handleStudyProgramChange}
+            onTutoringSubjectChange={handleTutoringSubjectChange}
+            onIntentChange={handleIntentChange}
+            onClearStudyProgram={() => handleStudyProgramChange(null)}
+            onClearTutoringSubject={() => handleTutoringSubjectChange(null)}
+            onClearIntent={() => handleIntentChange(null)}
             onReset={handleResetFilters}
           />
         </div>
