@@ -95,10 +95,17 @@ export default function RequestDetail() {
   }, [connectionId, user, navigate]);
 
   const handleAccept = async () => {
-    if (!request) return;
+    if (!request || !user) return;
     setProcessing(true);
 
     try {
+      // Get current user's profile ID
+      const { data: currentUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
       const { error } = await supabase
         .from("connections")
         .update({ status: "accepted" })
@@ -108,6 +115,20 @@ export default function RequestDetail() {
         console.error("Error accepting request:", error);
         toast.error("Fehler beim Annehmen der Anfrage");
         return;
+      }
+
+      // Send email notification to the requester (fire and forget)
+      if (currentUser) {
+        supabase.functions.invoke("notify-connection", {
+          body: {
+            type: "request_accepted",
+            connectionId: request.id,
+            fromUserId: currentUser.id,  // The accepter
+            toUserId: request.sender.id, // The original requester
+          },
+        }).catch((err) => {
+          console.error("Error sending email notification:", err);
+        });
       }
 
       toast.success("Kontaktanfrage angenommen!");
