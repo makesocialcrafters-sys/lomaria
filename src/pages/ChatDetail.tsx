@@ -198,6 +198,22 @@ export default function ChatDetail() {
         replaceMessage(tempId, data);
         // Invalidate chats preview to update last message
         queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
+        
+        // Send email notification (fire and forget - don't block on this)
+        // Only notify if recipient is offline (checked in edge function)
+        if (otherUser?.id) {
+          supabase.functions.invoke("notify-connection", {
+            body: {
+              type: "new_message",
+              connectionId,
+              fromUserId: chatData.currentUserId,
+              toUserId: otherUser.id,
+              message: messageText,
+            },
+          }).catch((err) => {
+            console.error("Error sending email notification:", err);
+          });
+        }
       }
     } catch (err) {
       console.error("Error:", err);

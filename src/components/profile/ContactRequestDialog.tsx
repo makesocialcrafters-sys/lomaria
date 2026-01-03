@@ -91,6 +91,18 @@ export function ContactRequestDialog({
         return;
       }
 
+      // Send email notification (fire and forget - don't block on this)
+      supabase.functions.invoke("notify-connection", {
+        body: {
+          type: "contact_request",
+          fromUserId,
+          toUserId,
+          message: message.trim(),
+        },
+      }).catch((err) => {
+        console.error("Error sending email notification:", err);
+      });
+
       toast.success("Kontaktanfrage gesendet!");
       onOpenChange(false);
       navigate("/discover");

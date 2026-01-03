@@ -1,1 +1,13 @@
 project_id = "otzcvsbmswxcxpnqafpc"
+
+[functions.delete-account]
+verify_jwt = true
+
+[functions.send-email]
+verify_jwt = true
+
+[functions.auth-email-hook]
+verify_jwt = false
+
+[functions.notify-connection]
+verify_jwt = true
