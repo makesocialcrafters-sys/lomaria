@@ -202,7 +202,7 @@ const handler = async (req: Request): Promise<Response> => {
     const template = templateFn(data as never);
 
     const emailResponse = await resend.emails.send({
-      from: "Lomaria <noreply@mail.lomaria.at>",
+      from: "Lomaria <hi@hi.lomaria.at>",
       to: [to],
       subject: template.subject,
       html: template.html,
