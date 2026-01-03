@@ -199,7 +199,7 @@ const handler = async (req: Request): Promise<Response> => {
     const template = templateFn({ confirmationUrl });
 
     const { error } = await resend.emails.send({
-      from: "Lomaria <noreply@mail.lomaria.at>",
+      from: "Lomaria <hi@hi.lomaria.at>",
       to: [user.email],
       subject: template.subject,
       html: template.html,
