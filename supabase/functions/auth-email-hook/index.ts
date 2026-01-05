@@ -1,7 +1,8 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const hookSecret = Deno.env.get("SEND_EMAIL_HOOK_SECRET") || "";
 
 // Lomaria Brand Colors
 const BRAND_COLORS = {
@@ -170,14 +171,30 @@ interface AuthEmailPayload {
   };
 }
 
-const handler = async (req: Request): Promise<Response> => {
+Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
 
+  const payload = await req.text();
+  const headers = Object.fromEntries(req.headers);
+
+  // Verify webhook signature
+  const wh = new Webhook(hookSecret);
+  let data: AuthEmailPayload;
+
   try {
-    const payload: AuthEmailPayload = await req.json();
-    const { user, email_data } = payload;
+    data = wh.verify(payload, headers) as AuthEmailPayload;
+  } catch (error) {
+    console.error("Webhook signature verification failed:", error);
+    return new Response(
+      JSON.stringify({ error: { http_code: 401, message: "Unauthorized" } }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  try {
+    const { user, email_data } = data;
 
     console.log(`Auth email hook triggered for ${email_data.email_action_type} to ${user.email}`);
 
@@ -232,6 +249,4 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
   }
-};
-
-serve(handler);
+});
