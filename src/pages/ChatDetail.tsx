@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { useChatData, Message, ChatData } from "@/hooks/useChatData";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
 
 
 const INTENT_LABELS: Record<string, string> = {
@@ -297,6 +298,17 @@ export default function ChatDetail() {
             ) : null}
           </div>
         </button>
+
+        {/* User Action Menu */}
+        {otherUser?.id && currentUserId && connectionId && (
+          <UserActionMenu
+            targetUserId={otherUser.id}
+            targetUserName={otherUser.first_name || "Nutzer"}
+            connectionId={connectionId}
+            currentUserId={currentUserId}
+            onActionComplete={() => navigate("/chats")}
+          />
+        )}
       </header>
 
       {/* Messages */}
