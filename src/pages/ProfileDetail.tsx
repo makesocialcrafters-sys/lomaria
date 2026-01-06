@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { ContactRequestDialog } from "@/components/profile/ContactRequestDialog";
+import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
+import { useBlockedUserIds } from "@/hooks/useBlockedUserIds";
 import { STUDY_PROGRAMS, STUDY_PHASES, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import { getCooldownInfo, type CooldownInfo } from "@/lib/cooldown-utils";
 
@@ -33,6 +35,7 @@ type ConnectionStatus = "pending" | "accepted" | "rejected";
 type ConnectionRole = "sender" | "receiver" | null;
 
 type ConnectionRow = {
+  id: string;
   status: ConnectionStatus;
   from_user: string;
   to_user: string;
@@ -43,12 +46,16 @@ export default function ProfileDetail() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { data: blockedUserIds = [] } = useBlockedUserIds();
   
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [connectionData, setConnectionData] = useState<ConnectionRow | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Check if this user is blocked
+  const isBlocked = userId ? blockedUserIds.includes(userId) : false;
 
   // Derived states from connectionData
   const existingConnection: ConnectionStatus | null = connectionData?.status ?? null;
@@ -91,7 +98,7 @@ export default function ProfileDetail() {
         if (currentUserData) {
           const { data: connectionResult } = await supabase
             .from("connections")
-            .select("status, from_user, to_user, rejected_at")
+            .select("id, status, from_user, to_user, rejected_at")
             .or(`and(from_user.eq.${currentUserData.id},to_user.eq.${userId}),and(from_user.eq.${userId},to_user.eq.${currentUserData.id})`)
             .maybeSingle();
 
@@ -194,6 +201,16 @@ export default function ProfileDetail() {
     );
   }
 
+  // Show blocked message
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <p className="text-muted-foreground mb-4">Dieses Profil ist nicht verfügbar.</p>
+        <Button variant="outline" onClick={handleBack}>Zurück</Button>
+      </div>
+    );
+  }
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
@@ -205,11 +222,22 @@ export default function ProfileDetail() {
 
   return (
     <div className="min-h-screen bg-background animate-cinematic-enter">
-      <header className="sticky top-0 z-10 bg-background border-b border-primary/20 px-4 py-3">
+      <header className="sticky top-0 z-10 bg-background border-b border-primary/20 px-4 py-3 flex items-center justify-between">
         <button onClick={handleBack} className="flex items-center gap-2 text-foreground/60 hover:text-primary transition-all duration-500">
           <ArrowLeft className="w-5 h-5" />
           <span className="font-display text-sm tracking-wide">Zurück</span>
         </button>
+        
+        {/* User Action Menu - only for accepted connections */}
+        {existingConnection === "accepted" && currentUserId && connectionData?.id && (
+          <UserActionMenu
+            targetUserId={userId!}
+            targetUserName={profile.first_name || "Nutzer"}
+            connectionId={connectionData.id}
+            currentUserId={currentUserId}
+            onActionComplete={() => navigate("/discover")}
+          />
+        )}
       </header>
 
       <div className="px-6 py-8 pb-32">

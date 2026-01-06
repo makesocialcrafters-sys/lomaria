@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCooldownInfo, type CooldownInfo } from "@/lib/cooldown-utils";
+import { useBlockedUserIds } from "./useBlockedUserIds";
 
 export interface UserProfile {
   id: string;
@@ -30,9 +31,10 @@ const PAGE_SIZE = 20;
 
 export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, page }: UseDiscoverProfilesParams) {
   const { user } = useAuth();
+  const { data: blockedUserIds = [] } = useBlockedUserIds();
 
   return useQuery({
-    queryKey: ["discover-profiles", user?.id, studyProgram, tutoringSubject, intent, page],
+    queryKey: ["discover-profiles", user?.id, studyProgram, tutoringSubject, intent, page, blockedUserIds],
     queryFn: async () => {
       if (!user) return [];
 
@@ -112,9 +114,11 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
           }
 
           return profile;
-        });
+        })
+        // 5. Filter out blocked users
+        .filter(profile => !blockedUserIds.includes(profile.id as string));
 
-      // 5. Apply pagination client-side
+      // 6. Apply pagination client-side
       const startIndex = page * PAGE_SIZE;
       const endIndex = startIndex + PAGE_SIZE;
 

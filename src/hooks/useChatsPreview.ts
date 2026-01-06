@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBlockedUserIds } from "./useBlockedUserIds";
 
 export interface ChatPreview {
   connectionId: string;
@@ -20,9 +21,10 @@ export interface ChatPreview {
 
 export function useChatsPreview() {
   const { user } = useAuth();
+  const { data: blockedUserIds = [] } = useBlockedUserIds();
 
   return useQuery({
-    queryKey: ["chats-preview", user?.id],
+    queryKey: ["chats-preview", user?.id, blockedUserIds],
     queryFn: async (): Promise<ChatPreview[]> => {
       if (!user) return [];
 
@@ -44,10 +46,18 @@ export function useChatsPreview() {
 
       if (!acceptedData || acceptedData.length === 0) return [];
 
-      // Get other user IDs
-      const otherUserIds = acceptedData.map((c) =>
-        c.from_user === currentUser.id ? c.to_user : c.from_user
-      );
+      // Get other user IDs, filter out blocked users
+      const otherUserIds = acceptedData
+        .map((c) => c.from_user === currentUser.id ? c.to_user : c.from_user)
+        .filter((id) => !blockedUserIds.includes(id));
+
+      if (otherUserIds.length === 0) return [];
+
+      // Filter connections to only include non-blocked users
+      const filteredConnections = acceptedData.filter((c) => {
+        const otherId = c.from_user === currentUser.id ? c.to_user : c.from_user;
+        return !blockedUserIds.includes(otherId);
+      });
 
       // Get other user profiles
       const { data: otherProfiles } = await supabase
@@ -56,7 +66,7 @@ export function useChatsPreview() {
         .in("id", otherUserIds);
 
       // Get all messages for connections (for last message and unread count)
-      const connectionIds = acceptedData.map((c) => c.id);
+      const connectionIds = filteredConnections.map((c) => c.id);
       const { data: messages } = await supabase
         .from("messages")
         .select("connection_id, sender_id, text, created_at, read_at")
@@ -64,7 +74,7 @@ export function useChatsPreview() {
         .order("created_at", { ascending: false });
 
       // Build chat previews
-      const chatPreviews: ChatPreview[] = acceptedData.map((conn) => {
+      const chatPreviews: ChatPreview[] = filteredConnections.map((conn) => {
         const otherId = conn.from_user === currentUser.id ? conn.to_user : conn.from_user;
         const other = otherProfiles?.find((p) => p.id === otherId);
         
