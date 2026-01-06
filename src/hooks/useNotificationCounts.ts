@@ -28,7 +28,7 @@ export function useNotificationCounts() {
         },
         (payload) => {
           if (payload.new.sender_id !== user.id) {
-            queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
+            queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
           }
         }
       )
@@ -42,7 +42,7 @@ export function useNotificationCounts() {
           filter: `to_user=eq.${user.id}`
         },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["incoming-requests"] });
+          queryClient.invalidateQueries({ queryKey: ["incoming-requests", user.id] });
         }
       )
       .on(
@@ -54,7 +54,7 @@ export function useNotificationCounts() {
           filter: `to_user=eq.${user.id}`
         },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["incoming-requests"] });
+          queryClient.invalidateQueries({ queryKey: ["incoming-requests", user.id] });
         }
       )
       .subscribe();
