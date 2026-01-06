@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -302,10 +302,26 @@ export default function Auth() {
         )}
       </button>
 
+      {/* Legal Links */}
+      <div 
+        className="absolute bottom-14 flex gap-4 font-display text-[10px] text-foreground/30 tracking-[0.05em] opacity-0"
+        style={{ animation: "cinematic-fade 0.8s ease-out 1.6s forwards" }}
+      >
+        <Link to="/legal?section=impressum" className="hover:text-primary/60 transition-colors duration-500">
+          Impressum
+        </Link>
+        <Link to="/legal?section=agb" className="hover:text-primary/60 transition-colors duration-500">
+          AGB
+        </Link>
+        <Link to="/legal?section=datenschutz" className="hover:text-primary/60 transition-colors duration-500">
+          Datenschutz
+        </Link>
+      </div>
+
       {/* Footnote */}
       <p 
         className="absolute bottom-8 font-display text-[10px] text-foreground/20 tracking-[0.08em] opacity-0"
-        style={{ animation: "cinematic-fade 0.8s ease-out 1.6s forwards" }}
+        style={{ animation: "cinematic-fade 0.8s ease-out 1.8s forwards" }}
       >
         Testmodus: @gmail.com erlaubt
       </p>

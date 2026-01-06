@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -34,8 +34,21 @@ const Index = () => {
         Join with WU Email
       </button>
       
+      {/* Legal Links */}
+      <div className="absolute bottom-16 flex gap-4 font-display text-[10px] text-foreground/25 tracking-[0.05em] animate-cinematic-fade [animation-delay:2.4s] opacity-0 [animation-fill-mode:forwards]">
+        <Link to="/legal?section=impressum" className="hover:text-primary/50 transition-colors duration-500">
+          Impressum
+        </Link>
+        <Link to="/legal?section=agb" className="hover:text-primary/50 transition-colors duration-500">
+          AGB
+        </Link>
+        <Link to="/legal?section=datenschutz" className="hover:text-primary/50 transition-colors duration-500">
+          Datenschutz
+        </Link>
+      </div>
+
       {/* Footnote - Positioned at bottom, very discreet */}
-      <p className="absolute bottom-8 font-display text-[10px] text-foreground/25 tracking-[0.08em] animate-cinematic-fade [animation-delay:2.4s] opacity-0 [animation-fill-mode:forwards]">
+      <p className="absolute bottom-8 font-display text-[10px] text-foreground/25 tracking-[0.08em] animate-cinematic-fade [animation-delay:2.6s] opacity-0 [animation-fill-mode:forwards]">
         Access restricted to verified WU Wien students.
       </p>
       
