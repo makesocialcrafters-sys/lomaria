@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { User, Users, MessageCircle, UserCircle } from "lucide-react";
+import { useNotificationCounts } from "@/hooks/useNotificationCounts";
 
 const navItems = [
   { to: "/discover", icon: User, label: "Entdecken" },
@@ -10,14 +11,20 @@ const navItems = [
 
 export function BottomNavigation() {
   const location = useLocation();
+  const { hasNewContacts, hasUnreadMessages } = useNotificationCounts();
 
   const isActive = (to: string) => {
     if (to === "/profile") {
-      // Only active for exact /profile (own profile)
       return location.pathname === "/profile";
     }
-    // For other tabs: active if path starts with the tab route
     return location.pathname.startsWith(to);
+  };
+
+  const showNotificationDot = (to: string) => {
+    if (isActive(to)) return false;
+    if (to === "/contacts") return hasNewContacts;
+    if (to === "/chats") return hasUnreadMessages;
+    return false;
   };
 
   return (
@@ -35,7 +42,15 @@ export function BottomNavigation() {
               }`
             }
           >
-            <Icon className="w-5 h-5" strokeWidth={1.5} />
+            <div className="relative">
+              <Icon className="w-5 h-5" strokeWidth={1.5} />
+              {showNotificationDot(to) && (
+                <span
+                  aria-label="Neue Aktivität"
+                  className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-primary rounded-full"
+                />
+              )}
+            </div>
             <span className="font-display text-[10px] tracking-[0.15em] uppercase">
               {label}
             </span>
