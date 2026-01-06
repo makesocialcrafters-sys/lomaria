@@ -81,6 +81,8 @@ interface NotifyRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("notify-connection invoked, method:", req.method);
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -90,8 +92,10 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { type, connectionId, fromUserId, toUserId, message }: NotifyRequest = await req.json();
+    const body = await req.json();
+    const { type, connectionId, fromUserId, toUserId, message }: NotifyRequest = body;
 
+    console.log("Request body:", JSON.stringify(body));
     console.log(`Notify connection: ${type} from ${fromUserId} to ${toUserId}`);
 
     // Fetch sender info
@@ -215,8 +219,10 @@ const handler = async (req: Request): Promise<Response> => {
       `);
     }
 
+    console.log(`Sending email to ${recipientEmail} with subject: ${subject}`);
+    
     const { error } = await resend.emails.send({
-      from: "Lomaria <noreply@mail.lomaria.at>",
+      from: "Lomaria <hi@hi.lomaria.at>",
       to: [recipientEmail],
       subject,
       html: htmlContent,
