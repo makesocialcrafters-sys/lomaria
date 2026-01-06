@@ -128,7 +128,9 @@ export default function ChatDetail() {
         .update({ read_at: new Date().toISOString() })
         .in("id", unreadIds)
         .then(() => {
-          queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
+          if (user) {
+            queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
+          }
         });
     }
   }, [chatData?.messages, chatData?.currentUserId, markMessagesAsRead, queryClient]);
@@ -194,10 +196,12 @@ export default function ChatDetail() {
         console.error("Error sending message:", error);
         removeMessage(tempId);
         setNewMessage(messageText);
-      } else if (data) {
-        replaceMessage(tempId, data);
-        // Invalidate chats preview to update last message
-        queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
+        } else if (data) {
+          replaceMessage(tempId, data);
+          // Invalidate chats preview to update last message
+          if (user) {
+            queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
+          }
         
         // Send email notification (fire and forget - don't block on this)
         // Only notify if recipient is offline (checked in edge function)

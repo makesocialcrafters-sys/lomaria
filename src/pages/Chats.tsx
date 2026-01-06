@@ -95,6 +95,7 @@ export default function Chats() {
                   )}
                   {chat.lastMessage ? (
                     <p className={`text-sm truncate mt-1 ${chat.unreadCount > 0 ? "text-foreground font-medium" : "text-foreground/70"}`}>
+                      {chat.lastMessageFromMe ? "Du: " : ""}
                       {truncateMessage(chat.lastMessage.text)}
                     </p>
                   ) : (

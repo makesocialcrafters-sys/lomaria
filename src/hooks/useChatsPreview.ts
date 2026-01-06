@@ -14,6 +14,7 @@ export interface ChatPreview {
     text: string;
     created_at: string;
   } | null;
+  lastMessageFromMe: boolean;
   unreadCount: number;
 }
 
@@ -87,6 +88,7 @@ export function useChatsPreview() {
           lastMessage: lastMsg
             ? { text: lastMsg.text, created_at: lastMsg.created_at }
             : null,
+          lastMessageFromMe: !!lastMsg && lastMsg.sender_id === currentUser.id,
           unreadCount,
         };
       });
