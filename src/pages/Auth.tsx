@@ -21,7 +21,7 @@ export default function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [view, setView] = useState<ForgotPasswordView>("auth");
   const [showPassword, setShowPassword] = useState(false);
-  const { user, loading, signIn, signUp } = useAuth();
+  const { user, loading, authEvent, clearAuthEvent, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -42,12 +42,18 @@ export default function Auth() {
     resolver: zodResolver(emailSchema),
   });
 
-  // Redirect if already logged in
+  // Redirect based on auth state
   useEffect(() => {
     if (!loading && user) {
-      navigate("/discover");
+      // If this is a password recovery event, redirect to reset-password
+      if (authEvent === "PASSWORD_RECOVERY") {
+        clearAuthEvent();
+        navigate("/reset-password");
+      } else {
+        navigate("/discover");
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, authEvent, navigate, clearAuthEvent]);
 
   const onSubmit = async (data: AuthFormData) => {
     setIsSubmitting(true);
