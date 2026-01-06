@@ -176,26 +176,6 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `);
     } else if (type === "new_message") {
-      // Check if recipient is offline (last_active > 5 min ago)
-      const { data: recipientUser } = await supabase
-        .from("users")
-        .select("last_active_at")
-        .eq("id", toUserId)
-        .single();
-
-      if (recipientUser?.last_active_at) {
-        const lastActive = new Date(recipientUser.last_active_at);
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        
-        if (lastActive > fiveMinutesAgo) {
-          console.log("Recipient is online, skipping email notification");
-          return new Response(JSON.stringify({ skipped: true, reason: "recipient_online" }), {
-            status: 200,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-      }
-
       const preview = message && message.length > 100 ? message.substring(0, 100) + "..." : message;
       subject = `Neue Nachricht von ${senderName}`;
       htmlContent = emailWrapper(`
