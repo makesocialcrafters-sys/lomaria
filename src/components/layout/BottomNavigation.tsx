@@ -28,14 +28,18 @@ export function BottomNavigation() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
+    <nav 
+      aria-label="Hauptnavigation" 
+      className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50"
+    >
       <div className="flex items-center justify-around h-16 max-w-md mx-auto">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
+            aria-current={isActive(to) ? "page" : undefined}
             className={() =>
-              `flex flex-col items-center justify-center gap-1 px-4 py-2 transition-all duration-500 ease-out ${
+              `flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[48px] px-4 py-2 transition-all duration-500 ease-out ${
                 isActive(to) 
                   ? "text-primary border-t-2 border-primary -mt-0.5" 
                   : "text-foreground/60 hover:text-foreground"
@@ -43,7 +47,7 @@ export function BottomNavigation() {
             }
           >
             <div className="relative">
-              <Icon className="w-5 h-5" strokeWidth={1.5} />
+              <Icon className="w-5 h-5" strokeWidth={1.5} aria-hidden="true" />
               {showNotificationDot(to) && (
                 <span
                   aria-label="Neue Aktivität"

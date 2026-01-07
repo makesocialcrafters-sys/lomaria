@@ -7,9 +7,9 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="animate-cinematic-enter">
+      <main id="main-content" className="animate-cinematic-enter">
         <Outlet />
-      </div>
+      </main>
       <BottomNavigation />
     </div>
   );

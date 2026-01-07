@@ -126,55 +126,52 @@ export default function Auth() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-px w-24 bg-primary/30 overflow-hidden">
-          <div className="h-full w-full bg-primary/60" style={{ animation: "cinematic-fade 1.5s ease-out infinite" }} />
+      <main className="min-h-screen bg-background flex items-center justify-center" aria-busy="true" aria-label="Laden">
+        <div className="h-px w-24 bg-primary/30 overflow-hidden" role="progressbar" aria-label="Lade-Fortschritt">
+          <div className="h-full w-full bg-primary/60 animate-fade-in" />
         </div>
-      </div>
+      </main>
     );
   }
 
   // Forgot Password View
   if (view === "forgot") {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
+      <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
         {/* Headline */}
-        <h1 
-          className="font-display text-2xl md:text-3xl text-primary tracking-[0.12em] mb-4 opacity-0"
-          style={{ animation: "cinematic-slide 1.2s ease-out 0.3s forwards" }}
-        >
+        <h1 className="font-display text-2xl md:text-3xl text-primary tracking-[0.12em] mb-4 animate-cinematic-stagger-1">
           Passwort zurücksetzen
         </h1>
         
         {/* Gold Divider */}
         <div 
-          className="w-12 h-px bg-primary/40 mb-4 opacity-0"
-          style={{ animation: "cinematic-fade 1s ease-out 0.6s forwards" }}
+          className="w-12 h-px bg-primary/40 mb-4 animate-cinematic-stagger-2"
+          role="presentation"
+          aria-hidden="true"
         />
         
         {/* Subline */}
-        <p 
-          className="font-display text-sm text-foreground/50 tracking-[0.08em] mb-12 text-center opacity-0"
-          style={{ animation: "cinematic-fade 1s ease-out 0.8s forwards" }}
-        >
+        <p className="font-display text-sm text-foreground/50 tracking-[0.08em] mb-12 text-center animate-cinematic-stagger-3">
           Gib deine E-Mail ein, um einen Reset-Link zu erhalten
         </p>
 
         {/* Form */}
         <form 
           onSubmit={handleSubmitForgot(onForgotSubmit)} 
-          className="w-full max-w-sm space-y-6 opacity-0"
-          style={{ animation: "cinematic-fade 0.8s ease-out 1s forwards" }}
+          className="w-full max-w-sm space-y-6 animate-cinematic-stagger-4"
         >
           <div className="space-y-1">
+            <label htmlFor="forgot-email" className="sr-only">E-Mail-Adresse</label>
             <Input
+              id="forgot-email"
               type="email"
               placeholder="E-Mail"
+              autoComplete="email"
               className="h-12 bg-transparent border-0 border-b border-primary/30 rounded-none text-foreground placeholder:text-foreground/30 focus:border-primary/60 focus-visible:ring-0 font-display tracking-wide transition-colors duration-500"
               {...registerForgot("email")}
             />
             {forgotErrors.email && (
-              <p className="text-destructive text-xs mt-1 font-display">{forgotErrors.email.message}</p>
+              <p className="text-destructive text-xs mt-1 font-display" role="alert">{forgotErrors.email.message}</p>
             )}
           </div>
 
@@ -182,8 +179,9 @@ export default function Auth() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="px-12 py-4 border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
-                         hover:border-primary/80 transition-all duration-700 ease-out bg-transparent disabled:opacity-50"
+              className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
+                         hover:border-primary/80 transition-all duration-700 ease-out bg-transparent disabled:opacity-50
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               {isSubmitting ? "..." : "Link senden"}
             </button>
@@ -194,73 +192,73 @@ export default function Auth() {
         <button
           type="button"
           onClick={() => setView("auth")}
-          className="mt-12 font-display text-xs text-foreground/40 tracking-[0.08em] hover:text-foreground/60 transition-colors duration-500 opacity-0"
-          style={{ animation: "cinematic-fade 0.8s ease-out 1.3s forwards" }}
+          className="mt-12 px-4 py-2 min-h-[44px] font-display text-xs text-foreground/40 tracking-[0.08em] hover:text-foreground/60 transition-colors duration-500 animate-cinematic-stagger-5"
         >
           Zurück zur Anmeldung
         </button>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
       {/* Headline */}
-      <h1 
-        className="font-display text-2xl md:text-3xl text-primary tracking-[0.12em] mb-4 opacity-0"
-        style={{ animation: "cinematic-slide 1.2s ease-out 0.3s forwards" }}
-      >
+      <h1 className="font-display text-2xl md:text-3xl text-primary tracking-[0.12em] mb-4 animate-cinematic-stagger-1">
         {isLogin ? "Anmelden" : "Registrieren"}
       </h1>
       
       {/* Gold Divider */}
       <div 
-        className="w-12 h-px bg-primary/40 mb-4 opacity-0"
-        style={{ animation: "cinematic-fade 1s ease-out 0.6s forwards" }}
+        className="w-12 h-px bg-primary/40 mb-4 animate-cinematic-stagger-2"
+        role="presentation"
+        aria-hidden="true"
       />
       
       {/* Subline */}
-      <p 
-        className="font-display text-sm text-foreground/50 tracking-[0.08em] mb-12 text-center opacity-0"
-        style={{ animation: "cinematic-fade 1s ease-out 0.8s forwards" }}
-      >
+      <p className="font-display text-sm text-foreground/50 tracking-[0.08em] mb-12 text-center animate-cinematic-stagger-3">
         Exklusives Netzwerk für WU-Studierende
       </p>
 
       {/* Form */}
       <form 
         onSubmit={handleSubmit(onSubmit)} 
-        className="w-full max-w-sm space-y-6 opacity-0"
-        style={{ animation: "cinematic-fade 0.8s ease-out 1s forwards" }}
+        className="w-full max-w-sm space-y-6 animate-cinematic-stagger-4"
       >
         <div className="space-y-1">
+          <label htmlFor="auth-email" className="sr-only">E-Mail-Adresse</label>
           <Input
+            id="auth-email"
             type="email"
             placeholder="E-Mail"
+            autoComplete="email"
             className="h-12 bg-transparent border-0 border-b border-primary/30 rounded-none text-foreground placeholder:text-foreground/30 focus:border-primary/60 focus-visible:ring-0 font-display tracking-wide transition-colors duration-500"
             {...register("email")}
           />
           {errors.email && (
-            <p className="text-destructive text-xs mt-1 font-display">{errors.email.message}</p>
+            <p className="text-destructive text-xs mt-1 font-display" role="alert">{errors.email.message}</p>
           )}
         </div>
 
         <div className="space-y-1 relative">
+          <label htmlFor="auth-password" className="sr-only">Passwort</label>
           <Input
+            id="auth-password"
             type={showPassword ? "text" : "password"}
             placeholder="Passwort"
+            autoComplete={isLogin ? "current-password" : "new-password"}
             className="h-12 bg-transparent border-0 border-b border-primary/30 rounded-none text-foreground placeholder:text-foreground/30 focus:border-primary/60 focus-visible:ring-0 font-display tracking-wide transition-colors duration-500 pr-10"
             {...register("password")}
           />
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/60 transition-colors duration-300"
+            aria-label={showPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+            className="absolute right-0 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground/30 hover:text-foreground/60 transition-colors duration-300"
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
           </button>
           {errors.password && (
-            <p className="text-destructive text-xs mt-1 font-display">{errors.password.message}</p>
+            <p className="text-destructive text-xs mt-1 font-display" role="alert">{errors.password.message}</p>
           )}
         </div>
 
@@ -269,7 +267,7 @@ export default function Auth() {
             <button
               type="button"
               onClick={() => setView("forgot")}
-              className="font-display text-xs text-foreground/35 tracking-[0.05em] hover:text-primary/70 transition-colors duration-500"
+              className="px-2 py-2 min-h-[44px] font-display text-xs text-foreground/35 tracking-[0.05em] hover:text-primary/70 transition-colors duration-500"
             >
               Passwort vergessen?
             </button>
@@ -280,8 +278,9 @@ export default function Auth() {
           <button 
             type="submit" 
             disabled={isSubmitting}
-            className="px-12 py-4 border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
-                       hover:border-primary/80 transition-all duration-700 ease-out bg-transparent disabled:opacity-50"
+            className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
+                       hover:border-primary/80 transition-all duration-700 ease-out bg-transparent disabled:opacity-50
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {isSubmitting ? "..." : isLogin ? "Anmelden" : "Registrieren"}
           </button>
@@ -292,8 +291,7 @@ export default function Auth() {
       <button
         type="button"
         onClick={toggleMode}
-        className="mt-12 font-display text-xs text-foreground/40 tracking-[0.08em] hover:text-foreground/60 transition-colors duration-500 opacity-0"
-        style={{ animation: "cinematic-fade 0.8s ease-out 1.3s forwards" }}
+        className="mt-12 px-4 py-2 min-h-[44px] font-display text-xs text-foreground/40 tracking-[0.08em] hover:text-foreground/60 transition-colors duration-500 animate-cinematic-stagger-5"
       >
         {isLogin ? (
           <>Noch kein Konto? <span className="text-primary/70">Registrieren</span></>
@@ -303,28 +301,31 @@ export default function Auth() {
       </button>
 
       {/* Legal Links */}
-      <div 
-        className="absolute bottom-14 flex gap-4 font-display text-[10px] text-foreground/30 tracking-[0.05em] opacity-0"
-        style={{ animation: "cinematic-fade 0.8s ease-out 1.6s forwards" }}
-      >
-        <Link to="/legal?section=impressum" className="hover:text-primary/60 transition-colors duration-500">
+      <footer className="absolute bottom-10 flex gap-1 animate-cinematic-stagger-5">
+        <Link 
+          to="/legal?section=impressum" 
+          className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+        >
           Impressum
         </Link>
-        <Link to="/legal?section=agb" className="hover:text-primary/60 transition-colors duration-500">
+        <Link 
+          to="/legal?section=agb" 
+          className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+        >
           AGB
         </Link>
-        <Link to="/legal?section=datenschutz" className="hover:text-primary/60 transition-colors duration-500">
+        <Link 
+          to="/legal?section=datenschutz" 
+          className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+        >
           Datenschutz
         </Link>
-      </div>
+      </footer>
 
       {/* Footnote */}
-      <p 
-        className="absolute bottom-8 font-display text-[10px] text-foreground/20 tracking-[0.08em] opacity-0"
-        style={{ animation: "cinematic-fade 0.8s ease-out 1.8s forwards" }}
-      >
+      <p className="absolute bottom-4 font-display text-[10px] text-foreground/20 tracking-[0.08em] animate-cinematic-stagger-5">
         Testmodus: @gmail.com erlaubt
       </p>
-    </div>
+    </main>
   );
 }

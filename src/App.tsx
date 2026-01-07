@@ -41,6 +41,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <a href="#main-content" className="skip-link">
+              Zum Hauptinhalt springen
+            </a>
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />

@@ -203,6 +203,37 @@
   .divider-subtle {
     @apply w-16 h-px bg-primary/40 mx-auto;
   }
+
+  /* Safe cinematic animations - always visible with animation as enhancement */
+  .animate-cinematic-safe {
+    opacity: 1;
+    animation: cinematic-fade 0.8s ease-out;
+  }
+
+  .animate-cinematic-stagger-1 {
+    opacity: 1;
+    animation: cinematic-slide 0.8s ease-out 0.2s both;
+  }
+
+  .animate-cinematic-stagger-2 {
+    opacity: 1;
+    animation: cinematic-fade 0.8s ease-out 0.4s both;
+  }
+
+  .animate-cinematic-stagger-3 {
+    opacity: 1;
+    animation: cinematic-fade 0.8s ease-out 0.6s both;
+  }
+
+  .animate-cinematic-stagger-4 {
+    opacity: 1;
+    animation: cinematic-fade 0.8s ease-out 0.8s both;
+  }
+
+  .animate-cinematic-stagger-5 {
+    opacity: 1;
+    animation: cinematic-fade 0.8s ease-out 1s both;
+  }
 }
 
 @keyframes fade-in {
@@ -280,4 +311,28 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACCESSIBILITY - Reduced Motion & Focus States
+   ═══════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skip link styling */
+.skip-link {
+  @apply sr-only;
+}
+
+.skip-link:focus {
+  @apply not-sr-only fixed top-4 left-4 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded font-display text-sm tracking-wide;
 }
