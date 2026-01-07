@@ -24,31 +24,33 @@ export default function Legal() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background animate-cinematic-enter">
+    <main className="min-h-screen bg-background animate-cinematic-enter">
       <div className="mx-auto max-w-2xl px-6 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <header className="mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-foreground/50 hover:text-foreground/80 transition-colors duration-500 mb-6"
+            aria-label="Zurück zur vorherigen Seite"
+            className="flex items-center gap-2 text-foreground/50 hover:text-foreground/80 transition-colors duration-500 mb-6 min-h-[44px] px-2 -ml-2"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={18} aria-hidden="true" />
             <span className="font-display text-sm tracking-wide">Zurück</span>
           </button>
           <h1 className="font-display text-2xl text-primary tracking-[0.12em] mb-3">
             Rechtliches
           </h1>
-          <div className="w-16 h-px bg-primary/40" />
-        </div>
+          <div className="w-16 h-px bg-primary/40" role="presentation" aria-hidden="true" />
+        </header>
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 mb-8 flex-wrap">
+        <nav aria-label="Rechtliche Sektionen" className="flex gap-2 mb-8 flex-wrap">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setSearchParams({ section: tab.id })}
+              aria-current={section === tab.id ? "page" : undefined}
               className={cn(
-                "px-4 py-2 font-display text-xs tracking-wide border rounded-full transition-all duration-500",
+                "px-4 py-2 min-h-[44px] font-display text-xs tracking-wide border rounded-full transition-all duration-500",
                 section === tab.id
                   ? "border-primary text-primary bg-primary/10"
                   : "border-border/40 text-foreground/60 hover:border-primary/40"
@@ -57,18 +59,40 @@ export default function Legal() {
               {tab.label}
             </button>
           ))}
-        </div>
+        </nav>
 
         {/* Content */}
-        <ScrollArea className="h-[calc(100vh-280px)]">
-          <div className="pr-4">
-            {section === "impressum" && <ImpressumContent />}
-            {section === "agb" && <AGBContent />}
-            {section === "datenschutz" && <DatenschutzContent />}
-            {section === "cookies" && <CookiesContent />}
-          </div>
-        </ScrollArea>
+        <article>
+          <ScrollArea className="h-[calc(100vh-280px)]">
+            <div className="pr-4">
+              {section === "impressum" && (
+                <>
+                  <h2 className="sr-only">Impressum</h2>
+                  <ImpressumContent />
+                </>
+              )}
+              {section === "agb" && (
+                <>
+                  <h2 className="sr-only">Allgemeine Geschäftsbedingungen</h2>
+                  <AGBContent />
+                </>
+              )}
+              {section === "datenschutz" && (
+                <>
+                  <h2 className="sr-only">Datenschutzerklärung</h2>
+                  <DatenschutzContent />
+                </>
+              )}
+              {section === "cookies" && (
+                <>
+                  <h2 className="sr-only">Cookie-Richtlinie</h2>
+                  <CookiesContent />
+                </>
+              )}
+            </div>
+          </ScrollArea>
+        </article>
       </div>
-    </div>
+    </main>
   );
 }
