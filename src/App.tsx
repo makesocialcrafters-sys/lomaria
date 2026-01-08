@@ -21,6 +21,7 @@ import ChatDetail from "./pages/ChatDetail";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Legal from "./pages/Legal";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/legal" element={<Legal />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/login" element={<Navigate to="/auth" replace />} />
                 
                 {/* Onboarding - protected but doesn't require completed onboarding */}
