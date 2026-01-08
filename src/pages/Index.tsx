@@ -207,6 +207,12 @@ const Index = () => {
       <footer className="py-12 flex flex-col items-center gap-4">
         <div className="flex gap-1">
           <Link 
+            to="/about" 
+            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+          >
+            Über uns
+          </Link>
+          <Link 
             to="/legal?section=impressum" 
             className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
           >
