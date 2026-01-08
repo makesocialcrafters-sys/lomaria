@@ -1,34 +1,21 @@
 import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
 import { Heart, Rocket, BookOpen, ChevronDown } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import PublicHeader from "@/components/layout/PublicHeader";
-
 const Index = () => {
   const navigate = useNavigate();
-
   const scrollToContent = () => {
-    document.getElementById("content")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("content")?.scrollIntoView({
+      behavior: "smooth"
+    });
   };
-
-  return (
-    <main className="min-h-screen bg-background">
+  return <main className="min-h-screen bg-background">
       <PublicHeader />
       <Helmet>
         <title>Lomaria – Das exklusive Netzwerk für WU Studierende</title>
-        <meta 
-          name="description" 
-          content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv an der WU Wien." 
-        />
-        <meta 
-          name="keywords" 
-          content="WU Wien, Studenten Dating, Networking, Co-Founder finden, Lerngruppe, Wirtschaftsuniversität Wien" 
-        />
+        <meta name="description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv an der WU Wien." />
+        <meta name="keywords" content="WU Wien, Studenten Dating, Networking, Co-Founder finden, Lerngruppe, Wirtschaftsuniversität Wien" />
       </Helmet>
       
       {/* Visually hidden h1 for screen readers */}
@@ -42,11 +29,7 @@ const Index = () => {
         </h2>
         
         {/* Gold Divider */}
-        <div 
-          className="w-16 h-px bg-primary/40 mb-6 animate-cinematic-stagger-2" 
-          role="presentation" 
-          aria-hidden="true" 
-        />
+        <div className="w-16 h-px bg-primary/40 mb-6 animate-cinematic-stagger-2" role="presentation" aria-hidden="true" />
         
         {/* Subline */}
         <p className="font-display text-base md:text-lg text-foreground/60 tracking-[0.08em] mb-3 animate-cinematic-stagger-3 text-center">
@@ -59,13 +42,10 @@ const Index = () => {
         </p>
         
         {/* CTA Button */}
-        <button
-          onClick={() => navigate("/auth")}
-          className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
+        <button onClick={() => navigate("/auth")} className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
                      hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background
-                     animate-cinematic-stagger-5"
-        >
+                     animate-cinematic-stagger-5">
           Mit WU Email anmelden
         </button>
         
@@ -75,11 +55,7 @@ const Index = () => {
         </p>
         
         {/* Scroll Indicator */}
-        <button
-          onClick={scrollToContent}
-          className="absolute bottom-8 text-primary/40 hover:text-primary/60 transition-colors duration-500 animate-cinematic-stagger-5"
-          aria-label="Mehr erfahren"
-        >
+        <button onClick={scrollToContent} className="absolute bottom-8 text-primary/40 hover:text-primary/60 transition-colors duration-500 animate-cinematic-stagger-5" aria-label="Mehr erfahren">
           <ChevronDown className="w-6 h-6 animate-bounce" />
         </button>
       </section>
@@ -194,12 +170,9 @@ const Index = () => {
             Bereit für echtes Networking?
           </p>
           
-          <button
-            onClick={() => navigate("/auth")}
-            className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
+          <button onClick={() => navigate("/auth")} className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
                        hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             Jetzt dabei sein
           </button>
         </div>
@@ -208,34 +181,18 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-12 flex flex-col items-center gap-4">
         <div className="flex gap-1">
-          <Link 
-            to="/about" 
-            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
-          >
-            Über uns
-          </Link>
-          <Link 
-            to="/legal?section=impressum" 
-            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
-          >
+          
+          <Link to="/legal?section=impressum" className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500">
             Impressum
           </Link>
-          <Link 
-            to="/legal?section=agb" 
-            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
-          >
+          <Link to="/legal?section=agb" className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500">
             AGB
           </Link>
-          <Link 
-            to="/legal?section=datenschutz" 
-            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
-          >
+          <Link to="/legal?section=datenschutz" className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500">
             Datenschutz
           </Link>
         </div>
       </footer>
-    </main>
-  );
+    </main>;
 };
-
 export default Index;
