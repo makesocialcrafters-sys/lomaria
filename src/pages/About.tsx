@@ -15,7 +15,7 @@ const About = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6">
+      <section className="pt-32 pb-16 flex flex-col items-center px-6">
         <h1 className="font-display text-3xl md:text-4xl text-primary tracking-[0.1em] mb-6 text-center animate-cinematic-stagger-1">
           Der Campus ist voll. Und trotzdem leer.
         </h1>
