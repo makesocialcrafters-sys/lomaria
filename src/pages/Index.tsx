@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
 
 const Index = () => {
@@ -5,6 +6,18 @@ const Index = () => {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
+      <Helmet>
+        <title>Lomaria – Die Community für WU Wien Studenten | Dating & Networking</title>
+        <meta 
+          name="description" 
+          content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates exklusiv an der WU Wien. Die Plattform von Studierenden für Studierende." 
+        />
+        <meta 
+          name="keywords" 
+          content="WU Wien, Studenten Dating, Networking, Co-Founder finden, Lerngruppe, Wirtschaftsuniversität Wien" 
+        />
+      </Helmet>
+      
       {/* Visually hidden h1 for screen readers */}
       <h1 className="sr-only">Lomaria – Exklusive Networking-Plattform für WU-Studierende</h1>
       
