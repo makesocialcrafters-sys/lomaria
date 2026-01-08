@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import PublicHeader from "@/components/layout/PublicHeader";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Index = () => {
 
   return (
     <main className="min-h-screen bg-background">
+      <PublicHeader />
       <Helmet>
         <title>Lomaria – Das exklusive Netzwerk für WU Studierende</title>
         <meta 

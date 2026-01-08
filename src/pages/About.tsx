@@ -1,9 +1,11 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
+import PublicHeader from "@/components/layout/PublicHeader";
 
 const About = () => {
   return (
     <main className="min-h-screen bg-background">
+      <PublicHeader />
       <Helmet>
         <title>Über Lomaria – Die Vision für die WU Wien</title>
         <meta 
