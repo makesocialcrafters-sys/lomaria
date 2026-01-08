@@ -1,16 +1,27 @@
 import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
+import { Heart, Rocket, BookOpen, ChevronDown } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const Index = () => {
   const navigate = useNavigate();
 
+  const scrollToContent = () => {
+    document.getElementById("content")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
+    <main className="min-h-screen bg-background">
       <Helmet>
-        <title>Lomaria – Die Community für WU Wien Studenten | Dating & Networking</title>
+        <title>Lomaria – Das exklusive Netzwerk für WU Studierende</title>
         <meta 
           name="description" 
-          content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates exklusiv an der WU Wien. Die Plattform von Studierenden für Studierende." 
+          content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv an der WU Wien." 
         />
         <meta 
           name="keywords" 
@@ -21,66 +32,200 @@ const Index = () => {
       {/* Visually hidden h1 for screen readers */}
       <h1 className="sr-only">Lomaria – Exklusive Networking-Plattform für WU-Studierende</h1>
       
-      {/* Main Headline - "Lomaria" (visible as h2) */}
-      <h2 className="font-display text-4xl md:text-5xl text-primary tracking-[0.12em] mb-6 animate-cinematic-stagger-1">
-        Lomaria
-      </h2>
-      
-      {/* Gold Divider - Subtle, cinematic */}
-      <div 
-        className="w-16 h-px bg-primary/40 mb-6 animate-cinematic-stagger-2" 
-        role="presentation" 
-        aria-hidden="true" 
-      />
-      
-      {/* Subline - Editorial tone */}
-      <p className="font-display text-base md:text-lg text-foreground/60 tracking-[0.08em] mb-3 animate-cinematic-stagger-3">
-        An exclusive network for WU students.
-      </p>
-      
-      {/* Secondary line - Caption-like, very subtle */}
-      <p className="font-display text-xs text-foreground/35 tracking-[0.15em] uppercase mb-16 animate-cinematic-stagger-4">
-        Connect · Collaborate · Learn
-      </p>
-      
-      {/* CTA Button - Thin gold outline, no fill */}
-      <button
-        onClick={() => navigate("/auth")}
-        className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
-                   hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
-                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background
-                   animate-cinematic-stagger-5"
-      >
-        Join with WU Email
-      </button>
-      
-      {/* Legal Links - with proper touch targets */}
-      <footer className="absolute bottom-12 flex gap-1 animate-cinematic-stagger-5">
-        <Link 
-          to="/legal?section=impressum" 
-          className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+      {/* Hero Section */}
+      <section className="min-h-screen flex flex-col items-center justify-center px-6 relative">
+        {/* Main Headline */}
+        <h2 className="font-display text-4xl md:text-5xl text-primary tracking-[0.12em] mb-6 animate-cinematic-stagger-1">
+          Lomaria
+        </h2>
+        
+        {/* Gold Divider */}
+        <div 
+          className="w-16 h-px bg-primary/40 mb-6 animate-cinematic-stagger-2" 
+          role="presentation" 
+          aria-hidden="true" 
+        />
+        
+        {/* Subline */}
+        <p className="font-display text-base md:text-lg text-foreground/60 tracking-[0.08em] mb-3 animate-cinematic-stagger-3 text-center">
+          Das exklusive Netzwerk für WU Studierende.
+        </p>
+        
+        {/* Secondary line */}
+        <p className="font-display text-xs text-foreground/35 tracking-[0.15em] uppercase mb-16 animate-cinematic-stagger-4">
+          Vernetzen · Gründen · Lernen
+        </p>
+        
+        {/* CTA Button */}
+        <button
+          onClick={() => navigate("/auth")}
+          className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
+                     hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background
+                     animate-cinematic-stagger-5"
         >
-          Impressum
-        </Link>
-        <Link 
-          to="/legal?section=agb" 
-          className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+          Mit WU Email anmelden
+        </button>
+        
+        {/* Disclaimer */}
+        <p className="font-display text-[10px] text-foreground/25 tracking-[0.08em] mt-6 animate-cinematic-stagger-5">
+          Zugang nur für verifizierte Studierende.
+        </p>
+        
+        {/* Scroll Indicator */}
+        <button
+          onClick={scrollToContent}
+          className="absolute bottom-8 text-primary/40 hover:text-primary/60 transition-colors duration-500 animate-cinematic-stagger-5"
+          aria-label="Mehr erfahren"
         >
-          AGB
-        </Link>
-        <Link 
-          to="/legal?section=datenschutz" 
-          className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
-        >
-          Datenschutz
-        </Link>
-      </footer>
+          <ChevronDown className="w-6 h-6 animate-bounce" />
+        </button>
+      </section>
 
-      {/* Footnote - Positioned at bottom, very discreet */}
-      <p className="absolute bottom-6 font-display text-[10px] text-foreground/25 tracking-[0.08em] animate-cinematic-stagger-5">
-        Access restricted to verified WU Wien students.
-      </p>
-      
+      {/* Section 1: Die 3 Säulen */}
+      <section id="content" className="py-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="font-display text-xl md:text-2xl text-primary tracking-[0.1em] text-center mb-8">
+            Mehr als nur Networking.
+          </h3>
+          
+          <div className="w-16 h-px bg-primary/40 mx-auto mb-16" role="presentation" aria-hidden="true" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+            {/* Pillar 1: Campus Dating */}
+            <div className="flex flex-col items-center text-center">
+              <Heart className="w-8 h-8 text-primary mb-6" />
+              <h4 className="font-display text-sm text-primary tracking-[0.15em] uppercase mb-4">
+                Campus Dating
+              </h4>
+              <p className="font-display text-sm text-foreground/50 leading-relaxed">
+                Keine Randoms. Keine Bots. Triff Studierende, die deinen Lifestyle verstehen. Vom Spritzerstand bis zum Lern-Date in der Bib.
+              </p>
+            </div>
+            
+            {/* Pillar 2: Co-Founding & Business */}
+            <div className="flex flex-col items-center text-center">
+              <Rocket className="w-8 h-8 text-primary mb-6" />
+              <h4 className="font-display text-sm text-primary tracking-[0.15em] uppercase mb-4">
+                Co-Founding & Business
+              </h4>
+              <p className="font-display text-sm text-foreground/50 leading-relaxed">
+                Du suchst einen Co-Founder für das Gründungszentrum? Oder Partner für ein Projekt? Finde Macher direkt am Campus.
+              </p>
+            </div>
+            
+            {/* Pillar 3: Study & Support */}
+            <div className="flex flex-col items-center text-center">
+              <BookOpen className="w-8 h-8 text-primary mb-6" />
+              <h4 className="font-display text-sm text-primary tracking-[0.15em] uppercase mb-4">
+                Study & Support
+              </h4>
+              <p className="font-display text-sm text-foreground/50 leading-relaxed">
+                Finde deine Lerngruppe für die nächste Prüfungswoche. Egal ob STEOP oder Master-Thesis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 2: Vertrauen */}
+      <section className="py-24 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="w-16 h-px bg-primary/40 mx-auto mb-12" role="presentation" aria-hidden="true" />
+          
+          <h3 className="font-display text-xl md:text-2xl text-primary tracking-[0.1em] mb-6">
+            100% Verified. 100% WU.
+          </h3>
+          
+          <p className="font-display text-sm text-foreground/50 leading-relaxed">
+            Zugang nur mit aktiver WU-Wien E-Mail Adresse. Wir halten die Community sicher, exklusiv und frei von Fakes.
+          </p>
+          
+          <div className="w-16 h-px bg-primary/40 mx-auto mt-12" role="presentation" aria-hidden="true" />
+        </div>
+      </section>
+
+      {/* Section 3: FAQ */}
+      <section className="py-24 px-6">
+        <div className="max-w-2xl mx-auto">
+          <h3 className="font-display text-xl md:text-2xl text-primary tracking-[0.1em] text-center mb-8">
+            Häufige Fragen
+          </h3>
+          
+          <div className="w-16 h-px bg-primary/40 mx-auto mb-12" role="presentation" aria-hidden="true" />
+          
+          <Accordion type="single" collapsible className="space-y-4">
+            <AccordionItem value="verification" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Wie funktioniert die Verifizierung?
+              </AccordionTrigger>
+              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
+                Ganz einfach per Magic Link an deine @s.wu.ac.at Adresse.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="cost" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Ist Lomaria kostenlos?
+              </AccordionTrigger>
+              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
+                Ja, für alle WU Studierenden.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="privacy" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Findet man mich auf Google?
+              </AccordionTrigger>
+              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
+                Nein. Dein Profil ist privat und nur für eingeloggte User sichtbar.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Section 4: Bottom CTA */}
+      <section className="py-24 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="font-display text-lg text-foreground/60 tracking-[0.08em] mb-10">
+            Bereit für echtes Networking?
+          </p>
+          
+          <button
+            onClick={() => navigate("/auth")}
+            className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
+                       hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            Jetzt dabei sein
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 flex flex-col items-center gap-4">
+        <div className="flex gap-1">
+          <Link 
+            to="/legal?section=impressum" 
+            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+          >
+            Impressum
+          </Link>
+          <Link 
+            to="/legal?section=agb" 
+            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+          >
+            AGB
+          </Link>
+          <Link 
+            to="/legal?section=datenschutz" 
+            className="px-3 py-2 min-h-[44px] flex items-center font-display text-xs text-foreground/30 tracking-[0.05em] hover:text-primary/60 transition-colors duration-500"
+          >
+            Datenschutz
+          </Link>
+        </div>
+      </footer>
     </main>
   );
 };
