@@ -22,24 +22,25 @@ serve(async (req) => {
       );
     }
 
-    // Create client with user's auth token to verify identity
+    // Extract JWT token and validate with getClaims
+    const token = authHeader.replace("Bearer ", "");
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Verify user is authenticated
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      console.error("Auth error:", userError);
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      console.error("Auth error:", claimsError);
       return new Response(
         JSON.stringify({ error: "Nicht eingeloggt" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Deleting account for user:", user.id);
+    const authUserId = claimsData.claims.sub as string;
+    console.log("Deleting account for user:", authUserId);
 
     // Use service role client for admin operations
     const supabaseAdmin = createClient(
@@ -51,7 +52,7 @@ serve(async (req) => {
     const { data: userData } = await supabaseAdmin
       .from("users")
       .select("id")
-      .eq("auth_user_id", user.id)
+      .eq("auth_user_id", authUserId)
       .single();
 
     if (userData) {
@@ -80,7 +81,7 @@ serve(async (req) => {
     const { error: deleteDataError } = await supabaseAdmin
       .from("users")
       .delete()
-      .eq("auth_user_id", user.id);
+      .eq("auth_user_id", authUserId);
 
     if (deleteDataError) {
       console.error("Error deleting user data:", deleteDataError);
@@ -89,16 +90,16 @@ serve(async (req) => {
     // Delete storage files (avatars)
     const { data: files } = await supabaseAdmin.storage
       .from("avatars")
-      .list(user.id);
+      .list(authUserId);
 
     if (files && files.length > 0) {
-      const filePaths = files.map((file) => `${user.id}/${file.name}`);
+      const filePaths = files.map((file) => `${authUserId}/${file.name}`);
       await supabaseAdmin.storage.from("avatars").remove(filePaths);
       console.log("Deleted avatar files:", filePaths);
     }
 
     // Delete auth account
-    const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+    const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(authUserId);
 
     if (deleteAuthError) {
       console.error("Error deleting auth user:", deleteAuthError);
@@ -108,7 +109,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Successfully deleted account for user:", user.id);
+    console.log("Successfully deleted account for user:", authUserId);
 
     return new Response(
       JSON.stringify({ success: true }),
