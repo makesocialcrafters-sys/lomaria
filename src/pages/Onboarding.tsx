@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppState } from "@/contexts/AppStateContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
 import { Step1Identity } from "@/components/onboarding/Step1Identity";
 import { Step2Demographics } from "@/components/onboarding/Step2Demographics";
@@ -22,6 +24,12 @@ export default function Onboarding() {
   const { refreshOnboardingStatus } = useAppState();
   const { step, data, updateData, clearData, nextStep, prevStep, showTutoringStep } = useOnboarding();
   const [saving, setSaving] = useState(false);
+
+  const handleLogout = async () => {
+    localStorage.removeItem("lomaria_onboarding_draft");
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
 
   const handleNext = () => {
     // Skip tutoring step if not needed
@@ -152,7 +160,18 @@ export default function Onboarding() {
   const displayStep = !showTutoringStep && step > 5 ? step - 1 : step;
 
   return (
-    <div className="min-h-screen bg-background px-6 py-8 animate-cinematic-enter">
+    <div className="min-h-screen bg-background px-6 py-8 animate-cinematic-enter relative">
+      {/* Logout Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleLogout}
+        className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+      >
+        <LogOut className="h-4 w-4 mr-2" />
+        Abmelden
+      </Button>
+
       <div className="max-w-md mx-auto">
         {/* Step Indicator */}
         <StepIndicator currentStep={displayStep} totalSteps={totalSteps} />

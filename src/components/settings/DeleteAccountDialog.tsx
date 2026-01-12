@@ -36,6 +36,9 @@ export function DeleteAccountDialog() {
 
       if (error) throw error;
 
+      // Clear localStorage draft before signing out
+      localStorage.removeItem("lomaria_onboarding_draft");
+
       // Sign out locally
       await supabase.auth.signOut();
 
