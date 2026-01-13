@@ -26,16 +26,16 @@ export const INTENTS = [
 ] as const;
 
 export const INTERESTS = [
-  { value: "startup", label: "Startup / Entrepreneurship" },
-  { value: "marketing_branding", label: "Marketing & Branding" },
-  { value: "finance_investing", label: "Finance & Investing" },
-  { value: "consulting_strategie", label: "Consulting & Strategie" },
-  { value: "tech_digitalisierung", label: "Tech & Digitalisierung" },
-  { value: "nachhaltigkeit", label: "Nachhaltigkeit" },
-  { value: "politik_gesellschaft", label: "Politik & Gesellschaft" },
-  { value: "design_kreativitaet", label: "Design & Kreativität" },
-  { value: "sport_fitness", label: "Sport & Fitness" },
-  { value: "lifestyle_events", label: "Lifestyle & Events" },
+  { value: "startup", label: "Ideen & neue Projekte" },
+  { value: "marketing_branding", label: "Medien, Kommunikation & Wirkung" },
+  { value: "finance_investing", label: "Geld, Wirtschaft & Entscheidungen" },
+  { value: "consulting_strategie", label: "Probleme analysieren & lösen" },
+  { value: "tech_digitalisierung", label: "Technik & digitale Produkte" },
+  { value: "nachhaltigkeit", label: "Umwelt, Zukunft & Verantwortung" },
+  { value: "politik_gesellschaft", label: "Gesellschaft, Politik & Diskussionen" },
+  { value: "design_kreativitaet", label: "Design, Kreativität & Ideen" },
+  { value: "sport_fitness", label: "Sport, Bewegung & Gesundheit" },
+  { value: "lifestyle_events", label: "Kultur, Events & Stadtleben" },
 ] as const;
 
 export const TUTORING_SUGGESTIONS = [
