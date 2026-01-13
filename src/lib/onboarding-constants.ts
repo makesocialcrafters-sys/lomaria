@@ -21,8 +21,8 @@ export const INTENTS = [
   { value: "projektpartner", label: "Projektpartner finden" },
   { value: "startup", label: "Startup / Gründer-Mitstreiter" },
   { value: "nachhilfe_anbieten", label: "Nachhilfe anbieten" },
-  { value: "networking", label: "Networking / Karriere" },
-  { value: "freundschaften", label: "Freundschaften (neutral)" },
+  { value: "networking", label: "Kontakte für später knüpfen" },
+  { value: "freundschaften", label: "Freundschaften aufbauen" },
 ] as const;
 
 export const INTERESTS = [
