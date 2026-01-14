@@ -101,7 +101,7 @@ export default function Discover() {
               </button>
             </PopoverTrigger>
             <PopoverContent side="bottom" className="max-w-xs text-center text-sm">
-              Profile werden primär nach gemeinsamen Intents sortiert, mit leichter Berücksichtigung von Studienkontext und Aktivität.
+              Profile werden primär nach gemeinsamen Intents sortiert, mit Berücksichtigung von Studienkontext und Aktivität!
             </PopoverContent>
           </Popover>
         </div>
