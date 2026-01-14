@@ -5,10 +5,10 @@ import { useDiscoverProfiles, useTutoringSubjects, UserProfile } from "@/hooks/u
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const PAGE_SIZE = 20;
 
@@ -91,19 +91,19 @@ export default function Discover() {
         {/* Title with info tooltip */}
         <div className="flex items-center justify-center gap-2 mb-3">
           <h1 className="heading-page">ENTDECKEN</h1>
-          <Tooltip>
-            <TooltipTrigger asChild>
+          <Popover>
+            <PopoverTrigger asChild>
               <button
                 className="text-primary/60 hover:text-primary transition-opacity duration-500"
                 aria-label="Sortierung erklären"
               >
                 <Info className="w-4 h-4" />
               </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" className="max-w-xs text-center">
+            </PopoverTrigger>
+            <PopoverContent side="bottom" className="max-w-xs text-center text-sm">
               Profile werden primär nach gemeinsamen Intents sortiert, mit leichter Berücksichtigung von Studienkontext und Aktivität.
-            </TooltipContent>
-          </Tooltip>
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="divider-subtle mb-8" />
 
