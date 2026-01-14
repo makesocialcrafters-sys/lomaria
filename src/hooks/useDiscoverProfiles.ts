@@ -36,10 +36,13 @@ const COOLDOWN_HOURS = 72;
 export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, page }: UseDiscoverProfilesParams) {
   const { user } = useAuth();
   const { data: blockedUserIds = [] } = useBlockedUserIds();
-  const { data: ownProfile } = useOwnProfile();
+  const { data: ownProfile, isLoading: isOwnProfileLoading } = useOwnProfile();
+
+  // Stabilize intents for query key - only include when loaded
+  const ownIntentsKey = ownProfile?.intents?.join(",") ?? "";
 
   return useQuery({
-    queryKey: ["discover-profiles", user?.id, studyProgram, tutoringSubject, intent, page, blockedUserIds, ownProfile?.intents],
+    queryKey: ["discover-profiles", user?.id, studyProgram, tutoringSubject, intent, page, blockedUserIds, ownIntentsKey],
     queryFn: async () => {
       if (!user) return [];
 
