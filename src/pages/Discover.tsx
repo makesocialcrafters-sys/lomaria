@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { Info } from "lucide-react";
 import { useDiscoverProfiles, useTutoringSubjects, UserProfile } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const PAGE_SIZE = 20;
 
@@ -82,8 +88,23 @@ export default function Discover() {
   return (
     <div className="px-6 py-8 animate-cinematic-enter">
       <div className="max-w-md mx-auto">
-        {/* Title */}
-        <h1 className="heading-page mb-3">ENTDECKEN</h1>
+        {/* Title with info tooltip */}
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <h1 className="heading-page">ENTDECKEN</h1>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="text-primary/60 hover:text-primary transition-opacity duration-500"
+                aria-label="Sortierung erklären"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-xs text-center">
+              Profile werden primär nach gemeinsamen Intents sortiert, mit leichter Berücksichtigung von Studienkontext und Aktivität.
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <div className="divider-subtle mb-8" />
 
         {/* Filters */}
