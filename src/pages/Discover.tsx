@@ -24,6 +24,7 @@ export default function Discover() {
   // Nur page und allProfiles bleiben als lokaler State
   const [page, setPage] = useState(0);
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   // React Query for cached data
   const { data: pageProfiles, isLoading, isFetching } = useDiscoverProfiles({
@@ -91,7 +92,7 @@ export default function Discover() {
         {/* Title with info tooltip */}
         <div className="flex items-center justify-center gap-2 mb-3">
           <h1 className="heading-page">ENTDECKEN</h1>
-          <Popover>
+          <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
             <PopoverTrigger asChild>
               <button
                 className="text-primary/60 hover:text-primary transition-opacity duration-500"
@@ -107,6 +108,7 @@ export default function Discover() {
                 </h3>
                 
                 <div className="space-y-2.5 text-sm text-muted-foreground">
+                  {/* Row 1: Gemeinsame Intents - 5/5 dots */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <p className="text-foreground font-medium">1. Gemeinsame Intents</p>
@@ -114,11 +116,20 @@ export default function Discover() {
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
-                        <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span 
+                          key={i} 
+                          className="w-1.5 h-1.5 rounded-full bg-primary transition-all duration-300"
+                          style={{
+                            opacity: isInfoOpen ? 1 : 0,
+                            transform: isInfoOpen ? 'scale(1)' : 'scale(0)',
+                            transitionDelay: `${i * 50}ms`
+                          }}
+                        />
                       ))}
                     </div>
                   </div>
                   
+                  {/* Row 2: Kompatible Ziele - 3/5 dots */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <p className="text-foreground font-medium">2. Kompatible Ziele</p>
@@ -126,11 +137,20 @@ export default function Discover() {
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
-                        <span key={i} className={`w-1.5 h-1.5 rounded-full ${i < 3 ? 'bg-primary' : 'bg-primary/20'}`} />
+                        <span 
+                          key={i} 
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i < 3 ? 'bg-primary' : 'bg-primary/20'}`}
+                          style={{
+                            opacity: isInfoOpen ? 1 : 0,
+                            transform: isInfoOpen ? 'scale(1)' : 'scale(0)',
+                            transitionDelay: `${250 + i * 50}ms`
+                          }}
+                        />
                       ))}
                     </div>
                   </div>
                   
+                  {/* Row 3: Studienkontext - 1/5 dots */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <p className="text-foreground font-medium">3. Studienkontext</p>
@@ -138,11 +158,20 @@ export default function Discover() {
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
-                        <span key={i} className={`w-1.5 h-1.5 rounded-full ${i < 1 ? 'bg-primary' : 'bg-primary/20'}`} />
+                        <span 
+                          key={i} 
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i < 1 ? 'bg-primary' : 'bg-primary/20'}`}
+                          style={{
+                            opacity: isInfoOpen ? 1 : 0,
+                            transform: isInfoOpen ? 'scale(1)' : 'scale(0)',
+                            transitionDelay: `${500 + i * 50}ms`
+                          }}
+                        />
                       ))}
                     </div>
                   </div>
                   
+                  {/* Row 4: Aktivität - 1/5 dots */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <p className="text-foreground font-medium">4. Aktivität</p>
@@ -150,7 +179,15 @@ export default function Discover() {
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
-                        <span key={i} className={`w-1.5 h-1.5 rounded-full ${i < 1 ? 'bg-primary' : 'bg-primary/20'}`} />
+                        <span 
+                          key={i} 
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i < 1 ? 'bg-primary' : 'bg-primary/20'}`}
+                          style={{
+                            opacity: isInfoOpen ? 1 : 0,
+                            transform: isInfoOpen ? 'scale(1)' : 'scale(0)',
+                            transitionDelay: `${750 + i * 50}ms`
+                          }}
+                        />
                       ))}
                     </div>
                   </div>
