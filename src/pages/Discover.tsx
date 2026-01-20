@@ -113,7 +113,7 @@ export default function Discover() {
                     <div className="flex-1">
                       <p className="text-foreground font-medium">1. Gemeinsame Intents</p>
                       <p className="text-xs">Suchst du "Projektpartner"? Profile mit diesem Ziel erscheinen oben.</p>
-                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Lerngruppe, Profil → Lerngruppe</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Leute kennenlernen, Profil → Leute kennenlernen</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
@@ -157,7 +157,7 @@ export default function Discover() {
                     <div className="flex-1">
                       <p className="text-foreground font-medium">3. Studienkontext</p>
                       <p className="text-xs">Gleiches Programm oder Semester werden leicht bevorzugt.</p>
-                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Beide im 3. Semester BWL</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Beide im Bereich WiSo</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
