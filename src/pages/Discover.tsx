@@ -100,8 +100,34 @@ export default function Discover() {
                 <Info className="w-4 h-4" />
               </button>
             </PopoverTrigger>
-            <PopoverContent side="bottom" className="max-w-xs text-center text-sm">
-              Profile werden primär nach gemeinsamen Intents sortiert, mit Berücksichtigung von Studienkontext und Aktivität!
+            <PopoverContent side="bottom" className="w-72 p-4">
+              <div className="space-y-3">
+                <h3 className="font-display text-xs tracking-widest uppercase text-primary text-center">
+                  Wie werden Profile sortiert?
+                </h3>
+                
+                <div className="space-y-2.5 text-sm text-muted-foreground">
+                  <div>
+                    <p className="text-foreground font-medium">1. Gemeinsame Intents</p>
+                    <p className="text-xs">Suchst du "Projektpartner"? Profile mit diesem Ziel erscheinen oben.</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-foreground font-medium">2. Kompatible Ziele</p>
+                    <p className="text-xs">"Startup" und "Projektpartner" passen gut zusammen!</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-foreground font-medium">3. Studienkontext</p>
+                    <p className="text-xs">Gleiches Programm oder Semester werden leicht bevorzugt.</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-foreground font-medium">4. Aktivität</p>
+                    <p className="text-xs">Kürzlich aktive Profile erscheinen vor inaktiven.</p>
+                  </div>
+                </div>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
