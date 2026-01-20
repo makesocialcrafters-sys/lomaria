@@ -107,24 +107,52 @@ export default function Discover() {
                 </h3>
                 
                 <div className="space-y-2.5 text-sm text-muted-foreground">
-                  <div>
-                    <p className="text-foreground font-medium">1. Gemeinsame Intents</p>
-                    <p className="text-xs">Suchst du "Projektpartner"? Profile mit diesem Ziel erscheinen oben.</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <p className="text-foreground font-medium">1. Gemeinsame Intents</p>
+                      <p className="text-xs">Suchst du "Projektpartner"? Profile mit diesem Ziel erscheinen oben.</p>
+                    </div>
+                    <div className="flex gap-0.5 mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      ))}
+                    </div>
                   </div>
                   
-                  <div>
-                    <p className="text-foreground font-medium">2. Kompatible Ziele</p>
-                    <p className="text-xs">"Startup" und "Projektpartner" passen gut zusammen!</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <p className="text-foreground font-medium">2. Kompatible Ziele</p>
+                      <p className="text-xs">"Startup" und "Projektpartner" passen gut zusammen!</p>
+                    </div>
+                    <div className="flex gap-0.5 mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`w-1.5 h-1.5 rounded-full ${i < 3 ? 'bg-primary' : 'bg-primary/20'}`} />
+                      ))}
+                    </div>
                   </div>
                   
-                  <div>
-                    <p className="text-foreground font-medium">3. Studienkontext</p>
-                    <p className="text-xs">Gleiches Programm oder Semester werden leicht bevorzugt.</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <p className="text-foreground font-medium">3. Studienkontext</p>
+                      <p className="text-xs">Gleiches Programm oder Semester werden leicht bevorzugt.</p>
+                    </div>
+                    <div className="flex gap-0.5 mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`w-1.5 h-1.5 rounded-full ${i < 1 ? 'bg-primary' : 'bg-primary/20'}`} />
+                      ))}
+                    </div>
                   </div>
                   
-                  <div>
-                    <p className="text-foreground font-medium">4. Aktivität</p>
-                    <p className="text-xs">Kürzlich aktive Profile erscheinen vor inaktiven.</p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <p className="text-foreground font-medium">4. Aktivität</p>
+                      <p className="text-xs">Kürzlich aktive Profile erscheinen vor inaktiven.</p>
+                    </div>
+                    <div className="flex gap-0.5 mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`w-1.5 h-1.5 rounded-full ${i < 1 ? 'bg-primary' : 'bg-primary/20'}`} />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
