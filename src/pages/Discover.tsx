@@ -113,6 +113,7 @@ export default function Discover() {
                     <div className="flex-1">
                       <p className="text-foreground font-medium">1. Gemeinsame Intents</p>
                       <p className="text-xs">Suchst du "Projektpartner"? Profile mit diesem Ziel erscheinen oben.</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Lerngruppe, Profil → Lerngruppe</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
@@ -134,6 +135,7 @@ export default function Discover() {
                     <div className="flex-1">
                       <p className="text-foreground font-medium">2. Kompatible Ziele</p>
                       <p className="text-xs">"Startup" und "Projektpartner" passen gut zusammen!</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Startup, Profil → Projektpartner</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
@@ -155,6 +157,7 @@ export default function Discover() {
                     <div className="flex-1">
                       <p className="text-foreground font-medium">3. Studienkontext</p>
                       <p className="text-xs">Gleiches Programm oder Semester werden leicht bevorzugt.</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Beide im 3. Semester BWL</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
@@ -176,6 +179,7 @@ export default function Discover() {
                     <div className="flex-1">
                       <p className="text-foreground font-medium">4. Aktivität</p>
                       <p className="text-xs">Kürzlich aktive Profile erscheinen vor inaktiven.</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Zuletzt online vor 2 Stunden</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
