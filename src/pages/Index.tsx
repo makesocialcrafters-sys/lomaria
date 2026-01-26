@@ -76,9 +76,7 @@ const Index = () => {
               <h4 className="font-display text-sm text-primary tracking-[0.15em] uppercase mb-4">
                 Campus Dating
               </h4>
-              <p className="font-display text-sm text-foreground/50 leading-relaxed">
-                Keine Randoms. Keine Bots. Triff Studierende, die deinen Lifestyle verstehen. Vom Spritzerstand bis zum Lern-Date in der Bib.
-              </p>
+              <p className="font-display text-sm text-foreground/50 leading-relaxed">Keine Randoms. Keine Bots. Triff Studierende, die deinen Lifestyle verstehen. Vom Feiermodus bis zum Lern-Date in der Bib.</p>
             </div>
             
             {/* Pillar 2: Co-Founding & Business */}
