@@ -85,15 +85,9 @@ const About = () => {
           
           <div className="w-16 h-px bg-primary/40 mx-auto mb-8" role="presentation" aria-hidden="true" />
           
-          <p className="font-display text-sm text-foreground/50 leading-relaxed mb-10">
-            Lomaria ist ein unabhängiges Projekt aus Wien. Wir lieben Feedback.
-          </p>
+          <p className="font-display text-sm text-foreground/50 leading-relaxed mb-10">Lomaria ist ein unabhängiges Projekt aus Wien.</p>
           
-          <a href="mailto:hello@lomaria.at" className="inline-block px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
-                       hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-            Schreib uns
-          </a>
+          
         </div>
       </section>
 
