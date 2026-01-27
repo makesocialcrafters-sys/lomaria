@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { getCooldownInfo, type CooldownInfo } from "@/lib/cooldown-utils";
 import { useBlockedUserIds } from "./useBlockedUserIds";
 import { useOwnProfile } from "./useOwnProfile";
 import { sortByRelevance, type ScoringContext } from "@/lib/matching-utils";
@@ -20,7 +19,6 @@ export interface UserProfile {
   interests: string[] | null;
   tutoring_subject: string | null;
   last_active_at?: string | null;
-  cooldownInfo?: CooldownInfo;
 }
 
 interface UseDiscoverProfilesParams {
@@ -31,7 +29,6 @@ interface UseDiscoverProfilesParams {
 }
 
 const PAGE_SIZE = 20;
-const COOLDOWN_HOURS = 72;
 
 export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, page }: UseDiscoverProfilesParams) {
   const { user } = useAuth();
@@ -55,11 +52,11 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
 
       if (!currentUser) return [];
 
-      // 2. Get ALL connections for this user (with status and rejected_at)
+      // 2. Get ALL connections for this user
       const { data: connections } = await supabase
         .from("connections")
-        .select("from_user, to_user, status, rejected_at")
-        .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`) as { data: Array<{ from_user: string; to_user: string; status: string; rejected_at: string | null }> | null };
+        .select("from_user, to_user, status")
+        .or(`from_user.eq.${currentUser.id},to_user.eq.${currentUser.id}`) as { data: Array<{ from_user: string; to_user: string; status: string }> | null };
 
       // 3. Query profiles with filters (use user_profiles view - excludes email, auth_user_id)
       // Note: We no longer order by last_active_at here - sorting happens client-side via intent matching
@@ -91,8 +88,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
       // Rules:
       // - pending → hide completely
       // - accepted → hide completely
-      // - rejected < 72h → hide completely (cooldown active)
-      // - rejected >= 72h → show (cooldown expired)
+      // - rejected → show (user can send new request)
       // - no connection → show
       const filteredProfiles = (data || [])
         .filter(profile => {
@@ -104,14 +100,6 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
           // Hide pending and accepted connections
           if (conn?.status === "pending" || conn?.status === "accepted") {
             return false;
-          }
-
-          // Hide rejected connections during cooldown (72 hours)
-          if (conn?.status === "rejected" && conn.rejected_at) {
-            const cooldownInfo = getCooldownInfo(conn.rejected_at);
-            if (cooldownInfo.isActive) {
-              return false; // Completely hidden during cooldown
-            }
           }
 
           return true;
