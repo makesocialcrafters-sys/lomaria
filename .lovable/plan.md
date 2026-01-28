@@ -1,41 +1,61 @@
 
-# Discover-Cache nach Unmatch sofort invalidieren
+# Chat-Löschung bei Unmatch ermöglichen
 
 ## Problem
 
-Nach dem Beenden einer Verbindung erscheinen die Profile nicht sofort in Discover, weil der `discover-profiles` Cache eine `staleTime` von 5 Minuten hat und im `UnmatchDialog` nicht invalidiert wird.
+Die aktuelle RLS-Policy auf der `connections` Tabelle verhindert das Löschen von **accepted** Connections:
+
+```sql
+Policy Name: Both users can delete non-accepted connections 
+Using Expression: ((status = ANY (ARRAY['pending'::text, 'rejected'::text])) AND ...)
+```
+
+**Ergebnis:**
+- Der DELETE-Request gibt 204 zurück (Supabase Verhalten bei RLS-Block)
+- Aber die Connection wird **nicht** gelöscht
+- Chat und Nachrichten bleiben erhalten
+- User denkt, Verbindung wurde beendet, aber sie existiert noch
 
 ## Lösung
 
-Eine einzige Zeile hinzufügen in `src/components/user-actions/UnmatchDialog.tsx`:
+Die RLS-Policy erweitern, sodass auch `accepted` Connections gelöscht werden können (für Unmatch-Funktion).
 
-### Änderung (Zeile 55 - nach den bestehenden Invalidierungen)
+### Datenbank-Migration
 
-```typescript
-// Aktuell (Zeilen 50-55):
-if (user) {
-  queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
-  queryClient.invalidateQueries({ queryKey: ["accepted-connections", user.id] });
-  queryClient.invalidateQueries({ queryKey: ["chat", connectionId] });
-}
+```sql
+-- Drop the existing restrictive policy
+DROP POLICY IF EXISTS "Both users can delete non-accepted connections" ON public.connections;
 
-// Neu (Zeile 55 hinzufügen):
-if (user) {
-  queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
-  queryClient.invalidateQueries({ queryKey: ["accepted-connections", user.id] });
-  queryClient.invalidateQueries({ queryKey: ["chat", connectionId] });
-  queryClient.invalidateQueries({ queryKey: ["discover-profiles"] }); // <-- NEU
-}
+-- Create new policy that allows deleting ANY connection (pending, rejected, OR accepted)
+CREATE POLICY "Both users can delete their connections"
+ON public.connections
+FOR DELETE
+USING (
+  auth.uid() IN (
+    SELECT users.auth_user_id FROM users WHERE users.id = connections.from_user
+    UNION
+    SELECT users.auth_user_id FROM users WHERE users.id = connections.to_user
+  )
+);
 ```
 
-## Ergebnis
+## Ergebnis nach der Änderung
 
-- Nach Unmatch: Beide Profile erscheinen **sofort** wieder in Discover
-- Kein Warten auf 5-Minuten-Cache-Ablauf
-- User-Experience: Nahtlos und reaktiv
+| Aktion | Verhalten |
+|--------|-----------|
+| Unmatch (accepted) | Connection wird gelöscht ✅ |
+| Nachrichten | Automatisch gelöscht (ON DELETE CASCADE) ✅ |
+| Pending löschen | Weiterhin möglich ✅ |
+| Rejected löschen | Weiterhin möglich ✅ |
 
 ## Technische Details
 
-- `invalidateQueries` mit Partial-Key `["discover-profiles"]` invalidiert alle Discover-Queries (unabhängig von Filtern)
-- Keine Datenbank-Änderungen nötig
-- Minimale Code-Änderung (1 Zeile)
+- Die `messages` Tabelle hat bereits `ON DELETE CASCADE` auf `connection_id`
+- Wenn die Connection gelöscht wird, werden alle zugehörigen Nachrichten automatisch mit gelöscht
+- Keine Code-Änderungen nötig - nur die RLS-Policy muss erweitert werden
+
+## Sicherheit
+
+- Nur `from_user` oder `to_user` können ihre eigene Connection löschen
+- Andere User können fremde Connections nicht löschen
+- Die Gleichberechtigung bleibt erhalten (beide Seiten können Unmatch initiieren)
