@@ -138,8 +138,8 @@ export default function ProfileDetail() {
 
     if (status === "pending" && role === "receiver") {
       return (
-        <Button width="full" variant="outline" onClick={() => navigate("/contacts")}>
-          Eingehende Anfrage ansehen
+        <Button width="full" onClick={() => setIsDialogOpen(true)}>
+          Kontakt anfragen
         </Button>
       );
     }
