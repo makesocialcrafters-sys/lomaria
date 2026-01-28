@@ -8,7 +8,7 @@ export const STUDY_PROGRAMS = [
 
 export const STUDY_PHASES = [
   { value: "steop", label: "STEOP-Phase" },
-  { value: "cbk_hauptstudium", label: "CBK / Hauptstudium" },
+  { value: "cbk_hauptstudium", label: "CBK/Hauptstudium/Spezialisierung" },
 ] as const;
 
 export const GENDERS = [
