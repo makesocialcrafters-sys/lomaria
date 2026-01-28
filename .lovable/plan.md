@@ -1,39 +1,61 @@
 
-# CTA-Logik für Empfänger bei rejected-Status korrigieren
+# Pending Connections blockieren nur den Sender
 
-## Problem
+## Übersicht
 
-Im Screenshot sieht man "Bereits bearbeitet" als disabled Button für den Empfänger einer abgelehnten Anfrage. Das ist falsch:
+Die aktuelle Logik behandelt `pending` als "User ist tabu" – das ist falsch. Eine pending Connection darf nur den Sender blockieren, nie den Empfänger.
 
-- **Aktuell**: Empfänger sieht `"Bereits bearbeitet"` (disabled) → Sackgasse
-- **Gewünscht**: Empfänger sieht `"Kontakt anfragen"` (aktiv) → Kann selbst anfragen
+**Golden Rule:** Eine pending Connection blockiert NUR den Sender – niemals den Empfänger.
 
-## Analyse
+---
 
-In `src/pages/ProfileDetail.tsx` (Zeilen 163-165):
+## Änderungen
 
+### 1. `src/hooks/useDiscoverProfiles.ts` (Zeilen 100-103)
+
+**Aktuell:**
 ```typescript
-if (status === "rejected" && role === "receiver") {
-  return <Button disabled width="full" variant="outline">Bereits bearbeitet</Button>;
+// Hide pending and accepted connections
+if (conn?.status === "pending" || conn?.status === "accepted") {
+  return false;
 }
 ```
 
-## Lösung
-
-Die CTA-Logik so anpassen, dass der Empfänger nach einer Ablehnung selbst eine neue Anfrage senden kann.
-
-### Änderung in `src/pages/ProfileDetail.tsx`
-
-**Zeilen 163-165 ändern von:**
+**Neu:**
 ```typescript
-if (status === "rejected" && role === "receiver") {
-  return <Button disabled width="full" variant="outline">Bereits bearbeitet</Button>;
+// Hide only if current user is the SENDER of a pending request
+if (conn?.status === "pending" && conn.from_user === currentUser.id) {
+  return false;
+}
+
+// Hide accepted connections (both parties are in chat)
+if (conn?.status === "accepted") {
+  return false;
 }
 ```
 
-**Zu:**
+**Ergebnis:**
+- A (Sender) sieht B nicht mehr in Discover
+- B (Empfänger) sieht A weiterhin in Discover
+
+---
+
+### 2. `src/pages/ProfileDetail.tsx` (Zeilen 139-144)
+
+**Aktuell:**
 ```typescript
-if (status === "rejected" && role === "receiver") {
+if (status === "pending" && role === "receiver") {
+  return (
+    <Button width="full" variant="outline" onClick={() => navigate("/contacts")}>
+      Eingehende Anfrage ansehen
+    </Button>
+  );
+}
+```
+
+**Neu:**
+```typescript
+if (status === "pending" && role === "receiver") {
   return (
     <Button width="full" onClick={() => setIsDialogOpen(true)}>
       Kontakt anfragen
@@ -42,18 +64,58 @@ if (status === "rejected" && role === "receiver") {
 }
 ```
 
-## Ergebnis nach der Änderung
+**Ergebnis:** Empfänger kann selbst eine Anfrage senden (überschreibt die eingehende)
 
-| Rolle | Status | CTA |
-|-------|--------|-----|
-| Sender | `pending` | "Anfrage gesendet" (disabled) ✅ |
-| Empfänger | `pending` | "Eingehende Anfrage ansehen" ✅ |
-| Sender | `rejected` | "Kontakt anfragen" (aktiv) ✅ |
-| Empfänger | `rejected` | "Kontakt anfragen" (aktiv) ✅ **NEU** |
-| Beide | `accepted` | "Chat öffnen" ✅ |
+---
+
+### 3. `src/components/profile/ContactRequestDialog.tsx` (Zeilen 44-51)
+
+**Aktuell:**
+```typescript
+// Delete any existing rejected connection before creating new one
+await supabase
+  .from("connections")
+  .delete()
+  .eq("from_user", fromUserId)
+  .eq("to_user", toUserId)
+  .eq("status", "rejected");
+```
+
+**Neu:**
+```typescript
+// Delete any existing non-accepted connection in EITHER direction
+await supabase
+  .from("connections")
+  .delete()
+  .or(`and(from_user.eq.${fromUserId},to_user.eq.${toUserId}),and(from_user.eq.${toUserId},to_user.eq.${fromUserId})`)
+  .in("status", ["pending", "rejected"]);
+```
+
+**Ergebnis:**
+- Alte pending/rejected Connections werden in BEIDE Richtungen entfernt
+- Richtung wird sauber neu gesetzt (B → A statt A → B)
+- Kein Lock-Zustand mehr möglich
+
+---
+
+## Endresultat
+
+| Situation | Verhalten |
+|-----------|-----------|
+| A → B pending | A blockiert, B frei |
+| B sieht A in Discover | ✅ |
+| B kann A anfragen | ✅ |
+| Richtung wechselt | sauber |
+| rejected | kein Lock |
+| accepted | geschützt |
+| Gleichberechtigung | ✅ |
+
+---
 
 ## Technische Details
 
-- Keine Datenbank-Änderungen nötig
-- Die RLS-Policy `"Both users can delete non-accepted connections"` erlaubt bereits das Löschen von `rejected` Connections
-- `ContactRequestDialog` löscht die bestehende `rejected` Connection automatisch bevor eine neue erstellt wird
+- **Keine Datenbank-Änderungen nötig**
+- RLS-Policy `"Both users can delete non-accepted connections"` erlaubt bereits:
+  - Sender löscht `pending` ✅
+  - Empfänger löscht `pending` ✅
+  - Beide löschen `rejected` ✅
