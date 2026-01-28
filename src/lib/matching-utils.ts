@@ -21,6 +21,7 @@ export interface ScoringContext {
 export interface ScoredProfile<T> {
   profile: T;
   score: number;
+  hasSharedIntent?: boolean;
 }
 
 /**
@@ -228,6 +229,9 @@ function shuffleArray<T>(array: T[]): T[] {
 /**
  * Sort and shuffle profiles by relevance score
  * Main entry point for the matching algorithm
+ * 
+ * Primary grouping: Profiles with shared intents appear first
+ * Secondary sorting: Within each group, sort by relevance score with band randomization
  */
 export function sortByRelevance<
   T extends {
@@ -237,12 +241,21 @@ export function sortByRelevance<
     last_active_at?: string | null;
   }
 >(profiles: T[], context: ScoringContext): T[] {
-  // Calculate scores for all profiles
+  // Calculate scores and check for shared intents
   const scored: ScoredProfile<T>[] = profiles.map(profile => ({
     profile,
     score: calculateRelevanceScore(profile, context),
+    hasSharedIntent: countSharedIntents(context.currentUserIntents, profile.intents) > 0,
   }));
   
-  // Sort by score and apply band randomization
-  return shuffleWithinScoreBands(scored);
+  // Split into two groups: with and without shared intents
+  const withSharedIntent = scored.filter(p => p.hasSharedIntent);
+  const withoutSharedIntent = scored.filter(p => !p.hasSharedIntent);
+  
+  // Sort and randomize each group separately
+  const sortedWithShared = shuffleWithinScoreBands(withSharedIntent);
+  const sortedWithoutShared = shuffleWithinScoreBands(withoutSharedIntent);
+  
+  // Combine: Profiles with shared intents first, then the rest
+  return [...sortedWithShared, ...sortedWithoutShared];
 }
