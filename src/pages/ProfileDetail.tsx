@@ -161,7 +161,11 @@ export default function ProfileDetail() {
     }
 
     if (status === "rejected" && role === "receiver") {
-      return <Button disabled width="full" variant="outline">Bereits bearbeitet</Button>;
+      return (
+        <Button width="full" onClick={() => setIsDialogOpen(true)}>
+          Kontakt anfragen
+        </Button>
+      );
     }
 
     return (
