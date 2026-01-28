@@ -22,7 +22,7 @@ export default function Onboarding() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { refreshOnboardingStatus } = useAppState();
-  const { step, data, updateData, clearData, nextStep, prevStep, showTutoringStep } = useOnboarding();
+  const { step, data, updateData, updateIntentDetails, clearData, nextStep, prevStep, showTutoringStep } = useOnboarding();
   const [saving, setSaving] = useState(false);
 
   const handleLogout = async () => {
@@ -68,7 +68,7 @@ export default function Onboarding() {
 
     setSaving(true);
     try {
-      const profileData = {
+const profileData = {
         first_name: data.first_name,
         last_name: data.last_name,
         profile_image: data.profile_image,
@@ -83,6 +83,7 @@ export default function Onboarding() {
         tutoring_desc: data.tutoring_desc || null,
         tutoring_price: data.tutoring_price || null,
         bio: data.bio || null,
+        intent_details: data.intent_details || {},
         last_active_at: new Date().toISOString(),
       };
 
@@ -208,10 +209,12 @@ export default function Onboarding() {
           />
         )}
 
-        {step === 4 && (
+{step === 4 && (
           <Step4Intents
             intents={data.intents}
+            intentDetails={data.intent_details}
             onUpdate={updateData}
+            onUpdateIntentDetails={updateIntentDetails}
             onNext={handleNext}
             onBack={handleBack}
           />

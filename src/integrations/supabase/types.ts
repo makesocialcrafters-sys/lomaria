@@ -237,6 +237,7 @@ export type Database = {
           focus: string | null
           gender: string | null
           id: string
+          intent_details: Json | null
           intents: string[] | null
           interests: string[] | null
           last_active_at: string | null
@@ -260,6 +261,7 @@ export type Database = {
           focus?: string | null
           gender?: string | null
           id?: string
+          intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
           last_active_at?: string | null
@@ -283,6 +285,7 @@ export type Database = {
           focus?: string | null
           gender?: string | null
           id?: string
+          intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
           last_active_at?: string | null

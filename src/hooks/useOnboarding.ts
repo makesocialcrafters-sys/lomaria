@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { OnboardingData, initialOnboardingData } from "@/lib/onboarding-constants";
+import { OnboardingData, initialOnboardingData, IntentDetails } from "@/lib/onboarding-constants";
 
 const STORAGE_KEY = "lomaria_onboarding_draft";
 
@@ -11,7 +11,13 @@ export function useOnboarding() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Ensure intent_details exists for backwards compatibility
+        return {
+          ...initialOnboardingData,
+          ...parsed,
+          intent_details: parsed.intent_details || {},
+        };
       }
     } catch {
       // Ignore parse errors
@@ -30,6 +36,29 @@ export function useOnboarding() {
 
   const updateData = useCallback((updates: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...updates }));
+  }, []);
+
+  const updateIntentDetails = useCallback(
+    (intent: string, field: string, value: string | string[]) => {
+      setData((prev) => ({
+        ...prev,
+        intent_details: {
+          ...prev.intent_details,
+          [intent]: {
+            ...(prev.intent_details[intent] || {}),
+            [field]: value,
+          },
+        },
+      }));
+    },
+    []
+  );
+
+  const clearIntentDetails = useCallback(() => {
+    setData((prev) => ({
+      ...prev,
+      intent_details: {},
+    }));
   }, []);
 
   const clearData = useCallback(() => {
@@ -67,6 +96,8 @@ export function useOnboarding() {
     step,
     data,
     updateData,
+    updateIntentDetails,
+    clearIntentDetails,
     clearData,
     nextStep,
     prevStep,
