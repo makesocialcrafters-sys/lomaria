@@ -51,6 +51,164 @@ export const TUTORING_SUGGESTIONS = [
   "Marketing",
 ] as const;
 
+// Intent Detail Flow Screen Configuration
+export type IntentDetailScreen = {
+  id: string;
+  title: string;
+  multiSelect: boolean;
+  options: readonly { value: string; label: string }[];
+};
+
+export type IntentDetailConfig = {
+  screens: readonly IntentDetailScreen[];
+};
+
+export const INTENT_DETAIL_OPTIONS: Record<string, IntentDetailConfig> = {
+  projektpartner: {
+    screens: [
+      {
+        id: "phase",
+        title: "Projektphase",
+        multiSelect: true,
+        options: [
+          { value: "idee", label: "Idee" },
+          { value: "konzept", label: "Konzept" },
+          { value: "umsetzung", label: "Umsetzung" },
+          { value: "offen", label: "Offen" },
+        ],
+      },
+      {
+        id: "roles",
+        title: "Gesuchte Rollen",
+        multiSelect: true,
+        options: [
+          { value: "tech", label: "Tech" },
+          { value: "design", label: "Design" },
+          { value: "business", label: "Business" },
+          { value: "organisation", label: "Organisation" },
+          { value: "offen", label: "Offen" },
+        ],
+      },
+    ],
+  },
+  startup: {
+    screens: [
+      {
+        id: "status",
+        title: "Status",
+        multiSelect: false,
+        options: [
+          { value: "konkrete_idee", label: "Habe konkrete Idee" },
+          { value: "grobe_idee", label: "Habe grobe Idee" },
+          { value: "suche_mitgruender", label: "Suche Mitgründer" },
+          { value: "anschliessen", label: "Möchte mich anschließen" },
+        ],
+      },
+      {
+        id: "contribution",
+        title: "Eigener Beitrag",
+        multiSelect: true,
+        options: [
+          { value: "tech", label: "Tech" },
+          { value: "business", label: "Business" },
+          { value: "design", label: "Design" },
+          { value: "strategie", label: "Strategie" },
+          { value: "zeit_motivation", label: "Zeit / Motivation" },
+        ],
+      },
+    ],
+  },
+  networking: {
+    screens: [
+      {
+        id: "focus",
+        title: "Fokus",
+        multiSelect: true,
+        options: [
+          { value: "austausch", label: "Austausch" },
+          { value: "mentoring", label: "Mentoring" },
+          { value: "karrieregespraeche", label: "Karrieregespräche" },
+          { value: "orientierung", label: "Orientierung" },
+        ],
+      },
+      {
+        id: "area",
+        title: "Bereich",
+        multiSelect: true,
+        options: [
+          { value: "consulting", label: "Consulting" },
+          { value: "finance", label: "Finance" },
+          { value: "tech", label: "Tech" },
+          { value: "marketing", label: "Marketing" },
+          { value: "recht", label: "Recht" },
+          { value: "offen", label: "Offen" },
+        ],
+      },
+    ],
+  },
+  neue_leute: {
+    screens: [
+      {
+        id: "type",
+        title: "Art",
+        multiSelect: true,
+        options: [
+          { value: "lernen", label: "Lernen" },
+          { value: "gespraeche", label: "Gespräche" },
+          { value: "freizeit", label: "Freizeit" },
+          { value: "austausch", label: "Austausch" },
+        ],
+      },
+      {
+        id: "energy",
+        title: "Energielevel",
+        multiSelect: false,
+        options: [
+          { value: "ruhig", label: "Ruhig" },
+          { value: "gemischt", label: "Gemischt" },
+          { value: "aktiv", label: "Aktiv" },
+        ],
+      },
+    ],
+  },
+  freundschaften: {
+    screens: [
+      {
+        id: "type",
+        title: "Art",
+        multiSelect: false,
+        options: [
+          { value: "langfristig", label: "Langfristig" },
+          { value: "unverbindlich", label: "Unverbindlich" },
+          { value: "situativ", label: "Situativ" },
+        ],
+      },
+      {
+        id: "style",
+        title: "Umgang",
+        multiSelect: false,
+        options: [
+          { value: "tiefgehend", label: "Tiefgehend" },
+          { value: "locker", label: "Locker" },
+          { value: "beides", label: "Beides" },
+        ],
+      },
+    ],
+  },
+} as const;
+
+// Intent labels for display
+export const INTENT_LABELS: Record<string, string> = {
+  projektpartner: "Projektpartner",
+  startup: "Startup",
+  networking: "Networking",
+  neue_leute: "Neue Leute",
+  freundschaften: "Freundschaften",
+  nachhilfe_anbieten: "Nachhilfe",
+};
+
+export type IntentDetails = Record<string, Record<string, string | string[]>>;
+
 export type OnboardingData = {
   first_name: string;
   last_name: string;
@@ -66,6 +224,7 @@ export type OnboardingData = {
   tutoring_desc: string;
   tutoring_price: number | null;
   bio: string;
+  intent_details: IntentDetails;
 };
 
 export const initialOnboardingData: OnboardingData = {
@@ -83,4 +242,5 @@ export const initialOnboardingData: OnboardingData = {
   tutoring_desc: "",
   tutoring_price: null,
   bio: "",
+  intent_details: {},
 };
