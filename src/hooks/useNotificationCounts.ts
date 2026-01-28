@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrentUserId } from "./useCurrentUserId";
 import { useIncomingRequests } from "./useIncomingRequests";
 import { useChatsPreview } from "./useChatsPreview";
 
@@ -9,10 +10,12 @@ export function useNotificationCounts() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   
+  // Keep hook order stable - useCurrentUserId was already in use
+  const { data: currentUserId } = useCurrentUserId();
   const { data: incomingRequests } = useIncomingRequests();
   const { data: chats } = useChatsPreview();
 
-  // Basic realtime subscription for messages
+  // Basic realtime subscription for messages and connections
   useEffect(() => {
     if (!user) return;
 
