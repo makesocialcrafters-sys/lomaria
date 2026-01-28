@@ -7,13 +7,20 @@ export interface Area {
 
 /**
  * Load an image from a URL or base64 string
+ * Only sets crossOrigin for external URLs to avoid tainted canvas errors
  */
 export function createImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.addEventListener("load", () => resolve(image));
     image.addEventListener("error", (error) => reject(error));
-    image.setAttribute("crossOrigin", "anonymous");
+    
+    // Only set crossOrigin for external URLs, not for data: or blob: URLs
+    // This prevents "tainted canvas" errors on iOS Safari
+    if (!src.startsWith("data:") && !src.startsWith("blob:")) {
+      image.setAttribute("crossOrigin", "anonymous");
+    }
+    
     image.src = src;
   });
 }
@@ -42,7 +49,23 @@ export async function validateImageFile(file: File): Promise<void> {
 }
 
 /**
+ * Convert a data URL to a Blob (fallback for iOS Safari)
+ */
+function dataURLtoBlob(dataURL: string): Blob {
+  const parts = dataURL.split(",");
+  const mime = parts[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+  const byteString = atob(parts[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mime });
+}
+
+/**
  * Get a cropped image as a Blob
+ * Includes fallback for iOS Safari where toBlob may return null
  */
 export async function getCroppedImg(
   imageSrc: string,
@@ -75,13 +98,21 @@ export async function getCroppedImg(
   );
 
   // Convert to JPEG blob with 0.9 quality
+  // Includes fallback for iOS Safari where toBlob may return null
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (blob) {
           resolve(blob);
         } else {
-          reject(new Error("Bild konnte nicht erstellt werden"));
+          // Fallback for iOS Safari: use toDataURL and convert manually
+          try {
+            const dataURL = canvas.toDataURL("image/jpeg", 0.9);
+            const fallbackBlob = dataURLtoBlob(dataURL);
+            resolve(fallbackBlob);
+          } catch (e) {
+            reject(new Error("Bild konnte nicht erstellt werden"));
+          }
         }
       },
       "image/jpeg",
