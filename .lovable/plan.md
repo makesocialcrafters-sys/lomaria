@@ -1,90 +1,59 @@
 
-# Build-Fehler beheben und RLS-Policy vereinfachen
+# CTA-Logik für Empfänger bei rejected-Status korrigieren
 
-## Übersicht
+## Problem
 
-Es gibt zwei Aufgaben:
-1. **Build-Fehler beheben**: Die `UserProfileCard.tsx` referenziert noch `cooldownInfo`, das nicht mehr existiert
-2. **Datenbank-Migration**: Die DELETE-Policies auf `connections` vereinfachen gemäß deiner Spezifikation
+Im Screenshot sieht man "Bereits bearbeitet" als disabled Button für den Empfänger einer abgelehnten Anfrage. Das ist falsch:
 
----
+- **Aktuell**: Empfänger sieht `"Bereits bearbeitet"` (disabled) → Sackgasse
+- **Gewünscht**: Empfänger sieht `"Kontakt anfragen"` (aktiv) → Kann selbst anfragen
 
-## Teil 1: Build-Fehler in UserProfileCard.tsx
+## Analyse
 
-### Problem
-Die Komponente zeigt Zeilen 89-92, die auf `user.cooldownInfo` zugreifen - aber diese Eigenschaft wurde aus dem `UserProfile` Interface entfernt.
-
-### Lösung
-Die Zeilen 89-93 komplett entfernen:
+In `src/pages/ProfileDetail.tsx` (Zeilen 163-165):
 
 ```typescript
-// Diese Zeilen entfernen:
-{user.cooldownInfo?.isActive && (
-  <p className="mt-4 text-xs text-muted-foreground/60 italic">
-    Erneut anfragbar in {user.cooldownInfo.remainingText}
-  </p>
-)}
+if (status === "rejected" && role === "receiver") {
+  return <Button disabled width="full" variant="outline">Bereits bearbeitet</Button>;
+}
 ```
 
----
+## Lösung
 
-## Teil 2: Datenbank-Migration
+Die CTA-Logik so anpassen, dass der Empfänger nach einer Ablehnung selbst eine neue Anfrage senden kann.
 
-### Aktuelle Situation
-Es existieren mehrere DELETE-Policies mit unterschiedlichen Regeln:
-- "Users can delete own accepted or rejected connections"
-- "Sender can delete expired rejected connections" (mit 72h Cooldown)
+### Änderung in `src/pages/ProfileDetail.tsx`
 
-### Zielzustand
-Eine einzige, klare Policy:
-
-| Szenario | Ergebnis |
-|----------|----------|
-| Sender löscht `rejected` | ✅ erlaubt |
-| Empfänger löscht `rejected` | ✅ erlaubt |
-| Sender löscht `pending` | ✅ erlaubt |
-| Empfänger löscht `pending` | ✅ erlaubt |
-| `accepted` löschen | ❌ verboten |
-
-### SQL-Migration
-
-```sql
--- 1. Alte Policies entfernen
-DROP POLICY IF EXISTS "Users can delete own accepted or rejected connections" ON public.connections;
-DROP POLICY IF EXISTS "Sender can delete rejected connections" ON public.connections;
-DROP POLICY IF EXISTS "Sender can delete expired rejected connections" ON public.connections;
-
--- 2. Neue einheitliche Policy erstellen
-CREATE POLICY "Both users can delete non-accepted connections"
-ON public.connections
-FOR DELETE
-TO authenticated
-USING (
-  status IN ('pending', 'rejected')
-  AND auth.uid() IN (
-    SELECT auth_user_id FROM users WHERE id = from_user
-    UNION
-    SELECT auth_user_id FROM users WHERE id = to_user
-  )
-);
+**Zeilen 163-165 ändern von:**
+```typescript
+if (status === "rejected" && role === "receiver") {
+  return <Button disabled width="full" variant="outline">Bereits bearbeitet</Button>;
+}
 ```
 
----
+**Zu:**
+```typescript
+if (status === "rejected" && role === "receiver") {
+  return (
+    <Button width="full" onClick={() => setIsDialogOpen(true)}>
+      Kontakt anfragen
+    </Button>
+  );
+}
+```
 
-## Zusammenfassung der Änderungen
+## Ergebnis nach der Änderung
 
-| Datei/Ressource | Aktion |
-|-----------------|--------|
-| `src/components/discover/UserProfileCard.tsx` | Zeilen 89-93 (cooldownInfo UI) entfernen |
-| RLS Policy auf `connections` | Alte DELETE-Policies löschen, neue einheitliche Policy erstellen |
+| Rolle | Status | CTA |
+|-------|--------|-----|
+| Sender | `pending` | "Anfrage gesendet" (disabled) ✅ |
+| Empfänger | `pending` | "Eingehende Anfrage ansehen" ✅ |
+| Sender | `rejected` | "Kontakt anfragen" (aktiv) ✅ |
+| Empfänger | `rejected` | "Kontakt anfragen" (aktiv) ✅ **NEU** |
+| Beide | `accepted` | "Chat öffnen" ✅ |
 
----
+## Technische Details
 
-## Ergebnis
-
-Nach diesen Änderungen:
-- ✅ Keine Build-Fehler mehr
-- ✅ Beide Parteien können `pending` oder `rejected` Connections löschen
-- ✅ `accepted` Connections bleiben geschützt (nur über Unmatch-Flow)
-- ✅ Kein Cooldown mehr
-- ✅ Klare, wartbare Logik
+- Keine Datenbank-Änderungen nötig
+- Die RLS-Policy `"Both users can delete non-accepted connections"` erlaubt bereits das Löschen von `rejected` Connections
+- `ContactRequestDialog` löscht die bestehende `rejected` Connection automatisch bevor eine neue erstellt wird
