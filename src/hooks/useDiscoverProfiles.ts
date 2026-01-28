@@ -97,8 +97,13 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
             (c.from_user === profile.id && c.to_user === currentUser.id)
           );
 
-          // Hide pending and accepted connections
-          if (conn?.status === "pending" || conn?.status === "accepted") {
+          // Hide only if current user is the SENDER of a pending request
+          if (conn?.status === "pending" && conn.from_user === currentUser.id) {
+            return false;
+          }
+
+          // Hide accepted connections (both parties are in chat)
+          if (conn?.status === "accepted") {
             return false;
           }
 

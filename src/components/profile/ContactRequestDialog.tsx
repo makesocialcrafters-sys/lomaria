@@ -42,13 +42,12 @@ export function ContactRequestDialog({
     setSending(true);
 
     try {
-      // Delete any existing rejected connection before creating new one
+      // Delete any existing non-accepted connection in EITHER direction
       await supabase
         .from("connections")
         .delete()
-        .eq("from_user", fromUserId)
-        .eq("to_user", toUserId)
-        .eq("status", "rejected");
+        .or(`and(from_user.eq.${fromUserId},to_user.eq.${toUserId}),and(from_user.eq.${toUserId},to_user.eq.${fromUserId})`)
+        .in("status", ["pending", "rejected"]);
 
       // Create new connection request
       const { error } = await supabase.from("connections").insert({
