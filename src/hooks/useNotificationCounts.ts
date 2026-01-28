@@ -2,20 +2,22 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrentUserId } from "./useCurrentUserId";
 import { useIncomingRequests } from "./useIncomingRequests";
 import { useChatsPreview } from "./useChatsPreview";
-import { useCurrentUserId } from "./useCurrentUserId";
 
 export function useNotificationCounts() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { data: currentUserId } = useCurrentUserId();
   
+  // MUST call all hooks unconditionally for consistent hook order
+  const { data: currentUserId } = useCurrentUserId();
   const { data: incomingRequests } = useIncomingRequests();
   const { data: chats } = useChatsPreview();
 
   // Realtime Subscriptions für alle relevanten Events
   useEffect(() => {
+    // Guard inside useEffect, not before hooks
     if (!user || !currentUserId) return;
 
     const channel = supabase
