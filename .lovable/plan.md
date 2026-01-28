@@ -1,121 +1,41 @@
 
-# Pending Connections blockieren nur den Sender
+# Discover-Cache nach Unmatch sofort invalidieren
 
-## Übersicht
+## Problem
 
-Die aktuelle Logik behandelt `pending` als "User ist tabu" – das ist falsch. Eine pending Connection darf nur den Sender blockieren, nie den Empfänger.
+Nach dem Beenden einer Verbindung erscheinen die Profile nicht sofort in Discover, weil der `discover-profiles` Cache eine `staleTime` von 5 Minuten hat und im `UnmatchDialog` nicht invalidiert wird.
 
-**Golden Rule:** Eine pending Connection blockiert NUR den Sender – niemals den Empfänger.
+## Lösung
 
----
+Eine einzige Zeile hinzufügen in `src/components/user-actions/UnmatchDialog.tsx`:
 
-## Änderungen
+### Änderung (Zeile 55 - nach den bestehenden Invalidierungen)
 
-### 1. `src/hooks/useDiscoverProfiles.ts` (Zeilen 100-103)
-
-**Aktuell:**
 ```typescript
-// Hide pending and accepted connections
-if (conn?.status === "pending" || conn?.status === "accepted") {
-  return false;
+// Aktuell (Zeilen 50-55):
+if (user) {
+  queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
+  queryClient.invalidateQueries({ queryKey: ["accepted-connections", user.id] });
+  queryClient.invalidateQueries({ queryKey: ["chat", connectionId] });
+}
+
+// Neu (Zeile 55 hinzufügen):
+if (user) {
+  queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
+  queryClient.invalidateQueries({ queryKey: ["accepted-connections", user.id] });
+  queryClient.invalidateQueries({ queryKey: ["chat", connectionId] });
+  queryClient.invalidateQueries({ queryKey: ["discover-profiles"] }); // <-- NEU
 }
 ```
 
-**Neu:**
-```typescript
-// Hide only if current user is the SENDER of a pending request
-if (conn?.status === "pending" && conn.from_user === currentUser.id) {
-  return false;
-}
+## Ergebnis
 
-// Hide accepted connections (both parties are in chat)
-if (conn?.status === "accepted") {
-  return false;
-}
-```
-
-**Ergebnis:**
-- A (Sender) sieht B nicht mehr in Discover
-- B (Empfänger) sieht A weiterhin in Discover
-
----
-
-### 2. `src/pages/ProfileDetail.tsx` (Zeilen 139-144)
-
-**Aktuell:**
-```typescript
-if (status === "pending" && role === "receiver") {
-  return (
-    <Button width="full" variant="outline" onClick={() => navigate("/contacts")}>
-      Eingehende Anfrage ansehen
-    </Button>
-  );
-}
-```
-
-**Neu:**
-```typescript
-if (status === "pending" && role === "receiver") {
-  return (
-    <Button width="full" onClick={() => setIsDialogOpen(true)}>
-      Kontakt anfragen
-    </Button>
-  );
-}
-```
-
-**Ergebnis:** Empfänger kann selbst eine Anfrage senden (überschreibt die eingehende)
-
----
-
-### 3. `src/components/profile/ContactRequestDialog.tsx` (Zeilen 44-51)
-
-**Aktuell:**
-```typescript
-// Delete any existing rejected connection before creating new one
-await supabase
-  .from("connections")
-  .delete()
-  .eq("from_user", fromUserId)
-  .eq("to_user", toUserId)
-  .eq("status", "rejected");
-```
-
-**Neu:**
-```typescript
-// Delete any existing non-accepted connection in EITHER direction
-await supabase
-  .from("connections")
-  .delete()
-  .or(`and(from_user.eq.${fromUserId},to_user.eq.${toUserId}),and(from_user.eq.${toUserId},to_user.eq.${fromUserId})`)
-  .in("status", ["pending", "rejected"]);
-```
-
-**Ergebnis:**
-- Alte pending/rejected Connections werden in BEIDE Richtungen entfernt
-- Richtung wird sauber neu gesetzt (B → A statt A → B)
-- Kein Lock-Zustand mehr möglich
-
----
-
-## Endresultat
-
-| Situation | Verhalten |
-|-----------|-----------|
-| A → B pending | A blockiert, B frei |
-| B sieht A in Discover | ✅ |
-| B kann A anfragen | ✅ |
-| Richtung wechselt | sauber |
-| rejected | kein Lock |
-| accepted | geschützt |
-| Gleichberechtigung | ✅ |
-
----
+- Nach Unmatch: Beide Profile erscheinen **sofort** wieder in Discover
+- Kein Warten auf 5-Minuten-Cache-Ablauf
+- User-Experience: Nahtlos und reaktiv
 
 ## Technische Details
 
-- **Keine Datenbank-Änderungen nötig**
-- RLS-Policy `"Both users can delete non-accepted connections"` erlaubt bereits:
-  - Sender löscht `pending` ✅
-  - Empfänger löscht `pending` ✅
-  - Beide löschen `rejected` ✅
+- `invalidateQueries` mit Partial-Key `["discover-profiles"]` invalidiert alle Discover-Queries (unabhängig von Filtern)
+- Keine Datenbank-Änderungen nötig
+- Minimale Code-Änderung (1 Zeile)
