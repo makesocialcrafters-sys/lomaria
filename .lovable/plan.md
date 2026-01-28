@@ -1,61 +1,70 @@
 
-# Chat-Löschung bei Unmatch ermöglichen
+# Pending-Anfragen korrekt aus Discover ausblenden
 
 ## Problem
 
-Die aktuelle RLS-Policy auf der `connections` Tabelle verhindert das Löschen von **accepted** Connections:
+Die aktuelle Filter-Logik in `useDiscoverProfiles.ts` ist falsch:
 
-```sql
-Policy Name: Both users can delete non-accepted connections 
-Using Expression: ((status = ANY (ARRAY['pending'::text, 'rejected'::text])) AND ...)
+```typescript
+// Aktuell (Zeile 100-103):
+if (conn?.status === "pending" && conn.from_user === currentUser.id) {
+  return false;
+}
 ```
 
-**Ergebnis:**
-- Der DELETE-Request gibt 204 zurück (Supabase Verhalten bei RLS-Block)
-- Aber die Connection wird **nicht** gelöscht
-- Chat und Nachrichten bleiben erhalten
-- User denkt, Verbindung wurde beendet, aber sie existiert noch
+**Was passiert:**
+- User A sendet Anfrage an User B
+- Connection: `from_user = A, to_user = B, status = pending`
+- Wenn User B browst: `currentUser.id = B`
+- Prüfung: `conn.from_user === B` → **false** (A ist sender, nicht B)
+- Ergebnis: A wird **nicht** ausgefiltert und erscheint in B's Discover
+
+**Was passieren sollte:**
+- User A erscheint in B's "Kontakte (Anfragen)" ✓
+- User A erscheint **nicht** in B's Discover ✗
 
 ## Lösung
 
-Die RLS-Policy erweitern, sodass auch `accepted` Connections gelöscht werden können (für Unmatch-Funktion).
+Die Logik erweitern: Bei JEDER pending Connection (egal ob Sender oder Empfänger) das andere Profil aus Discover ausblenden.
 
-### Datenbank-Migration
+### Änderung in `src/hooks/useDiscoverProfiles.ts`
 
-```sql
--- Drop the existing restrictive policy
-DROP POLICY IF EXISTS "Both users can delete non-accepted connections" ON public.connections;
+```typescript
+// Zeilen 100-103 ersetzen:
 
--- Create new policy that allows deleting ANY connection (pending, rejected, OR accepted)
-CREATE POLICY "Both users can delete their connections"
-ON public.connections
-FOR DELETE
-USING (
-  auth.uid() IN (
-    SELECT users.auth_user_id FROM users WHERE users.id = connections.from_user
-    UNION
-    SELECT users.auth_user_id FROM users WHERE users.id = connections.to_user
-  )
-);
+// VORHER (falsch):
+if (conn?.status === "pending" && conn.from_user === currentUser.id) {
+  return false;
+}
+
+// NACHHER (korrekt):
+// Hide ALL pending connections - both sender and receiver should not see each other in Discover
+if (conn?.status === "pending") {
+  return false;
+}
 ```
 
-## Ergebnis nach der Änderung
+## Warum diese Änderung korrekt ist
 
-| Aktion | Verhalten |
-|--------|-----------|
-| Unmatch (accepted) | Connection wird gelöscht ✅ |
-| Nachrichten | Automatisch gelöscht (ON DELETE CASCADE) ✅ |
-| Pending löschen | Weiterhin möglich ✅ |
-| Rejected löschen | Weiterhin möglich ✅ |
+| Szenario | Vor der Änderung | Nach der Änderung |
+|----------|------------------|-------------------|
+| A sendet an B, B browst Discover | A erscheint ❌ | A verschwindet ✅ |
+| A sendet an B, A browst Discover | A's Anfrage versteckt ✅ | A's Anfrage versteckt ✅ |
+| B hat Anfrage von A | A in Kontakte ✅ | A in Kontakte ✅ |
+
+## Logik-Zusammenfassung
+
+- `pending` → Verstecken (beide Seiten sehen sich nicht in Discover)
+- `accepted` → Verstecken (beide sind im Chat)
+- `rejected` → Zeigen (neue Anfrage möglich)
+- keine Connection → Zeigen
+
+## Betroffene Datei
+
+`src/hooks/useDiscoverProfiles.ts` - Zeilen 100-103
 
 ## Technische Details
 
-- Die `messages` Tabelle hat bereits `ON DELETE CASCADE` auf `connection_id`
-- Wenn die Connection gelöscht wird, werden alle zugehörigen Nachrichten automatisch mit gelöscht
-- Keine Code-Änderungen nötig - nur die RLS-Policy muss erweitert werden
-
-## Sicherheit
-
-- Nur `from_user` oder `to_user` können ihre eigene Connection löschen
-- Andere User können fremde Connections nicht löschen
-- Die Gleichberechtigung bleibt erhalten (beide Seiten können Unmatch initiieren)
+- Minimale Änderung: Nur die Bedingung `&& conn.from_user === currentUser.id` entfernen
+- Keine Datenbank-Änderungen nötig
+- Cache wird automatisch aktualisiert wenn User navigiert
