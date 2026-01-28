@@ -52,6 +52,7 @@ export function UnmatchDialog({
         queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
         queryClient.invalidateQueries({ queryKey: ["accepted-connections", user.id] });
         queryClient.invalidateQueries({ queryKey: ["chat", connectionId] });
+        queryClient.invalidateQueries({ queryKey: ["discover-profiles"] });
       }
 
       toast.success("Verbindung beendet");
