@@ -1,70 +1,114 @@
 
-# Pending-Anfragen korrekt aus Discover ausblenden
+# Vollständige Realtime-Updates für alle Listen
 
 ## Problem
 
-Die aktuelle Filter-Logik in `useDiscoverProfiles.ts` ist falsch:
+Die App hat nur partielle Realtime-Updates. Der zentrale `useNotificationCounts` Hook lauscht nur auf:
+- INSERT bei messages (für neue Nachrichten)
+- INSERT/UPDATE bei connections mit `to_user=currentUser` (nur eingehende Anfragen)
 
-```typescript
-// Aktuell (Zeile 100-103):
-if (conn?.status === "pending" && conn.from_user === currentUser.id) {
-  return false;
-}
-```
-
-**Was passiert:**
-- User A sendet Anfrage an User B
-- Connection: `from_user = A, to_user = B, status = pending`
-- Wenn User B browst: `currentUser.id = B`
-- Prüfung: `conn.from_user === B` → **false** (A ist sender, nicht B)
-- Ergebnis: A wird **nicht** ausgefiltert und erscheint in B's Discover
-
-**Was passieren sollte:**
-- User A erscheint in B's "Kontakte (Anfragen)" ✓
-- User A erscheint **nicht** in B's Discover ✗
+**Fehlende Events:**
+| Event | Betroffene Listen |
+|-------|-------------------|
+| Connection akzeptiert | Sent Requests, Accepted Connections, Chats, Discover |
+| Connection abgelehnt | Sent Requests, Discover |
+| Connection gelöscht (Unmatch) | Chats, Discover |
+| Neue ausgehende Anfrage | Discover |
 
 ## Lösung
 
-Die Logik erweitern: Bei JEDER pending Connection (egal ob Sender oder Empfänger) das andere Profil aus Discover ausblenden.
+Den `useNotificationCounts.ts` Hook erweitern, um alle Connection-Events abzudecken und die entsprechenden Caches zu invalidieren.
 
-### Änderung in `src/hooks/useDiscoverProfiles.ts`
+### Änderung in `src/hooks/useNotificationCounts.ts`
+
+**Neue Realtime-Subscriptions hinzufügen:**
 
 ```typescript
-// Zeilen 100-103 ersetzen:
-
-// VORHER (falsch):
-if (conn?.status === "pending" && conn.from_user === currentUser.id) {
-  return false;
-}
-
-// NACHHER (korrekt):
-// Hide ALL pending connections - both sender and receiver should not see each other in Discover
-if (conn?.status === "pending") {
-  return false;
-}
+const channel = supabase
+  .channel('notification-updates')
+  // Bestehend: Neue Nachrichten
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, ...)
+  
+  // Bestehend: Eingehende Anfragen (INSERT)
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'connections', filter: `to_user=eq.${internalUserId}` }, ...)
+  
+  // NEU: Connection-Updates (Status-Änderungen wie accepted/rejected)
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'connections' }, (payload) => {
+    // Prüfen ob wir beteiligt sind (from_user oder to_user)
+    const { from_user, to_user, status } = payload.new;
+    if (from_user !== internalUserId && to_user !== internalUserId) return;
+    
+    // Bei accepted: Sender sieht neuen Chat
+    if (status === 'accepted') {
+      queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["accepted-connections"] });
+      queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
+      queryClient.invalidateQueries({ queryKey: ["discover-profiles"] });
+    }
+    
+    // Bei rejected: Sender kann neuen Request senden
+    if (status === 'rejected') {
+      queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["discover-profiles"] });
+    }
+  })
+  
+  // NEU: Connection gelöscht (Unmatch oder abgebrochene Anfrage)
+  .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'connections' }, () => {
+    // Bei DELETE: Alle relevanten Listen aktualisieren
+    queryClient.invalidateQueries({ queryKey: ["accepted-connections"] });
+    queryClient.invalidateQueries({ queryKey: ["chats-preview"] });
+    queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["incoming-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["discover-profiles"] });
+  })
+  
+  // NEU: Ausgehende Anfragen (INSERT mit from_user = currentUser)
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'connections', filter: `from_user=eq.${internalUserId}` }, () => {
+    queryClient.invalidateQueries({ queryKey: ["sent-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["discover-profiles"] });
+  })
+  .subscribe();
 ```
 
-## Warum diese Änderung korrekt ist
+### Problem: internalUserId benötigt
 
-| Szenario | Vor der Änderung | Nach der Änderung |
-|----------|------------------|-------------------|
-| A sendet an B, B browst Discover | A erscheint ❌ | A verschwindet ✅ |
-| A sendet an B, A browst Discover | A's Anfrage versteckt ✅ | A's Anfrage versteckt ✅ |
-| B hat Anfrage von A | A in Kontakte ✅ | A in Kontakte ✅ |
+Der Hook muss die interne User-ID (aus der `users` Tabelle) kennen, um die Filter korrekt zu setzen. Dies erfordert:
 
-## Logik-Zusammenfassung
+1. **Neuen Hook erstellen** oder `useCurrentUserId` verwenden:
 
-- `pending` → Verstecken (beide Seiten sehen sich nicht in Discover)
-- `accepted` → Verstecken (beide sind im Chat)
-- `rejected` → Zeigen (neue Anfrage möglich)
-- keine Connection → Zeigen
+```typescript
+// In useNotificationCounts.ts
+const { data: currentUserId } = useCurrentUserId();
 
-## Betroffene Datei
+useEffect(() => {
+  if (!user || !currentUserId) return;
+  
+  const channel = supabase
+    .channel('notification-updates')
+    // ... mit currentUserId für Filter
+    .subscribe();
+    
+  return () => supabase.removeChannel(channel);
+}, [user, currentUserId, queryClient]);
+```
 
-`src/hooks/useDiscoverProfiles.ts` - Zeilen 100-103
+## Zusammenfassung der Änderungen
 
-## Technische Details
+| Datei | Änderung |
+|-------|----------|
+| `src/hooks/useNotificationCounts.ts` | Erweitern um UPDATE/DELETE Events und alle betroffenen Query-Keys |
+| (Optional) | `useCurrentUserId` einbinden für interne User-ID |
 
-- Minimale Änderung: Nur die Bedingung `&& conn.from_user === currentUser.id` entfernen
-- Keine Datenbank-Änderungen nötig
-- Cache wird automatisch aktualisiert wenn User navigiert
+## Erwartetes Ergebnis
+
+Nach der Änderung aktualisieren sich alle Listen automatisch:
+
+| Aktion | Automatische Updates |
+|--------|---------------------|
+| A sendet Anfrage an B | A: Discover aktualisiert, Sent Requests aktualisiert |
+| B akzeptiert Anfrage | A: Neuer Chat erscheint, B: Incoming Requests verschwindet |
+| B lehnt ab | A: Sent Requests aktualisiert, Profil in Discover wieder sichtbar |
+| Unmatch | Beide: Chat verschwindet, Profil in Discover erscheint |
+
+## Keine manuellen Refreshes mehr nötig
