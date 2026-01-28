@@ -97,8 +97,8 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
             (c.from_user === profile.id && c.to_user === currentUser.id)
           );
 
-          // Hide only if current user is the SENDER of a pending request
-          if (conn?.status === "pending" && conn.from_user === currentUser.id) {
+          // Hide ALL pending connections - both sender and receiver should not see each other in Discover
+          if (conn?.status === "pending") {
             return false;
           }
 
