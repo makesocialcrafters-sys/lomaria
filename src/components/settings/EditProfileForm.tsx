@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { ProfileImageUpload } from "./ProfileImageUpload";
 import { MultiSelectChips } from "./MultiSelectChips";
+import { IntentDetailDialog } from "./IntentDetailDialog";
 import {
   GENDERS,
   INTENTS,
@@ -20,6 +21,7 @@ import {
   STUDY_PROGRAMS,
   TUTORING_SUGGESTIONS,
 } from "@/lib/constants";
+import { INTENT_DETAIL_OPTIONS } from "@/lib/onboarding-constants";
 import type { ProfileFormData } from "@/types/user";
 import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
 
@@ -40,6 +42,11 @@ export function EditProfileForm({
 }: EditProfileFormProps) {
   const [formData, setFormData] = useState<ProfileFormData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showIntentDialog, setShowIntentDialog] = useState(false);
+  const [pendingSaveData, setPendingSaveData] = useState<ProfileFormData | null>(null);
+
+  // Track initial intents to detect new ones
+  const initialIntentsRef = useRef<string[]>(initialData.intents);
 
   const showSchwerpunkt = formData.study_phase === "cbk_hauptstudium";
 
@@ -88,17 +95,88 @@ export function EditProfileForm({
     return Object.keys(newErrors).length === 0;
   };
 
+  // Find NEW intents that have detail screens and don't have details yet
+  const getNewIntentsWithScreens = (data: ProfileFormData): string[] => {
+    const initialIntents = initialIntentsRef.current;
+    return data.intents.filter((intent) => {
+      const isNew = !initialIntents.includes(intent);
+      const hasScreens = !!INTENT_DETAIL_OPTIONS[intent];
+      const hasNoDetails = !data.intent_details[intent] || 
+        Object.keys(data.intent_details[intent]).length === 0;
+      return isNew && hasScreens && hasNoDetails;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      // Clear focus if not in CBK/Hauptstudium
-      const dataToSave = {
-        ...formData,
-        focus: showSchwerpunkt ? formData.focus : "",
-      };
+    if (!validate()) return;
+
+    // Clear focus if not in CBK/Hauptstudium
+    const dataToSave = {
+      ...formData,
+      focus: showSchwerpunkt ? formData.focus : "",
+    };
+
+    // Check for new intents with available detail screens
+    const newIntentsWithScreens = getNewIntentsWithScreens(dataToSave);
+    
+    if (newIntentsWithScreens.length > 0) {
+      // Show dialog instead of saving immediately
+      setPendingSaveData(dataToSave);
+      setShowIntentDialog(true);
+    } else {
+      // Save directly
       await onSave(dataToSave);
     }
   };
+
+  const handleUpdateIntentDetail = (intent: string, field: string, value: string | string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      intent_details: {
+        ...prev.intent_details,
+        [intent]: {
+          ...prev.intent_details[intent],
+          [field]: value,
+        },
+      },
+    }));
+    
+    // Also update pending data if it exists
+    if (pendingSaveData) {
+      setPendingSaveData((prev) => prev ? ({
+        ...prev,
+        intent_details: {
+          ...prev.intent_details,
+          [intent]: {
+            ...prev.intent_details[intent],
+            [field]: value,
+          },
+        },
+      }) : null);
+    }
+  };
+
+  const handleIntentDialogComplete = async () => {
+    if (pendingSaveData) {
+      // Save with updated intent_details from formData
+      await onSave({
+        ...pendingSaveData,
+        intent_details: formData.intent_details,
+      });
+      setPendingSaveData(null);
+    }
+  };
+
+  const handleIntentDialogSkip = async () => {
+    if (pendingSaveData) {
+      // Save without updating intent details
+      await onSave(pendingSaveData);
+      setPendingSaveData(null);
+    }
+  };
+
+  const showTutoringSection = formData.intents.includes("nachhilfe_anbieten");
 
   const handleStudyPhaseChange = (value: string) => {
     // Clear focus when switching to STEOP
@@ -109,9 +187,14 @@ export function EditProfileForm({
     }
   };
 
-  const showTutoringSection = formData.intents.includes("nachhilfe_anbieten");
+  // Get new intents with screens for the dialog
+  const newIntentsForDialog = useMemo(() => {
+    if (!pendingSaveData) return [];
+    return getNewIntentsWithScreens(pendingSaveData);
+  }, [pendingSaveData]);
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Profile Image */}
       <div className="space-y-2">
@@ -364,5 +447,16 @@ export function EditProfileForm({
         </Button>
       </div>
     </form>
+
+    <IntentDetailDialog
+      open={showIntentDialog}
+      onOpenChange={setShowIntentDialog}
+      newIntents={newIntentsForDialog}
+      intentDetails={formData.intent_details}
+      onUpdateDetail={handleUpdateIntentDetail}
+      onComplete={handleIntentDialogComplete}
+      onSkip={handleIntentDialogSkip}
+    />
+    </>
   );
 }

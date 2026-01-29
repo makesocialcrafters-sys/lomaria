@@ -37,4 +37,5 @@ export interface ProfileFormData {
   tutoring_desc: string;
   tutoring_price: number | null;
   bio: string;
+  intent_details: Record<string, Record<string, string | string[]>>;
 }
