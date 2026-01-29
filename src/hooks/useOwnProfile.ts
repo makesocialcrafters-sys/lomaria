@@ -17,6 +17,7 @@ export interface OwnProfileData {
   tutoring_desc: string | null;
   tutoring_price: number | null;
   bio: string | null;
+  intent_details: Record<string, Record<string, string | string[]>> | null;
 }
 
 export function useOwnProfile() {
@@ -38,7 +39,10 @@ export function useOwnProfile() {
         throw error;
       }
 
-      return data;
+      return {
+        ...data,
+        intent_details: (data.intent_details as Record<string, Record<string, string | string[]>>) ?? null,
+      };
     },
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes

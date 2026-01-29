@@ -52,6 +52,7 @@ export default function Profile() {
         tutoring_desc: data.tutoring_desc || null,
         tutoring_price: data.tutoring_price,
         bio: data.bio || null,
+        intent_details: data.intent_details,
         last_active_at: new Date().toISOString()
       }).eq("auth_user_id", authUser.id);
       if (error) throw error;
@@ -87,7 +88,8 @@ export default function Profile() {
         tutoring_subject: "",
         tutoring_desc: "",
         tutoring_price: null,
-        bio: ""
+        bio: "",
+        intent_details: {},
       };
     }
     return {
@@ -104,7 +106,8 @@ export default function Profile() {
       tutoring_subject: userData.tutoring_subject ?? "",
       tutoring_desc: userData.tutoring_desc ?? "",
       tutoring_price: userData.tutoring_price,
-      bio: userData.bio ?? ""
+      bio: userData.bio ?? "",
+      intent_details: userData.intent_details ?? {},
     };
   };
   if (isLoading) {
