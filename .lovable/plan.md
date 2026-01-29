@@ -1,98 +1,71 @@
 
+# Fix: Intent-Detail-Dialog funktioniert nicht
 
-# Intent-Details im Profil-Edit-Modus
+## Problem-Analyse
 
-## Ziel
+Aus den Console-Logs geht hervor, dass der Dialog tatsaechlich geoeffnet wird, aber ein React-Fehler auftritt:
 
-Wenn ein Student beim Bearbeiten seines Profils die Intents aendert, soll er anschliessend die Moeglichkeit haben, die entsprechenden Intent-Details auszuwaehlen oder zu ueberspringen - genau wie beim Onboarding.
+> **Warning: Function components cannot be given refs.**
+> **Check the render method of `IntentDetailFlow`.**
 
-## Ablauf
+Das Problem: Der Radix UI `DialogContent` uebergibt automatisch einen `ref` an sein erstes Child fuer Fokus-Management. Wenn das erste Child eine Funktionskomponente ohne `forwardRef` ist, tritt dieser Fehler auf.
 
-```text
-Profil bearbeiten
-       │
-       ▼
- Intents aendern
-       │
-       ▼
- Speichern klicken
-       │
-       ▼
- Neue Intents mit Detail-Screens?
-       │
-   ┌───┴───┐
-   │       │
-  Nein    Ja
-   │       │
-   ▼       ▼
-Direkt   "Noch genauer?" Dialog
-speichern      │
-          ┌────┴────┐
-          │         │
-   [Kurz auswaehlen] [Spaeter]
-          │         │
-          ▼         │
-   Detail-Flow      │
-     (Modal)        │
-          │         │
-          └────┬────┘
-               ▼
-        Profil speichern
+## Root Cause
+
+1. `IntentDetailFlow` und `IntentDetailScreen` sind normale Funktionskomponenten ohne `forwardRef`
+2. Radix UI Dialog versucht, einen `ref` an den Inhalt zu uebergeben
+3. Dies verursacht den Fehler und moeglicherweise Darstellungsprobleme
+
+## Loesung
+
+Es gibt zwei Moeglichkeiten:
+
+### Option A: forwardRef hinzufuegen (komplexer)
+Die Komponenten `IntentDetailScreen` und `IntentDetailFlow` mit `React.forwardRef` wrappen.
+
+### Option B: Wrapper-Element (einfacher und empfohlen)
+Ein zusaetzliches `<div>` Element als Wrapper im Dialog verwenden, das den `ref` annehmen kann.
+
+## Geplante Aenderungen
+
+### 1. IntentDetailDialog.tsx anpassen
+
+Den DialogContent-Inhalt in ein zusaetzliches div wrappen:
+
+```tsx
+<DialogContent className="max-w-md bg-background border-primary/20 p-6">
+  <div>  {/* Wrapper nimmt den ref an */}
+    {showFlow ? (
+      <IntentDetailFlow ... />
+    ) : (
+      <IntentDetailIntro ... />
+    )}
+  </div>
+</DialogContent>
 ```
 
-## Technische Umsetzung
+### 2. Alternativ: IntentDetailFlow mit forwardRef
 
-### 1. Types erweitern
+Falls Option B nicht funktioniert, werden beide Komponenten mit `forwardRef` erweitert:
 
-**Datei:** `src/types/user.ts`
-
-intent_details zu ProfileFormData hinzufuegen.
-
-### 2. useOwnProfile erweitern
-
-**Datei:** `src/hooks/useOwnProfile.ts`
-
-intent_details aus der Datenbank laden.
-
-### 3. IntentDetailDialog erstellen
-
-**Neue Datei:** `src/components/settings/IntentDetailDialog.tsx`
-
-Modaler Dialog der:
-- IntentDetailIntro zeigt (Kurz auswaehlen / Spaeter)
-- Bei "Kurz auswaehlen" den IntentDetailFlow durchlaeuft
-- Nur fuer NEU hinzugefuegte Intents (die noch keine Details haben)
-
-### 4. EditProfileForm anpassen
-
-**Datei:** `src/components/settings/EditProfileForm.tsx`
-
-- intent_details in formData aufnehmen
-- Bei Speichern pruefen: Hat der User neue Intents mit verfuegbaren Detail-Screens?
-- Falls ja: Dialog anzeigen statt direkt speichern
-- Bestehende Intent-Details fuer unveraenderte Intents beibehalten
-
-### 5. Profile.tsx anpassen
-
-**Datei:** `src/pages/Profile.tsx`
-
-- intent_details beim Speichern an Supabase mitschicken
-- intent_details in getInitialFormData laden
+- `IntentDetailScreen.tsx`: forwardRef hinzufuegen
+- `IntentDetailFlow.tsx`: forwardRef hinzufuegen
 
 ## Betroffene Dateien
 
 | Datei | Aenderung |
 |-------|-----------|
-| src/types/user.ts | intent_details hinzufuegen |
-| src/hooks/useOwnProfile.ts | intent_details laden |
-| src/components/settings/IntentDetailDialog.tsx | Neuer Dialog (wiederverwendet Onboarding-Komponenten) |
-| src/components/settings/EditProfileForm.tsx | Dialog-Integration |
-| src/pages/Profile.tsx | intent_details speichern |
+| src/components/settings/IntentDetailDialog.tsx | Wrapper-div hinzufuegen |
+| src/components/onboarding/IntentDetailScreen.tsx | Optional: forwardRef |
+| src/components/onboarding/IntentDetailFlow.tsx | Optional: forwardRef |
+
+## Zusaetzliche Pruefung
+
+Falls das Problem weiterhin besteht, werde ich auch pruefen:
+- Ob `pendingSaveData` korrekt gesetzt wird
+- Ob die Berechnung von `newIntentsForDialog` korrekt funktioniert
+- Console-Logging hinzufuegen um den Flow zu debuggen
 
 ## Ergebnis
 
-- Student kann beim Bearbeiten die Intent-Details pflegen
-- Bestehende Details bleiben erhalten
-- Nur fuer neue Intents wird der Detail-Flow angeboten
-- Konsistentes Erlebnis wie beim Onboarding
-
+Nach der Aenderung sollte der "NOCH GENAUER?"-Dialog korrekt erscheinen und der IntentDetailFlow ohne Fehler funktionieren.
