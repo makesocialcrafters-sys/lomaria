@@ -11,7 +11,6 @@ export interface UserProfile {
   last_name: string | null;
   profile_image: string | null;
   age?: number | null;
-  birthyear?: number | null;
   study_program: string | null;
   study_phase?: string | null;
   semester?: string | null;
@@ -62,7 +61,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
       // Note: We no longer order by last_active_at here - sorting happens client-side via intent matching
       let query = supabase
         .from("user_profiles")
-        .select("id, first_name, last_name, profile_image, birthyear, age, study_program, study_phase, semester, intents, interests, tutoring_subject, last_active_at")
+        .select("id, first_name, last_name, profile_image, age, study_program, study_phase, semester, intents, interests, tutoring_subject, last_active_at")
         .neq("id", currentUser.id)
         .not("first_name", "is", null)
         .not("study_program", "is", null);
