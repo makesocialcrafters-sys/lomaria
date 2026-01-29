@@ -64,16 +64,18 @@ export function IntentDetailDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md bg-background border-primary/20 p-6">
-        {showFlow ? (
-          <IntentDetailFlow
-            selectedIntents={intentsWithScreens}
-            intentDetails={intentDetails}
-            onUpdateDetail={onUpdateDetail}
-            onComplete={handleFlowComplete}
-          />
-        ) : (
-          <IntentDetailIntro onProceed={handleProceed} onSkip={handleSkip} />
-        )}
+        <div>
+          {showFlow ? (
+            <IntentDetailFlow
+              selectedIntents={intentsWithScreens}
+              intentDetails={intentDetails}
+              onUpdateDetail={onUpdateDetail}
+              onComplete={handleFlowComplete}
+            />
+          ) : (
+            <IntentDetailIntro onProceed={handleProceed} onSkip={handleSkip} />
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
