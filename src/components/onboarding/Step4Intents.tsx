@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChipSelect } from "./ChipSelect";
+import { IntentChipWithTutoring } from "./IntentChipWithTutoring";
 import { IntentDetailIntro } from "./IntentDetailIntro";
 import { IntentDetailFlow } from "./IntentDetailFlow";
 import { INTENTS, INTENT_DETAIL_OPTIONS, IntentDetails } from "@/lib/onboarding-constants";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 type SubFlowState = "selection" | "intro" | "detail-flow";
+
+interface TutoringData {
+  tutoring_subject: string;
+  tutoring_desc: string;
+  tutoring_price: number | null;
+}
 
 interface Step4Props {
   intents: string[];
   intentDetails: IntentDetails;
+  tutoringData: TutoringData;
   onUpdate: (data: { intents: string[] }) => void;
   onUpdateIntentDetails: (intent: string, field: string, value: string | string[]) => void;
+  onUpdateTutoring: (data: Partial<TutoringData>) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -20,15 +30,19 @@ interface Step4Props {
 export function Step4Intents({ 
   intents, 
   intentDetails,
+  tutoringData,
   onUpdate, 
   onUpdateIntentDetails,
+  onUpdateTutoring,
   onNext, 
   onBack 
 }: Step4Props) {
   const { toast } = useToast();
   const [subFlowState, setSubFlowState] = useState<SubFlowState>("selection");
   
-  const isValid = intents.length >= 3;
+  const showTutoring = intents.includes("nachhilfe_anbieten");
+  const tutoringValid = !showTutoring || tutoringData.tutoring_subject.trim().length > 0;
+  const isValid = intents.length >= 3 && tutoringValid;
 
   // Check if any selected intents have detail screens available
   const hasDetailScreens = intents.some(
@@ -39,7 +53,31 @@ export function Step4Intents({
     toast({ title: "Maximal 6 Intents auswählbar.", variant: "destructive" });
   };
 
+  const handleIntentToggle = (intentValue: string) => {
+    if (intents.includes(intentValue)) {
+      onUpdate({ intents: intents.filter(i => i !== intentValue) });
+      // Clear tutoring data if nachhilfe is removed
+      if (intentValue === "nachhilfe_anbieten") {
+        onUpdateTutoring({
+          tutoring_subject: "",
+          tutoring_desc: "",
+          tutoring_price: null,
+        });
+      }
+    } else {
+      if (intents.length >= 6) {
+        handleMaxExceeded();
+        return;
+      }
+      onUpdate({ intents: [...intents, intentValue] });
+    }
+  };
+
   const handleIntentSelectionNext = () => {
+    if (!tutoringValid) {
+      toast({ title: "Bitte gib ein Fach für Nachhilfe an.", variant: "destructive" });
+      return;
+    }
     if (hasDetailScreens) {
       setSubFlowState("intro");
     } else {
@@ -72,14 +110,19 @@ export function Step4Intents({
           </p>
         </div>
 
-        <ChipSelect
-          options={INTENTS}
-          selected={intents}
-          onChange={(selected) => onUpdate({ intents: selected })}
-          minSelect={3}
-          maxSelect={6}
-          onMaxExceeded={handleMaxExceeded}
-        />
+        <div className="flex flex-wrap gap-2 justify-center py-4">
+          {INTENTS.map((intent) => (
+            <IntentChipWithTutoring
+              key={intent.value}
+              value={intent.value}
+              label={intent.label}
+              isSelected={intents.includes(intent.value)}
+              onToggle={() => handleIntentToggle(intent.value)}
+              tutoringData={tutoringData}
+              onTutoringChange={onUpdateTutoring}
+            />
+          ))}
+        </div>
 
         <p className="text-xs text-muted-foreground/70 text-center">
           {intents.length}/6 ausgewählt

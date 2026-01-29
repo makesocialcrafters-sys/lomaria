@@ -179,7 +179,7 @@ export function EditProfileForm({
     }
   };
 
-  const showTutoringSection = formData.intents.includes("nachhilfe_anbieten");
+  
 
   const handleStudyPhaseChange = (value: string) => {
     // Clear focus when switching to STEOP
@@ -354,6 +354,11 @@ export function EditProfileForm({
         <IntentListWithDetails
           intents={formData.intents}
           intentDetails={formData.intent_details}
+          tutoringData={{
+            tutoring_subject: formData.tutoring_subject,
+            tutoring_desc: formData.tutoring_desc,
+            tutoring_price: formData.tutoring_price,
+          }}
           onIntentsChange={(intents) =>
             setFormData((prev) => ({ ...prev, intents: intents as Intent[] }))
           }
@@ -365,7 +370,16 @@ export function EditProfileForm({
             setNewIntentToConfig(intent);
             setShowIntentDialog(true);
           }}
+          onTutoringChange={(data) =>
+            setFormData((prev) => ({
+              ...prev,
+              tutoring_subject: data.tutoring_subject ?? prev.tutoring_subject,
+              tutoring_desc: data.tutoring_desc ?? prev.tutoring_desc,
+              tutoring_price: data.tutoring_price !== undefined ? data.tutoring_price : prev.tutoring_price,
+            }))
+          }
           error={errors.intents}
+          tutoringError={errors.tutoring_subject}
         />
       </div>
 
@@ -383,71 +397,6 @@ export function EditProfileForm({
           error={errors.interests}
         />
       </div>
-
-      {/* Tutoring Section - Conditional */}
-      {showTutoringSection && (
-        <div className="space-y-4 rounded-md border border-border p-4">
-          <h3 className="font-medium text-primary">Nachhilfe</h3>
-          <div className="space-y-2">
-            <Label htmlFor="tutoring_subject">Fach *</Label>
-            <Input
-              id="tutoring_subject"
-              value={formData.tutoring_subject}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, tutoring_subject: e.target.value }))
-              }
-              list="tutoring-suggestions"
-              className={errors.tutoring_subject ? "border-destructive" : ""}
-            />
-            <datalist id="tutoring-suggestions">
-              {TUTORING_SUGGESTIONS.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
-            {errors.tutoring_subject && (
-              <p className="text-sm text-destructive">{errors.tutoring_subject}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tutoring_desc">Beschreibung (optional)</Label>
-            <Textarea
-              id="tutoring_desc"
-              value={formData.tutoring_desc}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, tutoring_desc: e.target.value }))
-              }
-              maxLength={300}
-              rows={3}
-              className={errors.tutoring_desc ? "border-destructive" : ""}
-            />
-            <p className="text-xs text-muted-foreground">
-              {formData.tutoring_desc.length} / 300 Zeichen
-            </p>
-            {errors.tutoring_desc && (
-              <p className="text-sm text-destructive">{errors.tutoring_desc}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tutoring_price">Stundensatz (€, optional)</Label>
-            <Input
-              id="tutoring_price"
-              type="number"
-              min={1}
-              value={formData.tutoring_price ?? ""}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  tutoring_price: e.target.value ? parseFloat(e.target.value) : null,
-                }))
-              }
-              className={errors.tutoring_price ? "border-destructive" : ""}
-            />
-            {errors.tutoring_price && (
-              <p className="text-sm text-destructive">{errors.tutoring_price}</p>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Bio */}
       <div className="space-y-2">

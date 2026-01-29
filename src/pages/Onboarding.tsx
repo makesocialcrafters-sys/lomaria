@@ -13,7 +13,6 @@ import { Step2Demographics } from "@/components/onboarding/Step2Demographics";
 import { Step3Study } from "@/components/onboarding/Step3Study";
 import { Step4Intents } from "@/components/onboarding/Step4Intents";
 import { Step5Interests } from "@/components/onboarding/Step5Interests";
-import { Step6Tutoring } from "@/components/onboarding/Step6Tutoring";
 import { Step7Bio } from "@/components/onboarding/Step7Bio";
 import { Step8Preview } from "@/components/onboarding/Step8Preview";
 
@@ -22,7 +21,7 @@ export default function Onboarding() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { refreshOnboardingStatus } = useAppState();
-  const { step, data, updateData, updateIntentDetails, clearData, nextStep, prevStep, showTutoringStep } = useOnboarding();
+  const { step, data, updateData, updateIntentDetails, clearData, nextStep, prevStep } = useOnboarding();
   const [saving, setSaving] = useState(false);
 
   const handleLogout = async () => {
@@ -32,8 +31,8 @@ export default function Onboarding() {
   };
 
   const handleNext = () => {
-    // Skip tutoring step if not needed
-    if (step === 5 && !showTutoringStep) {
+    // Always skip tutoring step (now integrated in Step 4)
+    if (step === 5) {
       // Go directly to step 7 (bio)
       nextStep();
       nextStep();
@@ -43,8 +42,8 @@ export default function Onboarding() {
   };
 
   const handleBack = () => {
-    // Skip tutoring step when going back
-    if (step === 7 && !showTutoringStep) {
+    // Always skip tutoring step when going back
+    if (step === 7) {
       prevStep();
       prevStep();
     } else {
@@ -156,9 +155,9 @@ const profileData = {
   };
 
 
-  // Calculate total steps (7 if tutoring skipped, 8 otherwise)
-  const totalSteps = showTutoringStep ? 8 : 7;
-  const displayStep = !showTutoringStep && step > 5 ? step - 1 : step;
+  // Step 6 is now always skipped (tutoring is in Step 4)
+  const totalSteps = 7;
+  const displayStep = step > 5 ? step - 1 : step;
 
   return (
     <div className="min-h-screen bg-background px-6 py-8 animate-cinematic-enter relative">
@@ -213,8 +212,18 @@ const profileData = {
           <Step4Intents
             intents={data.intents}
             intentDetails={data.intent_details}
+            tutoringData={{
+              tutoring_subject: data.tutoring_subject,
+              tutoring_desc: data.tutoring_desc,
+              tutoring_price: data.tutoring_price,
+            }}
             onUpdate={updateData}
             onUpdateIntentDetails={updateIntentDetails}
+            onUpdateTutoring={(tutoringData) => updateData({
+              tutoring_subject: tutoringData.tutoring_subject ?? data.tutoring_subject,
+              tutoring_desc: tutoringData.tutoring_desc ?? data.tutoring_desc,
+              tutoring_price: tutoringData.tutoring_price !== undefined ? tutoringData.tutoring_price : data.tutoring_price,
+            })}
             onNext={handleNext}
             onBack={handleBack}
           />
@@ -229,16 +238,7 @@ const profileData = {
           />
         )}
 
-        {step === 6 && showTutoringStep && (
-          <Step6Tutoring
-            tutoringSubject={data.tutoring_subject}
-            tutoringDesc={data.tutoring_desc}
-            tutoringPrice={data.tutoring_price}
-            onUpdate={updateData}
-            onNext={handleNext}
-            onBack={handleBack}
-          />
-        )}
+        {/* Step 6 removed - tutoring now integrated in Step 4 */}
 
         {step === 7 && (
           <Step7Bio

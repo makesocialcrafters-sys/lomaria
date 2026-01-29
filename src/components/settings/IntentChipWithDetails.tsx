@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Pencil, Plus } from "lucide-react";
 import { 
   INTENT_DETAIL_OPTIONS, 
@@ -8,27 +11,47 @@ import {
   getIntentDetailFieldTitle,
   type IntentDetails 
 } from "@/lib/onboarding-constants";
-import { INTENTS } from "@/lib/constants";
+import { INTENTS, TUTORING_SUGGESTIONS } from "@/lib/constants";
+
+interface TutoringData {
+  tutoring_subject: string;
+  tutoring_desc: string;
+  tutoring_price: number | null;
+}
 
 interface IntentChipWithDetailsProps {
   intent: string;
   isActive: boolean;
   intentDetails: IntentDetails;
+  tutoringData?: TutoringData;
   onToggle: (intent: string, active: boolean) => void;
   onEdit: (intent: string) => void;
+  onTutoringChange?: (data: Partial<TutoringData>) => void;
+  tutoringError?: string;
 }
 
 export function IntentChipWithDetails({
   intent,
   isActive,
   intentDetails,
+  tutoringData,
   onToggle,
   onEdit,
+  onTutoringChange,
+  tutoringError,
 }: IntentChipWithDetailsProps) {
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const intentLabel = INTENTS.find(i => i.value === intent)?.label || INTENT_LABELS[intent] || intent;
   const hasDetailScreens = !!INTENT_DETAIL_OPTIONS[intent];
   const details = intentDetails[intent];
   const hasDetails = details && Object.keys(details).length > 0;
+  const isNachhilfe = intent === "nachhilfe_anbieten";
+
+  const filteredSuggestions = isNachhilfe && tutoringData
+    ? TUTORING_SUGGESTIONS.filter((s) =>
+        s.toLowerCase().includes(tutoringData.tutoring_subject.toLowerCase())
+      )
+    : [];
 
   // Render detail values as compact labels
   const renderDetails = () => {
@@ -50,6 +73,84 @@ export function IntentChipWithDetails({
             </p>
           );
         })}
+      </div>
+    );
+  };
+
+  // Render tutoring fields inline
+  const renderTutoringFields = () => {
+    if (!isNachhilfe || !isActive || !tutoringData || !onTutoringChange) return null;
+
+    return (
+      <div className="mt-3 space-y-3 pt-3 border-t border-border/50">
+        <div className="relative">
+          <label className="text-xs text-muted-foreground mb-1 block">Fach *</label>
+          <Input
+            placeholder="z.B. Statistik 1"
+            value={tutoringData.tutoring_subject}
+            onChange={(e) => onTutoringChange({ tutoring_subject: e.target.value })}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            className={`h-9 text-sm ${tutoringError ? "border-destructive" : ""}`}
+          />
+          {showSuggestions && tutoringData.tutoring_subject && filteredSuggestions.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-popover border border-border rounded-md shadow-lg max-h-32 overflow-y-auto">
+              {filteredSuggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-muted transition-colors"
+                  onClick={() => {
+                    onTutoringChange({ tutoring_subject: suggestion });
+                    setShowSuggestions(false);
+                  }}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
+          {tutoringError && (
+            <p className="text-xs text-destructive mt-1">{tutoringError}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">
+            Beschreibung <span className="text-muted-foreground/50">(optional)</span>
+          </label>
+          <Textarea
+            placeholder="Kurze Beschreibung..."
+            value={tutoringData.tutoring_desc}
+            onChange={(e) => {
+              if (e.target.value.length <= 300) {
+                onTutoringChange({ tutoring_desc: e.target.value });
+              }
+            }}
+            className="min-h-16 text-sm resize-none"
+            rows={2}
+          />
+          <p className="text-xs text-muted-foreground/50 text-right mt-0.5">
+            {tutoringData.tutoring_desc.length}/300
+          </p>
+        </div>
+
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">
+            Stundensatz (€) <span className="text-muted-foreground/50">(optional)</span>
+          </label>
+          <Input
+            type="number"
+            placeholder="z.B. 25"
+            value={tutoringData.tutoring_price ?? ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              onTutoringChange({ tutoring_price: val ? parseFloat(val) : null });
+            }}
+            min={1}
+            className="h-9 text-sm"
+          />
+        </div>
       </div>
     );
   };
@@ -103,6 +204,8 @@ export function IntentChipWithDetails({
               </Button>
             </>
           )}
+
+          {renderTutoringFields()}
         </div>
       </div>
     </div>
@@ -112,21 +215,27 @@ export function IntentChipWithDetails({
 interface IntentListWithDetailsProps {
   intents: string[];
   intentDetails: IntentDetails;
+  tutoringData: TutoringData;
   onIntentsChange: (intents: string[]) => void;
   onIntentDetailsChange: (details: IntentDetails) => void;
   onEditIntent: (intent: string) => void;
   onNewIntentAdded: (intent: string) => void;
+  onTutoringChange: (data: Partial<TutoringData>) => void;
   error?: string;
+  tutoringError?: string;
 }
 
 export function IntentListWithDetails({
   intents,
   intentDetails,
+  tutoringData,
   onIntentsChange,
   onIntentDetailsChange,
   onEditIntent,
   onNewIntentAdded,
+  onTutoringChange,
   error,
+  tutoringError,
 }: IntentListWithDetailsProps) {
   const handleToggle = (intent: string, active: boolean) => {
     if (active) {
@@ -142,6 +251,15 @@ export function IntentListWithDetails({
       const newDetails = { ...intentDetails };
       delete newDetails[intent];
       onIntentDetailsChange(newDetails);
+      
+      // Clear tutoring data if nachhilfe is removed
+      if (intent === "nachhilfe_anbieten") {
+        onTutoringChange({
+          tutoring_subject: "",
+          tutoring_desc: "",
+          tutoring_price: null,
+        });
+      }
     }
   };
 
@@ -153,8 +271,11 @@ export function IntentListWithDetails({
           intent={intentOption.value}
           isActive={intents.includes(intentOption.value)}
           intentDetails={intentDetails}
+          tutoringData={tutoringData}
           onToggle={handleToggle}
           onEdit={onEditIntent}
+          onTutoringChange={onTutoringChange}
+          tutoringError={intentOption.value === "nachhilfe_anbieten" ? tutoringError : undefined}
         />
       ))}
       {error && <p className="text-sm text-destructive mt-1">{error}</p>}
