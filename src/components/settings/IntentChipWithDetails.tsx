@@ -1,17 +1,14 @@
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Plus } from "lucide-react";
 import { 
   INTENT_DETAIL_OPTIONS, 
   INTENT_LABELS,
-  getIntentDetailLabel,
-  getIntentDetailFieldTitle,
   type IntentDetails 
 } from "@/lib/onboarding-constants";
 import { INTENTS, TUTORING_SUGGESTIONS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 interface TutoringData {
   tutoring_subject: string;
@@ -25,7 +22,7 @@ interface IntentChipWithDetailsProps {
   intentDetails: IntentDetails;
   tutoringData?: TutoringData;
   onToggle: (intent: string, active: boolean) => void;
-  onEdit: (intent: string) => void;
+  onDetailChange: (intent: string, field: string, value: string | string[]) => void;
   onTutoringChange?: (data: Partial<TutoringData>) => void;
   tutoringError?: string;
 }
@@ -36,15 +33,14 @@ export function IntentChipWithDetails({
   intentDetails,
   tutoringData,
   onToggle,
-  onEdit,
+  onDetailChange,
   onTutoringChange,
   tutoringError,
 }: IntentChipWithDetailsProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const intentLabel = INTENTS.find(i => i.value === intent)?.label || INTENT_LABELS[intent] || intent;
   const hasDetailScreens = !!INTENT_DETAIL_OPTIONS[intent];
-  const details = intentDetails[intent];
-  const hasDetails = details && Object.keys(details).length > 0;
+  const details = intentDetails[intent] || {};
   const isNachhilfe = intent === "nachhilfe_anbieten";
 
   const filteredSuggestions = isNachhilfe && tutoringData
@@ -53,26 +49,69 @@ export function IntentChipWithDetails({
       )
     : [];
 
-  // Render detail values as compact labels
-  const renderDetails = () => {
-    if (!details) return null;
-    
-    const detailEntries = Object.entries(details);
-    if (detailEntries.length === 0) return null;
+  // Check if a value is selected for a field
+  const isSelected = (fieldId: string, optionValue: string): boolean => {
+    const fieldValue = details[fieldId];
+    if (!fieldValue) return false;
+    if (Array.isArray(fieldValue)) {
+      return fieldValue.includes(optionValue);
+    }
+    return fieldValue === optionValue;
+  };
 
+  // Toggle selection for multi-select or single-select
+  const handleOptionToggle = (fieldId: string, optionValue: string, isMultiSelect: boolean) => {
+    const currentValue = details[fieldId];
+    
+    if (isMultiSelect) {
+      // Multi-select: toggle in array
+      const currentArray = Array.isArray(currentValue) ? currentValue : [];
+      const newArray = currentArray.includes(optionValue)
+        ? currentArray.filter(v => v !== optionValue)
+        : [...currentArray, optionValue];
+      onDetailChange(intent, fieldId, newArray);
+    } else {
+      // Single-select: replace or toggle off
+      const newValue = currentValue === optionValue ? "" : optionValue;
+      onDetailChange(intent, fieldId, newValue);
+    }
+  };
+
+  // Render inline detail chips for each screen
+  const renderInlineDetailFields = () => {
+    if (!hasDetailScreens || !isActive) return null;
+    
+    const config = INTENT_DETAIL_OPTIONS[intent];
+    
     return (
-      <div className="mt-1 space-y-0.5">
-        {detailEntries.map(([field, value]) => {
-          const fieldTitle = getIntentDetailFieldTitle(intent, field);
-          const values = Array.isArray(value) ? value : [value];
-          const labels = values.map(v => getIntentDetailLabel(intent, field, v));
-          
-          return (
-            <p key={field} className="text-xs text-muted-foreground">
-              {fieldTitle}: {labels.join(", ")}
-            </p>
-          );
-        })}
+      <div className="mt-3 space-y-3 pt-3 border-t border-border/50">
+        {config.screens.map(screen => (
+          <div key={screen.id}>
+            <label className="text-xs text-muted-foreground mb-1.5 block">
+              {screen.title}
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {screen.options.map(option => {
+                const selected = isSelected(screen.id, option.value);
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleOptionToggle(screen.id, option.value, screen.multiSelect)}
+                    className={cn(
+                      "px-2.5 py-1 text-xs rounded-md border transition-colors",
+                      selected
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
     );
   };
@@ -180,31 +219,7 @@ export function IntentChipWithDetails({
             {intentLabel}
           </label>
           
-          {isActive && hasDetailScreens && (
-            <>
-              {renderDetails()}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="mt-1 h-7 px-2 text-xs text-primary hover:text-primary"
-                onClick={() => onEdit(intent)}
-              >
-                {hasDetails ? (
-                  <>
-                    <Pencil className="h-3 w-3 mr-1" />
-                    Bearbeiten
-                  </>
-                ) : (
-                  <>
-                    <Plus className="h-3 w-3 mr-1" />
-                    Details hinzufügen
-                  </>
-                )}
-              </Button>
-            </>
-          )}
-
+          {renderInlineDetailFields()}
           {renderTutoringFields()}
         </div>
       </div>
@@ -218,8 +233,6 @@ interface IntentListWithDetailsProps {
   tutoringData: TutoringData;
   onIntentsChange: (intents: string[]) => void;
   onIntentDetailsChange: (details: IntentDetails) => void;
-  onEditIntent: (intent: string) => void;
-  onNewIntentAdded: (intent: string) => void;
   onTutoringChange: (data: Partial<TutoringData>) => void;
   error?: string;
   tutoringError?: string;
@@ -231,8 +244,6 @@ export function IntentListWithDetails({
   tutoringData,
   onIntentsChange,
   onIntentDetailsChange,
-  onEditIntent,
-  onNewIntentAdded,
   onTutoringChange,
   error,
   tutoringError,
@@ -241,10 +252,6 @@ export function IntentListWithDetails({
     if (active) {
       // Add intent
       onIntentsChange([...intents, intent]);
-      // If intent has detail screens, trigger the new intent flow
-      if (INTENT_DETAIL_OPTIONS[intent]) {
-        onNewIntentAdded(intent);
-      }
     } else {
       // Remove intent and its details
       onIntentsChange(intents.filter(i => i !== intent));
@@ -263,6 +270,17 @@ export function IntentListWithDetails({
     }
   };
 
+  const handleDetailChange = (intent: string, field: string, value: string | string[]) => {
+    const newDetails = {
+      ...intentDetails,
+      [intent]: {
+        ...intentDetails[intent],
+        [field]: value,
+      },
+    };
+    onIntentDetailsChange(newDetails);
+  };
+
   return (
     <div className="space-y-2">
       {INTENTS.map((intentOption) => (
@@ -273,7 +291,7 @@ export function IntentListWithDetails({
           intentDetails={intentDetails}
           tutoringData={tutoringData}
           onToggle={handleToggle}
-          onEdit={onEditIntent}
+          onDetailChange={handleDetailChange}
           onTutoringChange={onTutoringChange}
           tutoringError={intentOption.value === "nachhilfe_anbieten" ? tutoringError : undefined}
         />
