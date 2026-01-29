@@ -4,7 +4,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOwnProfile } from "@/hooks/useOwnProfile";
 import { Button } from "@/components/ui/button";
 import { Settings, Pencil } from "lucide-react";
-import { STUDY_PROGRAMS, STUDY_PHASES, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { 
+  STUDY_PROGRAMS, 
+  STUDY_PHASES, 
+  GENDERS, 
+  INTENTS, 
+  INTERESTS,
+  getIntentDetailLabel,
+  getIntentDetailFieldTitle 
+} from "@/lib/onboarding-constants";
 import { EditProfileForm } from "@/components/settings/EditProfileForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -186,15 +194,39 @@ export default function Profile() {
           </p>
         </div>
 
-        {/* Intents */}
-        {intentLabels.length > 0 && <div className="mb-6">
-            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-2">
+        {/* Intents with Details */}
+        {userData?.intents && userData.intents.length > 0 && <div className="mb-6">
+            <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-3">
               Ich suche
             </h3>
-            <div className="flex flex-wrap gap-2">
-              {intentLabels.map(label => <span key={label} className="text-xs px-3 py-1 bg-primary/20 text-primary rounded">
-                  {label}
-                </span>)}
+            <div className="space-y-3">
+              {userData.intents.map((intentValue) => {
+                const intentLabel = INTENTS.find((int) => int.value === intentValue)?.label;
+                const details = userData.intent_details?.[intentValue];
+                const hasDetails = details && Object.keys(details).length > 0;
+
+                return (
+                  <div key={intentValue} className="p-3 bg-card border border-primary/10 rounded-lg">
+                    <p className="text-sm font-medium text-foreground">{intentLabel}</p>
+                    {hasDetails && (
+                      <div className="mt-2 space-y-1">
+                        {Object.entries(details).map(([field, value]) => {
+                          const fieldTitle = getIntentDetailFieldTitle(intentValue, field);
+                          const labels = Array.isArray(value)
+                            ? value.map((v) => getIntentDetailLabel(intentValue, field, v)).join(", ")
+                            : getIntentDetailLabel(intentValue, field, value);
+                          
+                          return (
+                            <p key={field} className="text-xs text-muted-foreground">
+                              <span className="text-foreground/70">{fieldTitle}:</span> {labels}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>}
 
