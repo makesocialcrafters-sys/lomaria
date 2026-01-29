@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,16 +13,12 @@ import {
 import { ProfileImageUpload } from "./ProfileImageUpload";
 import { MultiSelectChips } from "./MultiSelectChips";
 import { IntentListWithDetails } from "./IntentChipWithDetails";
-import { IntentDetailDialog } from "./IntentDetailDialog";
-import { EditIntentDetailsDialog } from "./EditIntentDetailsDialog";
 import {
   GENDERS,
   INTERESTS,
   STUDY_PHASES,
   STUDY_PROGRAMS,
-  TUTORING_SUGGESTIONS,
 } from "@/lib/constants";
-import { INTENT_DETAIL_OPTIONS } from "@/lib/onboarding-constants";
 import type { ProfileFormData } from "@/types/user";
 import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
 
@@ -43,13 +39,6 @@ export function EditProfileForm({
 }: EditProfileFormProps) {
   const [formData, setFormData] = useState<ProfileFormData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showIntentDialog, setShowIntentDialog] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState<ProfileFormData | null>(null);
-  const [editingIntent, setEditingIntent] = useState<string | null>(null);
-  const [newIntentToConfig, setNewIntentToConfig] = useState<string | null>(null);
-
-  // Track initial intents to detect new ones
-  const initialIntentsRef = useRef<string[]>(initialData.intents);
 
   const showSchwerpunkt = formData.study_phase === "cbk_hauptstudium";
 
@@ -98,18 +87,6 @@ export function EditProfileForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  // Find NEW intents that have detail screens and don't have details yet
-  const getNewIntentsWithScreens = (data: ProfileFormData): string[] => {
-    const initialIntents = initialIntentsRef.current;
-    return data.intents.filter((intent) => {
-      const isNew = !initialIntents.includes(intent);
-      const hasScreens = !!INTENT_DETAIL_OPTIONS[intent];
-      const hasNoDetails = !data.intent_details[intent] || 
-        Object.keys(data.intent_details[intent]).length === 0;
-      return isNew && hasScreens && hasNoDetails;
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -120,66 +97,8 @@ export function EditProfileForm({
       focus: showSchwerpunkt ? formData.focus : "",
     };
 
-    // Check for new intents with available detail screens
-    const newIntentsWithScreens = getNewIntentsWithScreens(dataToSave);
-    
-    if (newIntentsWithScreens.length > 0) {
-      // Show dialog instead of saving immediately
-      setPendingSaveData(dataToSave);
-      setShowIntentDialog(true);
-    } else {
-      // Save directly
-      await onSave(dataToSave);
-    }
+    await onSave(dataToSave);
   };
-
-  const handleUpdateIntentDetail = (intent: string, field: string, value: string | string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      intent_details: {
-        ...prev.intent_details,
-        [intent]: {
-          ...prev.intent_details[intent],
-          [field]: value,
-        },
-      },
-    }));
-    
-    // Also update pending data if it exists
-    if (pendingSaveData) {
-      setPendingSaveData((prev) => prev ? ({
-        ...prev,
-        intent_details: {
-          ...prev.intent_details,
-          [intent]: {
-            ...prev.intent_details[intent],
-            [field]: value,
-          },
-        },
-      }) : null);
-    }
-  };
-
-  const handleIntentDialogComplete = async () => {
-    if (pendingSaveData) {
-      // Save with updated intent_details from formData
-      await onSave({
-        ...pendingSaveData,
-        intent_details: formData.intent_details,
-      });
-      setPendingSaveData(null);
-    }
-  };
-
-  const handleIntentDialogSkip = async () => {
-    if (pendingSaveData) {
-      // Save without updating intent details
-      await onSave(pendingSaveData);
-      setPendingSaveData(null);
-    }
-  };
-
-  
 
   const handleStudyPhaseChange = (value: string) => {
     // Clear focus when switching to STEOP
@@ -190,33 +109,7 @@ export function EditProfileForm({
     }
   };
 
-  // Get new intents with screens for the dialog (for save-time dialog)
-  const newIntentsForSaveDialog = useMemo(() => {
-    if (!pendingSaveData) return [];
-    return getNewIntentsWithScreens(pendingSaveData);
-  }, [pendingSaveData]);
-
-  // For inline new intent dialog (when user adds an intent while editing)
-  const newIntentForInlineDialog = useMemo(() => {
-    return newIntentToConfig ? [newIntentToConfig] : [];
-  }, [newIntentToConfig]);
-
-  const handleNewIntentDialogComplete = () => {
-    setNewIntentToConfig(null);
-    setShowIntentDialog(false);
-  };
-
-  const handleNewIntentDialogSkip = () => {
-    setNewIntentToConfig(null);
-    setShowIntentDialog(false);
-  };
-
-  const handleEditIntentComplete = () => {
-    setEditingIntent(null);
-  };
-
   return (
-    <>
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Profile Image */}
       <div className="space-y-2">
@@ -365,11 +258,6 @@ export function EditProfileForm({
           onIntentDetailsChange={(details) =>
             setFormData((prev) => ({ ...prev, intent_details: details }))
           }
-          onEditIntent={(intent) => setEditingIntent(intent)}
-          onNewIntentAdded={(intent) => {
-            setNewIntentToConfig(intent);
-            setShowIntentDialog(true);
-          }}
           onTutoringChange={(data) =>
             setFormData((prev) => ({
               ...prev,
@@ -424,32 +312,5 @@ export function EditProfileForm({
         </Button>
       </div>
     </form>
-
-    {/* Dialog for configuring new intents (inline, while editing) */}
-    <IntentDetailDialog
-      open={showIntentDialog && newIntentToConfig !== null}
-      onOpenChange={(open) => {
-        setShowIntentDialog(open);
-        if (!open) setNewIntentToConfig(null);
-      }}
-      newIntents={newIntentForInlineDialog}
-      intentDetails={formData.intent_details}
-      onUpdateDetail={handleUpdateIntentDetail}
-      onComplete={handleNewIntentDialogComplete}
-      onSkip={handleNewIntentDialogSkip}
-    />
-
-    {/* Dialog for editing existing intent details */}
-    <EditIntentDetailsDialog
-      open={editingIntent !== null}
-      onOpenChange={(open) => {
-        if (!open) setEditingIntent(null);
-      }}
-      intent={editingIntent}
-      intentDetails={formData.intent_details}
-      onUpdateDetail={handleUpdateIntentDetail}
-      onComplete={handleEditIntentComplete}
-    />
-    </>
   );
 }
