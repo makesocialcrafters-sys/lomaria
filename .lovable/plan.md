@@ -1,22 +1,22 @@
 
-# Problem: Intent-Details sind fuer andere Studenten nicht sichtbar
 
-## Ursache
-Die `user_profiles` VIEW wurde **vor** der neuen `intent_details` Spalte erstellt und enthaelt diese nicht. Wenn ein anderer Student das Profil ansieht, wird die VIEW abgefragt, die keine `intent_details` hat.
+# Plan: user_profiles VIEW aktualisieren
 
-**Aktuelle VIEW-Definition:**
-```sql
-SELECT id, first_name, last_name, profile_image, birthyear, age, 
-       gender, study_program, study_phase, semester, focus, 
-       interests, intents, bio, tutoring_subject, tutoring_desc, 
-       tutoring_price, created_at, last_active_at
-FROM users;
--- intent_details FEHLT!
-```
+## Ziel
+Die `user_profiles` VIEW aktualisieren um `intent_details` hinzuzufuegen, waehrend `gender` und `birthyear` weiterhin ausgeschlossen bleiben (Privacy).
 
-## Loesung
+## Datenarchitektur
 
-### 1. Datenbank-Migration: VIEW aktualisieren
+| Feld | users Tabelle | user_profiles VIEW | Sichtbarkeit |
+|------|---------------|-------------------|--------------|
+| gender | Ja | Nein | Nur eigenes Profil |
+| birthyear | Ja | Nein | Legacy, nicht angezeigt |
+| age | Ja | Ja | Oeffentlich |
+| intent_details | Ja | Ja (NEU) | Oeffentlich |
+
+## Aenderungen
+
+### 1. Datenbank-Migration
 
 ```sql
 CREATE OR REPLACE VIEW public.user_profiles
@@ -26,16 +26,14 @@ SELECT
   first_name,
   last_name,
   profile_image,
-  birthyear,
   age,
-  gender,
   study_program,
   study_phase,
   semester,
   focus,
   interests,
   intents,
-  intent_details,  -- NEU HINZUGEFUEGT
+  intent_details,
   bio,
   tutoring_subject,
   tutoring_desc,
@@ -45,10 +43,38 @@ SELECT
 FROM users;
 ```
 
-### 2. ProfileDetail.tsx: Intent-Details anzeigen
+**Nicht enthalten (Privacy):**
+- `gender` - Privat, nur im eigenen Profil sichtbar
+- `birthyear` - Legacy-Feld
+- `email` - Sensibel
+- `auth_user_id` - Intern
 
-Das `UserProfile` Interface erweitern und die Intent-Details im UI rendern:
+**Neu hinzugefuegt:**
+- `intent_details` - Detail-Auswahlen pro Intent
 
+### 2. Label-Helper Funktion
+
+**Datei:** `src/lib/onboarding-constants.ts`
+
+```typescript
+export function getIntentDetailLabel(
+  intent: string, 
+  field: string, 
+  value: string
+): string {
+  const config = INTENT_DETAIL_OPTIONS[intent as keyof typeof INTENT_DETAIL_OPTIONS];
+  if (!config) return value;
+  const screen = config.screens.find(s => s.id === field);
+  if (!screen) return value;
+  return screen.options.find(o => o.value === value)?.label ?? value;
+}
+```
+
+### 3. ProfileDetail.tsx erweitern
+
+**Datei:** `src/pages/ProfileDetail.tsx`
+
+Interface erweitern:
 ```typescript
 interface UserProfile {
   // ... bestehende Felder ...
@@ -56,52 +82,34 @@ interface UserProfile {
 }
 ```
 
-Neue UI-Sektion fuer jeden Intent mit Details:
-
-```text
+Neue UI-Sektion fuer Intent-Details:
+```
 ┌────────────────────────────────────────┐
 │ SUCHE NACH                             │
-│ ┌─────────────────────────────────────┐│
-│ │ Projektpartner finden               ││
-│ │   Phase: Idee, Konzept              ││
-│ │   Rollen: Tech, Business            ││
-│ └─────────────────────────────────────┘│
-│ ┌─────────────────────────────────────┐│
-│ │ Startup / Gruender-Mitstreiter      ││
-│ │   Status: Suche Mitgruender         ││
-│ │   Beitrag: Design, Strategie        ││
-│ └─────────────────────────────────────┘│
+│                                        │
+│ ┌────────────────────────────────────┐ │
+│ │ Projektpartner finden              │ │
+│ │   Phase: Idee, Konzept             │ │
+│ │   Rollen: Tech, Business           │ │
+│ └────────────────────────────────────┘ │
+│                                        │
+│ ┌────────────────────────────────────┐ │
+│ │ Startup / Gruender-Mitstreiter     │ │
+│ │   Status: Suche Mitgruender        │ │
+│ │   Beitrag: Design, Strategie       │ │
+│ └────────────────────────────────────┘ │
 └────────────────────────────────────────┘
-```
-
-### 3. Betroffene Dateien
-
-| Datei | Aenderung |
-|-------|-----------|
-| Neue Migration | `user_profiles` VIEW aktualisieren |
-| `src/pages/ProfileDetail.tsx` | Intent-Details im Interface + UI-Rendering |
-| `src/lib/onboarding-constants.ts` | Label-Mapping fuer Detail-Optionen exportieren |
-
-### 4. Label-Mapping hinzufuegen
-
-Eine Hilfsfunktion um die gespeicherten Werte in lesbare Labels umzuwandeln:
-
-```typescript
-export function getIntentDetailLabel(intent: string, field: string, value: string): string {
-  const config = INTENT_DETAIL_OPTIONS[intent]?.screens.find(s => s.id === field);
-  if (!config) return value;
-  return config.options.find(o => o.value === value)?.label ?? value;
-}
 ```
 
 ## Implementierungs-Reihenfolge
 
-1. **Datenbank-Migration**: `user_profiles` VIEW mit `intent_details` aktualisieren
-2. **Label-Helper**: Funktion zum Umwandeln von Werten in Labels
-3. **ProfileDetail.tsx**: Interface erweitern + UI-Sektion hinzufuegen
+1. Datenbank-Migration: VIEW mit intent_details aktualisieren
+2. Label-Helper: getIntentDetailLabel Funktion hinzufuegen
+3. ProfileDetail.tsx: Interface + UI-Rendering erweitern
 
 ## Ergebnis
 
-Nach der Implementierung sehen andere Studenten:
-- Die ausgewaehlten Intents (wie bisher)
-- **NEU**: Die Detail-Auswahlen pro Intent (Phase, Rollen, Status, etc.)
+- Andere Studenten sehen Intent-Details (Phase, Rollen, etc.)
+- Gender bleibt privat (nicht in VIEW)
+- Birthyear bleibt ausgeschlossen (Legacy)
+
