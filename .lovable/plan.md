@@ -1,115 +1,98 @@
 
 
-# Plan: user_profiles VIEW aktualisieren
+# Intent-Details im Profil-Edit-Modus
 
 ## Ziel
-Die `user_profiles` VIEW aktualisieren um `intent_details` hinzuzufuegen, waehrend `gender` und `birthyear` weiterhin ausgeschlossen bleiben (Privacy).
 
-## Datenarchitektur
+Wenn ein Student beim Bearbeiten seines Profils die Intents aendert, soll er anschliessend die Moeglichkeit haben, die entsprechenden Intent-Details auszuwaehlen oder zu ueberspringen - genau wie beim Onboarding.
 
-| Feld | users Tabelle | user_profiles VIEW | Sichtbarkeit |
-|------|---------------|-------------------|--------------|
-| gender | Ja | Nein | Nur eigenes Profil |
-| birthyear | Ja | Nein | Legacy, nicht angezeigt |
-| age | Ja | Ja | Oeffentlich |
-| intent_details | Ja | Ja (NEU) | Oeffentlich |
+## Ablauf
 
-## Aenderungen
-
-### 1. Datenbank-Migration
-
-```sql
-CREATE OR REPLACE VIEW public.user_profiles
-WITH (security_invoker=on) AS
-SELECT 
-  id,
-  first_name,
-  last_name,
-  profile_image,
-  age,
-  study_program,
-  study_phase,
-  semester,
-  focus,
-  interests,
-  intents,
-  intent_details,
-  bio,
-  tutoring_subject,
-  tutoring_desc,
-  tutoring_price,
-  created_at,
-  last_active_at
-FROM users;
+```text
+Profil bearbeiten
+       │
+       ▼
+ Intents aendern
+       │
+       ▼
+ Speichern klicken
+       │
+       ▼
+ Neue Intents mit Detail-Screens?
+       │
+   ┌───┴───┐
+   │       │
+  Nein    Ja
+   │       │
+   ▼       ▼
+Direkt   "Noch genauer?" Dialog
+speichern      │
+          ┌────┴────┐
+          │         │
+   [Kurz auswaehlen] [Spaeter]
+          │         │
+          ▼         │
+   Detail-Flow      │
+     (Modal)        │
+          │         │
+          └────┬────┘
+               ▼
+        Profil speichern
 ```
 
-**Nicht enthalten (Privacy):**
-- `gender` - Privat, nur im eigenen Profil sichtbar
-- `birthyear` - Legacy-Feld
-- `email` - Sensibel
-- `auth_user_id` - Intern
+## Technische Umsetzung
 
-**Neu hinzugefuegt:**
-- `intent_details` - Detail-Auswahlen pro Intent
+### 1. Types erweitern
 
-### 2. Label-Helper Funktion
+**Datei:** `src/types/user.ts`
 
-**Datei:** `src/lib/onboarding-constants.ts`
+intent_details zu ProfileFormData hinzufuegen.
 
-```typescript
-export function getIntentDetailLabel(
-  intent: string, 
-  field: string, 
-  value: string
-): string {
-  const config = INTENT_DETAIL_OPTIONS[intent as keyof typeof INTENT_DETAIL_OPTIONS];
-  if (!config) return value;
-  const screen = config.screens.find(s => s.id === field);
-  if (!screen) return value;
-  return screen.options.find(o => o.value === value)?.label ?? value;
-}
-```
+### 2. useOwnProfile erweitern
 
-### 3. ProfileDetail.tsx erweitern
+**Datei:** `src/hooks/useOwnProfile.ts`
 
-**Datei:** `src/pages/ProfileDetail.tsx`
+intent_details aus der Datenbank laden.
 
-Interface erweitern:
-```typescript
-interface UserProfile {
-  // ... bestehende Felder ...
-  intent_details?: Record<string, Record<string, string | string[]>> | null;
-}
-```
+### 3. IntentDetailDialog erstellen
 
-Neue UI-Sektion fuer Intent-Details:
-```
-┌────────────────────────────────────────┐
-│ SUCHE NACH                             │
-│                                        │
-│ ┌────────────────────────────────────┐ │
-│ │ Projektpartner finden              │ │
-│ │   Phase: Idee, Konzept             │ │
-│ │   Rollen: Tech, Business           │ │
-│ └────────────────────────────────────┘ │
-│                                        │
-│ ┌────────────────────────────────────┐ │
-│ │ Startup / Gruender-Mitstreiter     │ │
-│ │   Status: Suche Mitgruender        │ │
-│ │   Beitrag: Design, Strategie       │ │
-│ └────────────────────────────────────┘ │
-└────────────────────────────────────────┘
-```
+**Neue Datei:** `src/components/settings/IntentDetailDialog.tsx`
 
-## Implementierungs-Reihenfolge
+Modaler Dialog der:
+- IntentDetailIntro zeigt (Kurz auswaehlen / Spaeter)
+- Bei "Kurz auswaehlen" den IntentDetailFlow durchlaeuft
+- Nur fuer NEU hinzugefuegte Intents (die noch keine Details haben)
 
-1. Datenbank-Migration: VIEW mit intent_details aktualisieren
-2. Label-Helper: getIntentDetailLabel Funktion hinzufuegen
-3. ProfileDetail.tsx: Interface + UI-Rendering erweitern
+### 4. EditProfileForm anpassen
+
+**Datei:** `src/components/settings/EditProfileForm.tsx`
+
+- intent_details in formData aufnehmen
+- Bei Speichern pruefen: Hat der User neue Intents mit verfuegbaren Detail-Screens?
+- Falls ja: Dialog anzeigen statt direkt speichern
+- Bestehende Intent-Details fuer unveraenderte Intents beibehalten
+
+### 5. Profile.tsx anpassen
+
+**Datei:** `src/pages/Profile.tsx`
+
+- intent_details beim Speichern an Supabase mitschicken
+- intent_details in getInitialFormData laden
+
+## Betroffene Dateien
+
+| Datei | Aenderung |
+|-------|-----------|
+| src/types/user.ts | intent_details hinzufuegen |
+| src/hooks/useOwnProfile.ts | intent_details laden |
+| src/components/settings/IntentDetailDialog.tsx | Neuer Dialog (wiederverwendet Onboarding-Komponenten) |
+| src/components/settings/EditProfileForm.tsx | Dialog-Integration |
+| src/pages/Profile.tsx | intent_details speichern |
 
 ## Ergebnis
 
-- Andere Studenten sehen Intent-Details (Phase, Rollen, etc.)
-- Gender bleibt privat (nicht in VIEW)
-- Birthyear bleibt ausgeschlossen (Legacy)
+- Student kann beim Bearbeiten die Intent-Details pflegen
+- Bestehende Details bleiben erhalten
+- Nur fuer neue Intents wird der Detail-Flow angeboten
+- Konsistentes Erlebnis wie beim Onboarding
 
