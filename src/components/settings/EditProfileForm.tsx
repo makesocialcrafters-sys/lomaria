@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/select";
 import { ProfileImageUpload } from "./ProfileImageUpload";
 import { MultiSelectChips } from "./MultiSelectChips";
+import { IntentListWithDetails } from "./IntentChipWithDetails";
 import { IntentDetailDialog } from "./IntentDetailDialog";
+import { EditIntentDetailsDialog } from "./EditIntentDetailsDialog";
 import {
   GENDERS,
-  INTENTS,
   INTERESTS,
   STUDY_PHASES,
   STUDY_PROGRAMS,
@@ -44,6 +45,8 @@ export function EditProfileForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showIntentDialog, setShowIntentDialog] = useState(false);
   const [pendingSaveData, setPendingSaveData] = useState<ProfileFormData | null>(null);
+  const [editingIntent, setEditingIntent] = useState<string | null>(null);
+  const [newIntentToConfig, setNewIntentToConfig] = useState<string | null>(null);
 
   // Track initial intents to detect new ones
   const initialIntentsRef = useRef<string[]>(initialData.intents);
@@ -187,11 +190,30 @@ export function EditProfileForm({
     }
   };
 
-  // Get new intents with screens for the dialog
-  const newIntentsForDialog = useMemo(() => {
+  // Get new intents with screens for the dialog (for save-time dialog)
+  const newIntentsForSaveDialog = useMemo(() => {
     if (!pendingSaveData) return [];
     return getNewIntentsWithScreens(pendingSaveData);
   }, [pendingSaveData]);
+
+  // For inline new intent dialog (when user adds an intent while editing)
+  const newIntentForInlineDialog = useMemo(() => {
+    return newIntentToConfig ? [newIntentToConfig] : [];
+  }, [newIntentToConfig]);
+
+  const handleNewIntentDialogComplete = () => {
+    setNewIntentToConfig(null);
+    setShowIntentDialog(false);
+  };
+
+  const handleNewIntentDialogSkip = () => {
+    setNewIntentToConfig(null);
+    setShowIntentDialog(false);
+  };
+
+  const handleEditIntentComplete = () => {
+    setEditingIntent(null);
+  };
 
   return (
     <>
@@ -328,15 +350,21 @@ export function EditProfileForm({
 
       {/* Intents */}
       <div className="space-y-2">
-        <Label>Intents *</Label>
-        <MultiSelectChips
-          options={INTENTS}
-          selected={formData.intents}
-          onChange={(selected) =>
-            setFormData((prev) => ({ ...prev, intents: selected as Intent[] }))
+        <Label>Ich suche *</Label>
+        <IntentListWithDetails
+          intents={formData.intents}
+          intentDetails={formData.intent_details}
+          onIntentsChange={(intents) =>
+            setFormData((prev) => ({ ...prev, intents: intents as Intent[] }))
           }
-          minSelect={3}
-          maxSelect={6}
+          onIntentDetailsChange={(details) =>
+            setFormData((prev) => ({ ...prev, intent_details: details }))
+          }
+          onEditIntent={(intent) => setEditingIntent(intent)}
+          onNewIntentAdded={(intent) => {
+            setNewIntentToConfig(intent);
+            setShowIntentDialog(true);
+          }}
           error={errors.intents}
         />
       </div>
@@ -448,14 +476,30 @@ export function EditProfileForm({
       </div>
     </form>
 
+    {/* Dialog for configuring new intents (inline, while editing) */}
     <IntentDetailDialog
-      open={showIntentDialog}
-      onOpenChange={setShowIntentDialog}
-      newIntents={newIntentsForDialog}
+      open={showIntentDialog && newIntentToConfig !== null}
+      onOpenChange={(open) => {
+        setShowIntentDialog(open);
+        if (!open) setNewIntentToConfig(null);
+      }}
+      newIntents={newIntentForInlineDialog}
       intentDetails={formData.intent_details}
       onUpdateDetail={handleUpdateIntentDetail}
-      onComplete={handleIntentDialogComplete}
-      onSkip={handleIntentDialogSkip}
+      onComplete={handleNewIntentDialogComplete}
+      onSkip={handleNewIntentDialogSkip}
+    />
+
+    {/* Dialog for editing existing intent details */}
+    <EditIntentDetailsDialog
+      open={editingIntent !== null}
+      onOpenChange={(open) => {
+        if (!open) setEditingIntent(null);
+      }}
+      intent={editingIntent}
+      intentDetails={formData.intent_details}
+      onUpdateDetail={handleUpdateIntentDetail}
+      onComplete={handleEditIntentComplete}
     />
     </>
   );

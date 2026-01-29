@@ -10,6 +10,8 @@ interface IntentDetailScreenProps {
   onSelect: (value: string | string[]) => void;
   onNext: () => void;
   onSkip: () => void;
+  /** Custom label for the next button (default: "Weiter") */
+  nextLabel?: string;
 }
 
 export function IntentDetailScreen({
@@ -21,6 +23,7 @@ export function IntentDetailScreen({
   onSelect,
   onNext,
   onSkip,
+  nextLabel = "Weiter",
 }: IntentDetailScreenProps) {
   const selectedArray = Array.isArray(selected) ? selected : selected ? [selected] : [];
 
@@ -85,7 +88,7 @@ export function IntentDetailScreen({
           onClick={onNext} 
           className="btn-premium"
         >
-          Weiter
+          {nextLabel}
         </Button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { IntentDetailScreen } from "./IntentDetailScreen";
+import { Button } from "@/components/ui/button";
 import { 
   INTENT_DETAIL_OPTIONS, 
   INTENT_LABELS,
@@ -11,6 +12,10 @@ interface IntentDetailFlowProps {
   intentDetails: IntentDetails;
   onUpdateDetail: (intent: string, field: string, value: string | string[]) => void;
   onComplete: () => void;
+  /** Edit mode: only show screens for this single intent */
+  singleIntent?: string;
+  /** Callback for cancel action in edit mode */
+  onCancel?: () => void;
 }
 
 type ScreenPosition = {
@@ -23,12 +28,17 @@ export function IntentDetailFlow({
   intentDetails,
   onUpdateDetail,
   onComplete,
+  singleIntent,
+  onCancel,
 }: IntentDetailFlowProps) {
   // Build flat list of all screens to show
   const allScreens = useMemo(() => {
     const screens: ScreenPosition[] = [];
     
-    for (const intent of selectedIntents) {
+    // If singleIntent is provided, only show screens for that intent
+    const intentsToProcess = singleIntent ? [singleIntent] : selectedIntents;
+    
+    for (const intent of intentsToProcess) {
       const config = INTENT_DETAIL_OPTIONS[intent];
       if (config) {
         config.screens.forEach((_, screenIndex) => {
@@ -38,7 +48,7 @@ export function IntentDetailFlow({
     }
     
     return screens;
-  }, [selectedIntents]);
+  }, [selectedIntents, singleIntent]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -89,16 +99,35 @@ export function IntentDetailFlow({
     goToNextScreen();
   };
 
+  const isLastScreen = currentIndex === allScreens.length - 1;
+  const isEditMode = !!singleIntent;
+
   return (
-    <IntentDetailScreen
-      intentLabel={intentLabel}
-      screenTitle={screenConfig.title}
-      options={screenConfig.options}
-      selected={currentValue}
-      multiSelect={screenConfig.multiSelect}
-      onSelect={handleSelect}
-      onNext={handleNext}
-      onSkip={handleSkip}
-    />
+    <div>
+      <IntentDetailScreen
+        intentLabel={intentLabel}
+        screenTitle={screenConfig.title}
+        options={screenConfig.options}
+        selected={currentValue}
+        multiSelect={screenConfig.multiSelect}
+        onSelect={handleSelect}
+        onNext={handleNext}
+        onSkip={handleSkip}
+        nextLabel={isEditMode && isLastScreen ? "Fertig" : undefined}
+      />
+      {isEditMode && onCancel && (
+        <div className="mt-4 flex justify-center">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onCancel}
+            className="text-muted-foreground"
+          >
+            Abbrechen
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
