@@ -209,6 +209,31 @@ export const INTENT_LABELS: Record<string, string> = {
 
 export type IntentDetails = Record<string, Record<string, string | string[]>>;
 
+/**
+ * Get the display label for an intent detail value
+ */
+export function getIntentDetailLabel(
+  intent: string,
+  field: string,
+  value: string
+): string {
+  const config = INTENT_DETAIL_OPTIONS[intent];
+  if (!config) return value;
+  const screen = config.screens.find((s) => s.id === field);
+  if (!screen) return value;
+  return screen.options.find((o) => o.value === value)?.label ?? value;
+}
+
+/**
+ * Get the screen title for an intent detail field
+ */
+export function getIntentDetailFieldTitle(intent: string, field: string): string {
+  const config = INTENT_DETAIL_OPTIONS[intent];
+  if (!config) return field;
+  const screen = config.screens.find((s) => s.id === field);
+  return screen?.title ?? field;
+}
+
 export type OnboardingData = {
   first_name: string;
   last_name: string;

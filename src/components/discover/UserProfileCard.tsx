@@ -9,7 +9,6 @@ interface UserProfileCardProps {
 
 export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
   const navigate = useNavigate();
-  const currentYear = new Date().getFullYear();
 
   const handleClick = () => {
     if (onClick) {
@@ -19,8 +18,7 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
     }
   };
 
-  // Support both age (new) and birthyear (old) fields
-  const age = user.age ?? (user.birthyear ? currentYear - user.birthyear : null);
+  const age = user.age ?? null;
 
   const studyProgramLabel = STUDY_PROGRAMS.find((p) => p.value === user.study_program)?.label;
   const studyPhaseLabel = STUDY_PHASES.find((p) => p.value === user.study_phase)?.label;

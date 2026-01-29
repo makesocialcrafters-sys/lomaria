@@ -306,12 +306,11 @@ export type Database = {
         Row: {
           age: number | null
           bio: string | null
-          birthyear: number | null
           created_at: string | null
           first_name: string | null
           focus: string | null
-          gender: string | null
           id: string | null
+          intent_details: Json | null
           intents: string[] | null
           interests: string[] | null
           last_active_at: string | null
@@ -327,12 +326,11 @@ export type Database = {
         Insert: {
           age?: number | null
           bio?: string | null
-          birthyear?: number | null
           created_at?: string | null
           first_name?: string | null
           focus?: string | null
-          gender?: string | null
           id?: string | null
+          intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
           last_active_at?: string | null
@@ -348,12 +346,11 @@ export type Database = {
         Update: {
           age?: number | null
           bio?: string | null
-          birthyear?: number | null
           created_at?: string | null
           first_name?: string | null
           focus?: string | null
-          gender?: string | null
           id?: string | null
+          intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
           last_active_at?: string | null
