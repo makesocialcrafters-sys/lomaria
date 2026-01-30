@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -144,9 +145,21 @@ export default function ProfileDetail() {
 
     if (status === "pending" && role === "receiver") {
       return (
-        <Button width="full" onClick={() => setIsDialogOpen(true)}>
-          Kontakt anfragen
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            className="flex-1"
+            onClick={handleReject}
+          >
+            Ablehnen
+          </Button>
+          <Button 
+            className="flex-1"
+            onClick={handleAccept}
+          >
+            Annehmen
+          </Button>
+        </div>
       );
     }
 
@@ -182,6 +195,40 @@ export default function ProfileDetail() {
   }
 
   const handleBack = () => navigate(-1);
+
+  const handleAccept = async () => {
+    if (!connectionData?.id) return;
+    
+    const { error } = await supabase
+      .from("connections")
+      .update({ status: "accepted" })
+      .eq("id", connectionData.id);
+      
+    if (error) {
+      toast.error("Fehler beim Akzeptieren");
+      return;
+    }
+    
+    toast.success("Kontakt akzeptiert!");
+    navigate("/chats");
+  };
+
+  const handleReject = async () => {
+    if (!connectionData?.id) return;
+    
+    const { error } = await supabase
+      .from("connections")
+      .update({ status: "rejected" })
+      .eq("id", connectionData.id);
+      
+    if (error) {
+      toast.error("Fehler beim Ablehnen");
+      return;
+    }
+    
+    toast.success("Anfrage abgelehnt");
+    navigate(-1);
+  };
 
   if (loading) {
     return (
