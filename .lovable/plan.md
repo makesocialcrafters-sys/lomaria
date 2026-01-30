@@ -1,98 +1,95 @@
 
-# Intent-Detail-Chips Inline anzeigen
+# Pending-Anfrage: Annehmen/Ablehnen direkt im Profil anzeigen
 
-## Uebersicht
+## Problem
 
-Alle 5 Intents mit Detail-Optionen sollen ihre Auswahlmoeglichkeiten direkt inline im Chip anzeigen - keine Dialoge, keine "Bearbeiten"-Buttons mehr.
+Wenn A an B eine Kontaktanfrage schickt und B das Profil von A oeffnet:
+- **Aktuell:** B sieht "Kontakt anfragen" Button
+- **Erwartet:** B sieht "Annehmen" und "Ablehnen" Buttons
 
-## Aktuelle Situation
+## Loesung
 
-```
-[✓] Projektpartner finden
-    Phase: Idee, Konzept
-    Rollen: Tech
-    [Bearbeiten] ← Klick oeffnet Dialog
-```
+Wenn B (Empfaenger einer pending Anfrage) das Profil von A besucht, direkt zwei Buttons anzeigen:
+- **Annehmen** - akzeptiert die Anfrage und navigiert zu Chats
+- **Ablehnen** - lehnt die Anfrage ab und navigiert zurueck
 
-## Ziel-Design
+## Technische Aenderung
 
-```
-[✓] Projektpartner finden
-    
-    Projektphase
-    [Idee] [Konzept] [Umsetzung] [Offen]  ← direkt als Chips
-    
-    Gesuchte Rollen  
-    [Tech] [Design] [Business] [Organisation] [Offen]  ← direkt als Chips
-```
+**Datei:** `src/pages/ProfileDetail.tsx`
 
-## Betroffene Intents
-
-| Intent | Screen 1 | Screen 2 |
-|--------|----------|----------|
-| Projektpartner | Projektphase (multi) | Gesuchte Rollen (multi) |
-| Startup | Status (single) | Eigener Beitrag (multi) |
-| Networking | Fokus (multi) | Bereich (multi) |
-| Neue Leute | Art (multi) | Energielevel (single) |
-| Freundschaften | Art (single) | Umgang (single) |
-
-## Technische Aenderungen
-
-### 1. IntentChipWithDetails erweitern
-
-Statt "Bearbeiten"-Button und kompakter Labels → Inline-Chips fuer jedes Detail-Feld:
+In der `getConnectionCTA` Funktion (Zeilen 145-150) aendern:
 
 ```typescript
-const renderInlineDetailFields = () => {
-  if (!hasDetailScreens || !isActive) return null;
-  
-  const config = INTENT_DETAIL_OPTIONS[intent];
-  
-  return config.screens.map(screen => (
-    <div key={screen.id}>
-      <label>{screen.title}</label>
-      <div className="flex flex-wrap gap-1.5">
-        {screen.options.map(option => (
-          <Chip 
-            selected={isSelected(screen.id, option.value)}
-            onClick={() => toggleOption(screen.id, option.value, screen.multiSelect)}
-          />
-        ))}
-      </div>
+// Alt:
+if (status === "pending" && role === "receiver") {
+  return (
+    <Button width="full" onClick={() => setIsDialogOpen(true)}>
+      Kontakt anfragen
+    </Button>
+  );
+}
+
+// Neu:
+if (status === "pending" && role === "receiver") {
+  return (
+    <div className="flex gap-3">
+      <Button 
+        variant="outline" 
+        className="flex-1"
+        onClick={handleReject}
+      >
+        Ablehnen
+      </Button>
+      <Button 
+        className="flex-1"
+        onClick={handleAccept}
+      >
+        Annehmen
+      </Button>
     </div>
-  ));
+  );
+}
+```
+
+Neue Funktionen hinzufuegen:
+
+```typescript
+const handleAccept = async () => {
+  if (!connectionData?.id) return;
+  
+  await supabase
+    .from("connections")
+    .update({ status: "accepted" })
+    .eq("id", connectionData.id);
+    
+  toast.success("Kontakt akzeptiert!");
+  navigate("/chats");
+};
+
+const handleReject = async () => {
+  if (!connectionData?.id) return;
+  
+  await supabase
+    .from("connections")
+    .update({ status: "rejected" })
+    .eq("id", connectionData.id);
+    
+  toast.success("Anfrage abgelehnt");
+  navigate(-1);
 };
 ```
 
-### 2. Logik fuer Auswahl-Handling
+## Ergebnis
 
-- **Multi-Select**: Toggle einzelne Werte (Array)
-- **Single-Select**: Ersetzt bisherigen Wert (String)
-- Aenderungen direkt in `intentDetails` speichern via Callback
+| Situation | Anzeige | Aktion |
+|-----------|---------|--------|
+| A sendet an B, A besucht B's Profil | "Anfrage gesendet" (disabled) | - |
+| A sendet an B, B besucht A's Profil | **[Ablehnen] [Annehmen]** | Accept/Reject |
+| Accepted | "Chat oeffnen" | → Chats |
+| Rejected / Keine Verbindung | "Kontakt anfragen" | → Dialog |
 
-### 3. Entfernen
-
-- `onEdit` Prop nicht mehr noetig
-- `onNewIntentAdded` Callback entfernen
-- `EditIntentDetailsDialog` nicht mehr verwendet
-- `IntentDetailDialog` nicht mehr verwendet
-- Kein "Noch genauer?" Dialog mehr noetig
-
-### 4. Onboarding Step4 anpassen
-
-Gleiche Inline-Logik im Onboarding verwenden - keine separate Flow-Screens mehr.
-
-## Betroffene Dateien
+## Betroffene Datei
 
 | Datei | Aenderung |
 |-------|-----------|
-| `src/components/settings/IntentChipWithDetails.tsx` | Inline-Chips statt Bearbeiten-Button |
-| `src/components/onboarding/Step4Intents.tsx` | Gleiche Inline-Logik |
-| `src/components/settings/EditProfileForm.tsx` | Vereinfachen (kein Dialog-State) |
-
-## UX-Vorteile
-
-- Schnellere Bedienung ohne Dialog-Oeffnen
-- Alle Optionen sofort sichtbar
-- Konsistent mit Nachhilfe-Intent
-- Weniger Klicks noetig
+| `src/pages/ProfileDetail.tsx` | Accept/Reject Buttons fuer "receiver + pending" |
