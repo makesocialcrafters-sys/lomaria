@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Info } from "lucide-react";
+import { Info, Users } from "lucide-react";
 import { useDiscoverProfiles, useTutoringSubjects, UserProfile } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 import {
   Popover,
   PopoverContent,
@@ -217,6 +219,27 @@ export default function Discover() {
             onClearIntent={() => handleIntentChange(null)}
             onReset={handleResetFilters}
           />
+        </div>
+
+        {/* Coming Soon: Lerngruppen */}
+        <div className="mb-6 animate-cinematic-enter" style={{ animationDelay: "200ms" }}>
+          <button
+            onClick={() => {
+              toast({
+                title: "Bald verfügbar",
+                description: "Lerngruppen kommen bald! Bleib dran.",
+              });
+            }}
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-primary/30 rounded-md bg-transparent hover:border-primary/50 transition-all duration-500 group"
+          >
+            <Users className="w-4 h-4 text-primary/60 group-hover:text-primary transition-colors duration-500" />
+            <span className="font-display text-sm tracking-widest uppercase text-muted-foreground group-hover:text-foreground transition-colors duration-500">
+              Lerngruppen
+            </span>
+            <Badge variant="outline" className="text-[10px] tracking-wider border-primary/40 text-primary/80 px-2 py-0.5">
+              COMING SOON
+            </Badge>
+          </button>
         </div>
 
         {/* Profile Cards */}
