@@ -233,6 +233,7 @@ export type Database = {
           birthyear: number | null
           created_at: string | null
           email: string
+          email_notifications_enabled: boolean
           first_name: string | null
           focus: string | null
           gender: string | null
@@ -257,6 +258,7 @@ export type Database = {
           birthyear?: number | null
           created_at?: string | null
           email: string
+          email_notifications_enabled?: boolean
           first_name?: string | null
           focus?: string | null
           gender?: string | null
@@ -281,6 +283,7 @@ export type Database = {
           birthyear?: number | null
           created_at?: string | null
           email?: string
+          email_notifications_enabled?: boolean
           first_name?: string | null
           focus?: string | null
           gender?: string | null
