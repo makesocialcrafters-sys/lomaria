@@ -1,68 +1,55 @@
 
 
-# Plan: "Opportunity" Tab in Bottom Navigation
+# Plan: Opportunity-Tab zwischen "Kontakte" und "Chats" verschieben
 
 ## Übersicht
-Ein neuer "Opportunity" Tab wird zur Bottom Navigation hinzugefügt – mit Lock-Icon und Coming-Soon-Funktionalität. Der bestehende Lerngruppen-Button auf der Discover-Seite bleibt unverändert.
+Der "Opportunity"-Tab wird von seiner aktuellen Position (zwischen Chats und Profil) an die neue Position zwischen "Kontakte" und "Chats" verschoben.
 
 ---
 
-## Was wird implementiert
+## Aktuelle Reihenfolge
+```text
+Entdecken | Kontakte | Chats | Opportunity | Profil
+```
 
-### Visuelles Design
-- Neuer 5. Tab zwischen "Chats" und "Profil"
-- Icon: `Lock` (Schloss-Symbol)
-- Label: "OPPORTUNITY"
-- Leicht gedimmte Darstellung (`text-foreground/40`)
-- Kein aktiver Zustand möglich (keine Navigation)
-
-### User Experience
-- Bei Klick: Toast-Nachricht "Bald verfügbar"
-- Visuell unterscheidbar von aktiven Tabs durch gedimmte Farbe
-- Touch-Target bleibt ausreichend groß (5 Tabs passen gut auf Mobile)
+## Neue Reihenfolge
+```text
+Entdecken | Kontakte | Opportunity | Chats | Profil
+```
 
 ---
 
-## Technische Änderungen
+## Technische Änderung
 
 ### `src/components/layout/BottomNavigation.tsx`
 
-**Imports hinzufügen:**
-- `Lock` Icon aus lucide-react
-- `toast` aus `@/hooks/use-toast`
+**Anpassung der navItems-Struktur:**
+- Das Array `navItems` wird aufgeteilt in zwei Teile:
+  1. Erste Gruppe: Entdecken, Kontakte
+  2. Zweite Gruppe: Chats
+- Der Opportunity-Button wird zwischen diesen beiden Gruppen gerendert
+- Profil-Tab bleibt am Ende
 
-**Neuer Tab:**
-- Button (kein NavLink) nach den regulären Tabs
-- Zwischen "Chats" und "Profil" platziert
-- onClick löst Toast aus
-
-### Code-Struktur
-
-```text
-Navigation Reihenfolge:
-Entdecken | Kontakte | Chats | Opportunity | Profil
-   User      Users    Message    Lock 🔒    UserCircle
-
-navItems Array (unverändert):
-  - Entdecken, Kontakte, Chats
-
-Separater Opportunity Tab (NEU):
-  - Button mit onClick → toast()
-  - Lock Icon
-  - Gedimmtes Styling (text-foreground/40)
-
-Profil Tab:
-  - Wird nach dem Opportunity Tab gerendert
-```
-
-### Implementierung
-- navItems Array wird aufgeteilt: erste 3 Tabs vor Opportunity, Profil danach
-- Oder: Spezieller Marker im Array für "coming soon" Tabs
-- Einfachste Lösung: Profil aus Array entfernen, manuell nach Opportunity rendern
+**Neue Render-Reihenfolge:**
+1. Map über erste Gruppe (Entdecken, Kontakte)
+2. Opportunity-Button (Coming Soon)
+3. Map über zweite Gruppe (Chats)
+4. Profil-Tab
 
 ---
 
-## Bestehender Code bleibt
+## Code-Änderungen
 
-Der Lerngruppen-Button auf der Discover-Seite (Zeilen 224-243) bleibt wie er ist.
+```text
+const navItemsBeforeOpportunity = [
+  { to: "/discover", icon: User, label: "Entdecken" },
+  { to: "/contacts", icon: Users, label: "Kontakte" },
+];
+
+const navItemsAfterOpportunity = [
+  { to: "/chats", icon: MessageCircle, label: "Chats" },
+];
+```
+
+Die Render-Logik wird entsprechend angepasst, um die Tabs in der gewünschten Reihenfolge darzustellen.
 
