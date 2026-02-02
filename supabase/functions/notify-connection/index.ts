@@ -33,7 +33,7 @@ const STUDY_PROGRAMS: Record<string, string> = {
   phd: "Doktorat/PhD",
 };
 
-const emailWrapper = (content: string) => `
+const emailWrapper = (content: string, recipientEmail: string) => `
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -57,7 +57,15 @@ const emailWrapper = (content: string) => `
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding-top: 32px;">
+            <td align="center" style="padding-top: 24px;">
+              <a href="https://lomaria.at/unsubscribe?email=${encodeURIComponent(recipientEmail)}" 
+                 style="font-size: 11px; color: ${BRAND_COLORS.textMuted}; text-decoration: underline;">
+                E-Mail-Benachrichtigungen abbestellen
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-top: 16px;">
               <p style="margin: 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">
                 © ${new Date().getFullYear()} Lomaria. Alle Rechte vorbehalten.
               </p>
@@ -113,13 +121,22 @@ const handler = async (req: Request): Promise<Response> => {
     // Fetch recipient info
     const { data: recipient, error: recipientError } = await supabase
       .from("users")
-      .select("first_name, last_name, email")
+      .select("first_name, last_name, email, email_notifications_enabled")
       .eq("id", toUserId)
       .single();
 
     if (recipientError || !recipient) {
       console.error("Error fetching recipient:", recipientError);
       throw new Error("Recipient not found");
+    }
+
+    // Check if email notifications are enabled
+    if (recipient.email_notifications_enabled === false) {
+      console.log(`Email notifications disabled for user ${toUserId}, skipping`);
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: "notifications_disabled" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     const senderName = `${sender.first_name || ""} ${sender.last_name || ""}`.trim() || "Ein Nutzer";
@@ -150,7 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
         <a href="${appUrl}/contacts" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
           Anfrage ansehen
         </a>
-      `);
+      `, recipientEmail);
     } else if (type === "request_accepted") {
       subject = `${senderName} hat deine Anfrage angenommen! 🎉`;
       htmlContent = emailWrapper(`
@@ -174,7 +191,7 @@ const handler = async (req: Request): Promise<Response> => {
             Chat öffnen
           </a>
         </div>
-      `);
+      `, recipientEmail);
     } else if (type === "new_message") {
       const preview = message && message.length > 100 ? message.substring(0, 100) + "..." : message;
       subject = `Neue Nachricht von ${senderName}`;
@@ -196,7 +213,7 @@ const handler = async (req: Request): Promise<Response> => {
         <a href="${appUrl}/chats/${connectionId}" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
           Antworten
         </a>
-      `);
+      `, recipientEmail);
     }
 
     console.log(`Sending email to ${recipientEmail} with subject: ${subject}`);
@@ -206,6 +223,10 @@ const handler = async (req: Request): Promise<Response> => {
       to: [recipientEmail],
       subject,
       html: htmlContent,
+      headers: {
+        "List-Unsubscribe": `<https://lomaria.at/unsubscribe?email=${encodeURIComponent(recipientEmail)}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
     });
 
     if (error) {
