@@ -58,7 +58,7 @@ const emailWrapper = (content: string, recipientEmail: string) => `
           </tr>
           <tr>
             <td align="center" style="padding-top: 24px;">
-              <a href="https://lomaria.at/unsubscribe?email=${encodeURIComponent(recipientEmail)}" 
+              <a href="https://lomaria.at" 
                  style="font-size: 11px; color: ${BRAND_COLORS.textMuted}; text-decoration: underline;">
                 E-Mail-Benachrichtigungen abbestellen
               </a>
