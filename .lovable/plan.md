@@ -1,44 +1,59 @@
 
-
-# Unsubscribe-Link zu lomaria.at führen
+# Plan: "Coming Soon" Button für Lerngruppen
 
 ## Übersicht
-
-Der "E-Mail-Benachrichtigungen abbestellen"-Link im E-Mail-Footer soll einfach auf `https://lomaria.at` verweisen, anstatt auf eine Unsubscribe-Seite mit Parametern.
+Ein neuer "Coming Soon"-Button wird zur Discover-Seite hinzugefügt, der Studierende auf ein bevorstehendes Lerngruppen-Feature hinweist. Der Button folgt dem Wes Anderson Design-System.
 
 ---
 
-## Technische Umsetzung
+## Was wird implementiert
 
-**Datei:** `supabase/functions/notify-connection/index.ts`
+### Visuelles Design
+- Outline-Button-Stil (Border statt Füllung)
+- Text: "LERNGRUPPEN" mit "COMING SOON"-Badge
+- Gold-Akzentfarbe für Rahmen
+- Deaktivierter Zustand (nicht klickbar)
+- Platzierung: Unterhalb der Filter, oberhalb der Profilkarten
 
-### Änderung im E-Mail-Footer (Zeile 61)
+### User Experience
+- Button zeigt klar, dass das Feature noch kommt
+- Optional: Toast-Nachricht bei Klick mit Info "Bald verfügbar"
+- Passt zum cinematischen, eleganten Design der App
 
-```typescript
-// Von:
-<a href="https://lomaria.at/unsubscribe?email=${encodeURIComponent(recipientEmail)}" 
-   style="font-size: 11px; color: ${BRAND_COLORS.textMuted}; text-decoration: underline;">
-  E-Mail-Benachrichtigungen abbestellen
-</a>
+---
 
-// Zu:
-<a href="https://lomaria.at" 
-   style="font-size: 11px; color: ${BRAND_COLORS.textMuted}; text-decoration: underline;">
-  E-Mail-Benachrichtigungen abbestellen
-</a>
+## Technische Details
+
+### Datei-Änderungen
+
+**1. `src/pages/Discover.tsx`**
+- Neuer Abschnitt zwischen Filters und Profile Cards
+- Coming Soon Button mit Icon (Users oder BookOpen)
+- Optional: Toast bei Klick
+
+### Code-Struktur
+```text
+<Filter Section />
+    ↓
+<Coming Soon Section>  ← NEU
+  - Icon + "Lerngruppen" Text
+  - "Coming Soon" Badge
+</Coming Soon Section>
+    ↓
+<Profile Cards />
 ```
 
----
-
-## Betroffene Dateien
-
-| Datei | Änderung |
-|-------|----------|
-| `supabase/functions/notify-connection/index.ts` | Footer-Link auf `https://lomaria.at` ändern |
+### Styling
+- Verwendet bestehende Button-Komponente mit `variant="outline"`
+- Badge als kleines Pill-Element
+- Cinematic Animation beim Laden
 
 ---
 
-## Hinweis
+## Alternative Platzierungen (zur Diskussion)
 
-Der List-Unsubscribe Header für Gmail/Outlook One-Click bleibt auf die Edge Function zeigen (`/unsubscribe-email`), da dieser direkt die API aufruft und keinen Browser-Redirect benötigt. Nur der sichtbare Footer-Link wird geändert.
+1. **Bottom Navigation**: Neuer Tab mit Lock-Icon
+2. **Profile-Seite**: Als Banner/Karte
+3. **Eigene Coming-Soon-Seite**: `/lerngruppen` Route
 
+Die Discover-Seite als Platzierung macht Sinn, da dort Studierende aktiv nach Verbindungen suchen.
