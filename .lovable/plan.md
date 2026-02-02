@@ -1,94 +1,120 @@
 
-# Icebreaker-Starter für Chat
+
+# E-Mail-Abmeldung per Link im Template
 
 ## Übersicht
 
-Drei vordefinierte Icebreaker-Starter als Quick-Reply-Chips oberhalb des Eingabefelds anzeigen, wenn der Chat noch keine Nachrichten enthält. Nach der ersten gesendeten Nachricht verschwinden sie automatisch.
+Statt eines Settings-Toggles: Ein "E-Mails abbestellen"-Link im Footer jeder Benachrichtigungs-E-Mail. Ein Klick führt zur App, wo die Präferenz gespeichert wird.
 
-## Die drei Icebreaker-Texte (aktualisiert)
+## Ablauf
 
-| Chip-Label | Gesendete Nachricht |
-|------------|---------------------|
-| Studium & Alltag | "Zwischen LVs wenig Zeit, lass uns kurz schreiben." |
-| Ziele & Projekte | "Ähnliche Ziele, lass kurz schauen, ob das passt." |
-| Kennenlernen & Campus | "Gleicher Campus, gleiche Routine, lass uns das kurz ändern." |
-
-## UX-Verhalten
-
-- Sichtbar nur wenn `messages.length === 0`
-- Antippen sendet den Text als erste Nachricht
-- Verschwinden automatisch nach erster Nachricht
-- Horizontal scrollbar auf Mobile
+```text
+E-Mail erhalten → Link klicken → /unsubscribe?token=xxx → Bestätigung → Fertig
+```
 
 ---
 
 ## Technische Umsetzung
 
-### 1. Neue Komponente erstellen
+### 1. Datenbank-Migration
 
-**Datei:** `src/components/chat/IcebreakerStarters.tsx`
+Neue Spalte in der `users`-Tabelle:
 
-```typescript
-const ICEBREAKERS = [
-  {
-    label: "Studium & Alltag",
-    message: "Zwischen LVs wenig Zeit, lass uns kurz schreiben."
-  },
-  {
-    label: "Ziele & Projekte", 
-    message: "Ähnliche Ziele, lass kurz schauen, ob das passt."
-  },
-  {
-    label: "Kennenlernen & Campus",
-    message: "Gleicher Campus, gleiche Routine, lass uns das kurz ändern."
-  }
-];
+```sql
+ALTER TABLE public.users 
+ADD COLUMN email_notifications_enabled boolean NOT NULL DEFAULT true;
 ```
 
-Styling passend zur Lomaria-Ästhetik:
-- Horizontales Layout mit `overflow-x-auto` und `scrollbar-hide`
-- Outline-Buttons mit `border-primary/30`
-- Uppercase Labels, kleiner Text, Letter-Spacing
-- Slow Hover (500ms) mit Gold-Akzent
-- Padding für horizontales Scrollen auf Mobile
+### 2. Edge Function für Unsubscribe
 
-### 2. ChatDetail.tsx anpassen
+**Neue Datei:** `supabase/functions/unsubscribe-email/index.ts`
 
-**Datei:** `src/pages/ChatDetail.tsx`
-
-Änderungen:
-1. Import der `IcebreakerStarters` Komponente
-2. Handler für Icebreaker-Auswahl hinzufügen:
+- Empfängt User-ID als signiertes Token (verhindert Missbrauch)
+- Setzt `email_notifications_enabled = false` für den Nutzer
+- Gibt eine einfache Bestätigungsseite zurück (HTML)
 
 ```typescript
-const handleIcebreakerSelect = async (message: string) => {
-  if (!chatData?.currentUserId || !connectionId) return;
-  // Nutzt die bestehende Sende-Logik
-  setNewMessage(message);
-  // Direkt senden
-  await handleSendWithMessage(message);
-};
+// Token-Struktur: base64(userId + ":" + hmac(userId, secret))
+// Verifiziert, dass nur der echte Nutzer abmelden kann
 ```
 
-3. Im sticky bottom-Bereich (Zeile 369) einfügen:
+### 3. E-Mail-Templates erweitern
+
+**Datei:** `supabase/functions/notify-connection/index.ts`
+
+Im `emailWrapper` Footer hinzufügen:
+
+```html
+<tr>
+  <td align="center" style="padding-top: 24px;">
+    <a href="${appUrl}/unsubscribe?token=${unsubscribeToken}" 
+       style="font-size: 11px; color: #666; text-decoration: underline;">
+      E-Mail-Benachrichtigungen abbestellen
+    </a>
+  </td>
+</tr>
+```
+
+### 4. Frontend-Seite für Unsubscribe
+
+**Neue Datei:** `src/pages/Unsubscribe.tsx`
+
+- Liest `token` aus URL-Parametern
+- Ruft die Edge Function auf
+- Zeigt Bestätigung: "Du erhältst keine E-Mails mehr von Lomaria"
+- Optional: Button um sich wieder anzumelden
+
+### 5. Prüfung vor E-Mail-Versand
+
+**Datei:** `supabase/functions/notify-connection/index.ts`
+
+Nach dem Laden des Empfängers:
+
+```typescript
+const { data: recipient } = await supabase
+  .from("users")
+  .select("first_name, last_name, email, email_notifications_enabled")
+  .eq("id", toUserId)
+  .single();
+
+if (recipient.email_notifications_enabled === false) {
+  console.log(`Notifications disabled for ${toUserId}`);
+  return new Response(JSON.stringify({ success: true, skipped: true }), ...);
+}
+```
+
+### 6. Settings-Seite (optional)
+
+Zusätzlich in `Settings.tsx` einen Status anzeigen + Re-Subscribe Option:
 
 ```tsx
-<div className="sticky bottom-0 bg-background border-t border-primary/20">
-  {/* Icebreaker Starters - nur bei leerem Chat */}
-  {messages.length === 0 && (
-    <IcebreakerStarters 
-      onSelect={handleIcebreakerSelect}
-      disabled={sending}
-    />
-  )}
-  
-  <div className="flex gap-2 p-4">
-    {/* bestehendes Input-Feld */}
+{!emailNotificationsEnabled && (
+  <div className="p-4 border border-border/40 rounded-lg">
+    <p className="text-sm text-muted-foreground">
+      E-Mail-Benachrichtigungen sind deaktiviert.
+    </p>
+    <Button variant="link" onClick={handleResubscribe}>
+      Wieder aktivieren
+    </Button>
   </div>
-</div>
+)}
 ```
 
-4. `handleSend` zu einer generischen Funktion erweitern, die optional einen direkten Text akzeptiert
+---
+
+## Token-Generierung (Sicherheit)
+
+```typescript
+// In notify-connection - Token erstellen
+function createUnsubscribeToken(userId: string, secret: string): string {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(userId);
+  const key = encoder.encode(secret);
+  // HMAC-SHA256 für Signatur
+  const signature = await crypto.subtle.sign("HMAC", key, data);
+  return btoa(userId + ":" + arrayBufferToHex(signature));
+}
+```
 
 ---
 
@@ -96,13 +122,17 @@ const handleIcebreakerSelect = async (message: string) => {
 
 | Datei | Änderung |
 |-------|----------|
-| `src/components/chat/IcebreakerStarters.tsx` | Neue Komponente erstellen |
-| `src/pages/ChatDetail.tsx` | Import + Integration der Icebreaker |
+| Migration | `email_notifications_enabled` Spalte |
+| `supabase/functions/unsubscribe-email/index.ts` | Neue Edge Function |
+| `supabase/functions/notify-connection/index.ts` | Token generieren + Footer + Prüfung |
+| `src/pages/Unsubscribe.tsx` | Neue Seite für Bestätigung |
+| `src/App.tsx` | Route `/unsubscribe` hinzufügen |
+| `src/pages/Settings.tsx` | Status anzeigen + Re-Subscribe |
 
 ## Resultat
 
-- Dezente Chips erscheinen bei neuen Chats
-- Ein Tap sendet die Nachricht sofort
-- Nach erster Nachricht verschwinden die Chips
-- Nutzer kann sie ignorieren und frei schreiben
-- Mobile-first, minimalistisches Design
+- Ein Klick in der E-Mail → Keine E-Mails mehr
+- Sicher durch signierte Tokens
+- Re-Subscribe in den Settings möglich
+- Keine Login-Pflicht für Abmeldung
+
