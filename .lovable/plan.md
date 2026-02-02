@@ -1,138 +1,207 @@
 
 
-# E-Mail-Abmeldung per Link im Template
+# E-Mail-Unsubscribe mit List-Unsubscribe Headers
 
 ## Übersicht
 
-Statt eines Settings-Toggles: Ein "E-Mails abbestellen"-Link im Footer jeder Benachrichtigungs-E-Mail. Ein Klick führt zur App, wo die Präferenz gespeichert wird.
-
-## Ablauf
-
-```text
-E-Mail erhalten → Link klicken → /unsubscribe?token=xxx → Bestätigung → Fertig
-```
-
----
-
-## Technische Umsetzung
-
-### 1. Datenbank-Migration
-
-Neue Spalte in der `users`-Tabelle:
-
-```sql
-ALTER TABLE public.users 
-ADD COLUMN email_notifications_enabled boolean NOT NULL DEFAULT true;
-```
-
-### 2. Edge Function für Unsubscribe
-
-**Neue Datei:** `supabase/functions/unsubscribe-email/index.ts`
-
-- Empfängt User-ID als signiertes Token (verhindert Missbrauch)
-- Setzt `email_notifications_enabled = false` für den Nutzer
-- Gibt eine einfache Bestätigungsseite zurück (HTML)
-
-```typescript
-// Token-Struktur: base64(userId + ":" + hmac(userId, secret))
-// Verifiziert, dass nur der echte Nutzer abmelden kann
-```
-
-### 3. E-Mail-Templates erweitern
-
-**Datei:** `supabase/functions/notify-connection/index.ts`
-
-Im `emailWrapper` Footer hinzufügen:
-
-```html
-<tr>
-  <td align="center" style="padding-top: 24px;">
-    <a href="${appUrl}/unsubscribe?token=${unsubscribeToken}" 
-       style="font-size: 11px; color: #666; text-decoration: underline;">
-      E-Mail-Benachrichtigungen abbestellen
-    </a>
-  </td>
-</tr>
-```
-
-### 4. Frontend-Seite für Unsubscribe
-
-**Neue Datei:** `src/pages/Unsubscribe.tsx`
-
-- Liest `token` aus URL-Parametern
-- Ruft die Edge Function auf
-- Zeigt Bestätigung: "Du erhältst keine E-Mails mehr von Lomaria"
-- Optional: Button um sich wieder anzumelden
-
-### 5. Prüfung vor E-Mail-Versand
-
-**Datei:** `supabase/functions/notify-connection/index.ts`
-
-Nach dem Laden des Empfängers:
-
-```typescript
-const { data: recipient } = await supabase
-  .from("users")
-  .select("first_name, last_name, email, email_notifications_enabled")
-  .eq("id", toUserId)
-  .single();
-
-if (recipient.email_notifications_enabled === false) {
-  console.log(`Notifications disabled for ${toUserId}`);
-  return new Response(JSON.stringify({ success: true, skipped: true }), ...);
-}
-```
-
-### 6. Settings-Seite (optional)
-
-Zusätzlich in `Settings.tsx` einen Status anzeigen + Re-Subscribe Option:
-
-```tsx
-{!emailNotificationsEnabled && (
-  <div className="p-4 border border-border/40 rounded-lg">
-    <p className="text-sm text-muted-foreground">
-      E-Mail-Benachrichtigungen sind deaktiviert.
-    </p>
-    <Button variant="link" onClick={handleResubscribe}>
-      Wieder aktivieren
-    </Button>
-  </div>
-)}
-```
-
----
-
-## Token-Generierung (Sicherheit)
-
-```typescript
-// In notify-connection - Token erstellen
-function createUnsubscribeToken(userId: string, secret: string): string {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(userId);
-  const key = encoder.encode(secret);
-  // HMAC-SHA256 für Signatur
-  const signature = await crypto.subtle.sign("HMAC", key, data);
-  return btoa(userId + ":" + arrayBufferToHex(signature));
-}
-```
+Vollständiger E-Mail-Abmelde-Flow mit One-Click-Unsubscribe für Gmail/Outlook und manuellem Footer-Link als Fallback. Die Datenbank-Spalte `email_notifications_enabled` ist bereits vorhanden.
 
 ---
 
 ## Betroffene Dateien
 
-| Datei | Änderung |
-|-------|----------|
-| Migration | `email_notifications_enabled` Spalte |
-| `supabase/functions/unsubscribe-email/index.ts` | Neue Edge Function |
-| `supabase/functions/notify-connection/index.ts` | Token generieren + Footer + Prüfung |
-| `src/pages/Unsubscribe.tsx` | Neue Seite für Bestätigung |
-| `src/App.tsx` | Route `/unsubscribe` hinzufügen |
-| `src/pages/Settings.tsx` | Status anzeigen + Re-Subscribe |
+| Datei | Aktion |
+|-------|--------|
+| `supabase/functions/notify-connection/index.ts` | Ändern |
+| `supabase/functions/unsubscribe-email/index.ts` | Neu erstellen |
+| `supabase/config.toml` | Ergänzen |
+| `src/pages/Unsubscribe.tsx` | Neu erstellen |
+| `src/pages/Settings.tsx` | Erweitern |
+| `src/App.tsx` | Route hinzufügen |
+| `src/hooks/useOwnProfile.ts` | Feld ergänzen |
 
-## Resultat
+---
 
-- Ein Klick in der E-Mail → Keine E-Mails mehr
-- Sicher durch signierte Tokens
-- Re-Subscribe in den Settings möglich
-- Keine Login-Pflicht für Abmeldung
+## Technische Umsetzung
+
+### 1. Edge Function: notify-connection erweitern
+
+**Änderungen in `supabase/functions/notify-connection/index.ts`:**
+
+**a) emailWrapper anpassen** - Unsubscribe-Link im Footer + recipientEmail als Parameter:
+```typescript
+const emailWrapper = (content: string, recipientEmail: string) => `
+  ...
+  <!-- Vor dem Copyright-Footer -->
+  <tr>
+    <td align="center" style="padding-top: 24px;">
+      <a href="https://lomaria.at/unsubscribe?email=${encodeURIComponent(recipientEmail)}" 
+         style="font-size: 11px; color: ${BRAND_COLORS.textMuted}; text-decoration: underline;">
+        E-Mail-Benachrichtigungen abbestellen
+      </a>
+    </td>
+  </tr>
+  ...
+`;
+```
+
+**b) Recipient-Query erweitern** (Zeile 114-118):
+```typescript
+const { data: recipient, error: recipientError } = await supabase
+  .from("users")
+  .select("first_name, last_name, email, email_notifications_enabled")
+  .eq("id", toUserId)
+  .single();
+```
+
+**c) Early Return** wenn E-Mails deaktiviert (nach Zeile 128):
+```typescript
+if (recipient.email_notifications_enabled === false) {
+  console.log(`Email notifications disabled for user ${toUserId}, skipping`);
+  return new Response(
+    JSON.stringify({ success: true, skipped: true, reason: "notifications_disabled" }),
+    { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+  );
+}
+```
+
+**d) List-Unsubscribe Headers** bei Resend hinzufügen (Zeile 204-209):
+```typescript
+const { error } = await resend.emails.send({
+  from: "Lomaria <hi@hi.lomaria.at>",
+  to: [recipientEmail],
+  subject,
+  html: htmlContent,
+  headers: {
+    "List-Unsubscribe": `<https://lomaria.at/unsubscribe?email=${encodeURIComponent(recipientEmail)}>`,
+    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+  },
+});
+```
+
+**e) emailWrapper-Aufrufe anpassen** - recipientEmail übergeben:
+```typescript
+htmlContent = emailWrapper(`...`, recipientEmail);
+```
+
+---
+
+### 2. Neue Edge Function: unsubscribe-email
+
+**Neue Datei:** `supabase/functions/unsubscribe-email/index.ts`
+
+- Unterstützt GET (Footer-Link) und POST (Gmail One-Click)
+- POST: `application/x-www-form-urlencoded` für Gmail, optional JSON
+- Liest `email` aus URL-Parameter oder Body
+- Setzt `email_notifications_enabled = false`
+- Gibt `{ success: true }` zurück
+- Robustes Error-Handling
+
+---
+
+### 3. Konfiguration
+
+**Datei:** `supabase/config.toml`
+
+```toml
+[functions.unsubscribe-email]
+verify_jwt = false
+```
+
+---
+
+### 4. Frontend: Unsubscribe-Seite
+
+**Neue Datei:** `src/pages/Unsubscribe.tsx`
+
+- Liest `email` aus URL-Parameter
+- Ruft Edge Function beim Laden auf
+- States: Loading → Erfolg → Fehler
+- Lomaria-Design mit Gold-Akzenten
+- Text: "Du erhältst keine E-Mails mehr von Lomaria."
+- Link zu Login/Settings für Re-Subscribe
+
+---
+
+### 5. Route registrieren
+
+**Datei:** `src/App.tsx`
+
+Neue öffentliche Route:
+```tsx
+import Unsubscribe from "./pages/Unsubscribe";
+
+// Bei den Public Routes (nach Zeile 56):
+<Route path="/unsubscribe" element={<Unsubscribe />} />
+```
+
+---
+
+### 6. Settings: E-Mail-Toggle
+
+**Datei:** `src/pages/Settings.tsx`
+
+Neuer Toggle zwischen "Angemeldet als" und "Passwort ändern":
+
+- Aktuellen Status via `useOwnProfile` laden
+- Switch-Komponente für Toggle
+- Direktes Update via `supabase.from("users").update()`
+- Toast-Feedback bei Änderung
+- Label: "E-Mail-Benachrichtigungen" mit Beschreibung
+
+---
+
+### 7. Hook erweitern
+
+**Datei:** `src/hooks/useOwnProfile.ts`
+
+```typescript
+export interface OwnProfileData {
+  // ... bestehende Felder
+  email_notifications_enabled: boolean;
+}
+```
+
+Da bereits `select("*")` verwendet wird, muss nur das Interface angepasst werden.
+
+---
+
+## Ablauf
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  E-Mail mit List-Unsubscribe Header versenden               │
+└─────────────────┬───────────────────────────────────────────┘
+                  │
+     ┌────────────┴────────────┐
+     ▼                         ▼
+┌──────────────┐        ┌──────────────────┐
+│ Gmail/Outlook│        │ Footer-Link      │
+│ "Abmelden"   │        │ klicken          │
+└──────┬───────┘        └────────┬─────────┘
+       │                         │
+       ▼                         ▼
+┌──────────────────────────────────────────┐
+│ POST/GET /unsubscribe-email?email=...    │
+└──────────────────┬───────────────────────┘
+                   ▼
+┌──────────────────────────────────────────┐
+│ users.email_notifications_enabled=false  │
+└──────────────────┬───────────────────────┘
+                   ▼
+┌──────────────────────────────────────────┐
+│ /unsubscribe Seite zeigt Bestätigung     │
+└──────────────────────────────────────────┘
+```
+
+---
+
+## Ergebnis
+
+- One-Click-Unsubscribe in Gmail/Outlook
+- Footer-Link als Fallback
+- Keine E-Mails mehr nach Abmeldung
+- Re-Subscribe jederzeit in Settings
+- DSGVO-konform (keine Login-Pflicht)
+- Produktionsreif
 
