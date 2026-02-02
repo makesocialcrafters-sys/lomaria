@@ -10,6 +10,7 @@ import { GoldLoader } from "@/components/ui/gold-loader";
 import { useChatData, Message, ChatData } from "@/hooks/useChatData";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
+import { IcebreakerStarters } from "@/components/chat/IcebreakerStarters";
 
 
 const INTENT_LABELS: Record<string, string> = {
@@ -160,13 +161,13 @@ export default function ChatDetail() {
     }
   }, [setTyping]);
 
-  const handleSend = async () => {
-    if (!newMessage.trim() || !chatData?.currentUserId || !connectionId) return;
+  const sendMessage = async (messageText: string) => {
+    if (!messageText.trim() || !chatData?.currentUserId || !connectionId) return;
     
     setSending(true);
     setTyping(false);
     
-    const messageText = newMessage.trim();
+    const trimmedText = messageText.trim();
     setNewMessage("");
 
     // Create temp message for optimistic update
@@ -174,7 +175,7 @@ export default function ChatDetail() {
     const tempMessage: Message = {
       id: tempId,
       sender_id: chatData.currentUserId,
-      text: messageText,
+      text: trimmedText,
       created_at: new Date().toISOString(),
       read_at: null,
     };
@@ -188,7 +189,7 @@ export default function ChatDetail() {
         .insert({
           connection_id: connectionId,
           sender_id: chatData.currentUserId,
-          text: messageText,
+          text: trimmedText,
         })
         .select("id, sender_id, text, created_at, read_at")
         .single();
@@ -196,13 +197,13 @@ export default function ChatDetail() {
       if (error) {
         console.error("Error sending message:", error);
         removeMessage(tempId);
-        setNewMessage(messageText);
-        } else if (data) {
-          replaceMessage(tempId, data);
-          // Invalidate chats preview to update last message
-          if (user) {
-            queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
-          }
+        setNewMessage(trimmedText);
+      } else if (data) {
+        replaceMessage(tempId, data);
+        // Invalidate chats preview to update last message
+        if (user) {
+          queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
+        }
         
         // Send email notification (fire and forget - don't block on this)
         // Only notify if recipient is offline (checked in edge function)
@@ -213,7 +214,7 @@ export default function ChatDetail() {
               connectionId,
               fromUserId: chatData.currentUserId,
               toUserId: otherUser.id,
-              message: messageText,
+              message: trimmedText,
             },
           }).catch((err) => {
             console.error("Error sending email notification:", err);
@@ -223,10 +224,18 @@ export default function ChatDetail() {
     } catch (err) {
       console.error("Error:", err);
       removeMessage(tempId);
-      setNewMessage(messageText);
+      setNewMessage(trimmedText);
     } finally {
       setSending(false);
     }
+  };
+
+  const handleSend = () => {
+    sendMessage(newMessage);
+  };
+
+  const handleIcebreakerSelect = (message: string) => {
+    sendMessage(message);
   };
 
 
@@ -367,6 +376,14 @@ export default function ChatDetail() {
 
       {/* Input area */}
       <div className="sticky bottom-0 bg-background border-t border-primary/20">
+        {/* Icebreaker Starters - nur bei leerem Chat */}
+        {messages.length === 0 && (
+          <IcebreakerStarters 
+            onSelect={handleIcebreakerSelect}
+            disabled={sending}
+          />
+        )}
+        
         <div className="flex gap-2 p-4">
           <Input
             value={newMessage}
