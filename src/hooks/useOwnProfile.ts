@@ -18,6 +18,7 @@ export interface OwnProfileData {
   tutoring_price: number | null;
   bio: string | null;
   intent_details: Record<string, Record<string, string | string[]>> | null;
+  email_notifications_enabled: boolean;
 }
 
 export function useOwnProfile() {
@@ -42,6 +43,7 @@ export function useOwnProfile() {
       return {
         ...data,
         intent_details: (data.intent_details as Record<string, Record<string, string | string[]>>) ?? null,
+        email_notifications_enabled: data.email_notifications_enabled ?? true,
       };
     },
     enabled: !!user,

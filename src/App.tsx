@@ -22,6 +22,7 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Legal from "./pages/Legal";
 import About from "./pages/About";
+import Unsubscribe from "./pages/Unsubscribe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/unsubscribe" element={<Unsubscribe />} />
                 <Route path="/login" element={<Navigate to="/auth" replace />} />
                 
                 {/* Onboarding - protected but doesn't require completed onboarding */}
