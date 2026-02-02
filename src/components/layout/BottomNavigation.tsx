@@ -1,13 +1,15 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { User, Users, MessageCircle, UserCircle } from "lucide-react";
+import { User, Users, MessageCircle, UserCircle, Lock } from "lucide-react";
 import { useNotificationCounts } from "@/hooks/useNotificationCounts";
+import { toast } from "@/hooks/use-toast";
 
 const navItems = [
   { to: "/discover", icon: User, label: "Entdecken" },
   { to: "/contacts", icon: Users, label: "Kontakte" },
   { to: "/chats", icon: MessageCircle, label: "Chats" },
-  { to: "/profile", icon: UserCircle, label: "Profil" },
 ];
+
+const profileTab = { to: "/profile", icon: UserCircle, label: "Profil" };
 
 export function BottomNavigation() {
   const location = useLocation();
@@ -39,7 +41,7 @@ export function BottomNavigation() {
             to={to}
             aria-current={isActive(to) ? "page" : undefined}
             className={() =>
-              `flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[48px] px-4 py-2 transition-all duration-500 ease-out ${
+              `flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] px-2 py-2 transition-all duration-500 ease-out ${
                 isActive(to) 
                   ? "text-primary border-t-2 border-primary -mt-0.5" 
                   : "text-foreground/60 hover:text-foreground"
@@ -60,6 +62,39 @@ export function BottomNavigation() {
             </span>
           </NavLink>
         ))}
+        
+        {/* Opportunity Tab - Coming Soon */}
+        <button
+          type="button"
+          onClick={() => toast({
+            title: "Bald verfügbar",
+            description: "Opportunity kommt bald! Bleib dran.",
+          })}
+          className="flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] px-2 py-2 text-foreground/40 transition-all duration-500 ease-out hover:text-foreground/60"
+        >
+          <Lock className="w-5 h-5" strokeWidth={1.5} aria-hidden="true" />
+          <span className="font-display text-[10px] tracking-[0.15em] uppercase">
+            Opportunity
+          </span>
+        </button>
+        
+        {/* Profile Tab */}
+        <NavLink
+          to={profileTab.to}
+          aria-current={isActive(profileTab.to) ? "page" : undefined}
+          className={() =>
+            `flex flex-col items-center justify-center gap-1 min-w-[56px] min-h-[48px] px-2 py-2 transition-all duration-500 ease-out ${
+              isActive(profileTab.to) 
+                ? "text-primary border-t-2 border-primary -mt-0.5" 
+                : "text-foreground/60 hover:text-foreground"
+            }`
+          }
+        >
+          <profileTab.icon className="w-5 h-5" strokeWidth={1.5} aria-hidden="true" />
+          <span className="font-display text-[10px] tracking-[0.15em] uppercase">
+            {profileTab.label}
+          </span>
+        </NavLink>
       </div>
     </nav>
   );
