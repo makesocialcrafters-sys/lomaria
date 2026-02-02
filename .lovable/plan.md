@@ -1,59 +1,68 @@
 
-# Plan: "Coming Soon" Button für Lerngruppen
+
+# Plan: "Opportunity" Tab in Bottom Navigation
 
 ## Übersicht
-Ein neuer "Coming Soon"-Button wird zur Discover-Seite hinzugefügt, der Studierende auf ein bevorstehendes Lerngruppen-Feature hinweist. Der Button folgt dem Wes Anderson Design-System.
+Ein neuer "Opportunity" Tab wird zur Bottom Navigation hinzugefügt – mit Lock-Icon und Coming-Soon-Funktionalität. Der bestehende Lerngruppen-Button auf der Discover-Seite bleibt unverändert.
 
 ---
 
 ## Was wird implementiert
 
 ### Visuelles Design
-- Outline-Button-Stil (Border statt Füllung)
-- Text: "LERNGRUPPEN" mit "COMING SOON"-Badge
-- Gold-Akzentfarbe für Rahmen
-- Deaktivierter Zustand (nicht klickbar)
-- Platzierung: Unterhalb der Filter, oberhalb der Profilkarten
+- Neuer 5. Tab zwischen "Chats" und "Profil"
+- Icon: `Lock` (Schloss-Symbol)
+- Label: "OPPORTUNITY"
+- Leicht gedimmte Darstellung (`text-foreground/40`)
+- Kein aktiver Zustand möglich (keine Navigation)
 
 ### User Experience
-- Button zeigt klar, dass das Feature noch kommt
-- Optional: Toast-Nachricht bei Klick mit Info "Bald verfügbar"
-- Passt zum cinematischen, eleganten Design der App
+- Bei Klick: Toast-Nachricht "Bald verfügbar"
+- Visuell unterscheidbar von aktiven Tabs durch gedimmte Farbe
+- Touch-Target bleibt ausreichend groß (5 Tabs passen gut auf Mobile)
 
 ---
 
-## Technische Details
+## Technische Änderungen
 
-### Datei-Änderungen
+### `src/components/layout/BottomNavigation.tsx`
 
-**1. `src/pages/Discover.tsx`**
-- Neuer Abschnitt zwischen Filters und Profile Cards
-- Coming Soon Button mit Icon (Users oder BookOpen)
-- Optional: Toast bei Klick
+**Imports hinzufügen:**
+- `Lock` Icon aus lucide-react
+- `toast` aus `@/hooks/use-toast`
+
+**Neuer Tab:**
+- Button (kein NavLink) nach den regulären Tabs
+- Zwischen "Chats" und "Profil" platziert
+- onClick löst Toast aus
 
 ### Code-Struktur
+
 ```text
-<Filter Section />
-    ↓
-<Coming Soon Section>  ← NEU
-  - Icon + "Lerngruppen" Text
-  - "Coming Soon" Badge
-</Coming Soon Section>
-    ↓
-<Profile Cards />
+Navigation Reihenfolge:
+Entdecken | Kontakte | Chats | Opportunity | Profil
+   User      Users    Message    Lock 🔒    UserCircle
+
+navItems Array (unverändert):
+  - Entdecken, Kontakte, Chats
+
+Separater Opportunity Tab (NEU):
+  - Button mit onClick → toast()
+  - Lock Icon
+  - Gedimmtes Styling (text-foreground/40)
+
+Profil Tab:
+  - Wird nach dem Opportunity Tab gerendert
 ```
 
-### Styling
-- Verwendet bestehende Button-Komponente mit `variant="outline"`
-- Badge als kleines Pill-Element
-- Cinematic Animation beim Laden
+### Implementierung
+- navItems Array wird aufgeteilt: erste 3 Tabs vor Opportunity, Profil danach
+- Oder: Spezieller Marker im Array für "coming soon" Tabs
+- Einfachste Lösung: Profil aus Array entfernen, manuell nach Opportunity rendern
 
 ---
 
-## Alternative Platzierungen (zur Diskussion)
+## Bestehender Code bleibt
 
-1. **Bottom Navigation**: Neuer Tab mit Lock-Icon
-2. **Profile-Seite**: Als Banner/Karte
-3. **Eigene Coming-Soon-Seite**: `/lerngruppen` Route
+Der Lerngruppen-Button auf der Discover-Seite (Zeilen 224-243) bleibt wie er ist.
 
-Die Discover-Seite als Platzierung macht Sinn, da dort Studierende aktiv nach Verbindungen suchen.
