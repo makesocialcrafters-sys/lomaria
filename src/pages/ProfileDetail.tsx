@@ -11,7 +11,6 @@ import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
 import { useBlockedUserIds } from "@/hooks/useBlockedUserIds";
 import { 
   STUDY_PROGRAMS, 
-  STUDY_PHASES, 
   INTENTS, 
   INTERESTS,
   INTENT_DETAIL_OPTIONS,
@@ -129,7 +128,7 @@ export default function ProfileDetail() {
   const age = profile?.age ?? null;
 
   const studyProgramLabel = STUDY_PROGRAMS.find((p) => p.value === profile?.study_program)?.label;
-  const studyPhaseLabel = STUDY_PHASES.find((p) => p.value === profile?.study_phase)?.label;
+  
 
   const intentLabels = profile?.intents?.map((i) => INTENTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
   const interestLabels = profile?.interests?.map((i) => INTERESTS.find((int) => int.value === i)?.label).filter(Boolean) || [];
@@ -301,10 +300,9 @@ export default function ProfileDetail() {
 
         <div className="divider-subtle mb-6" />
 
-        <div className="text-center mb-6">
-          <p className="text-foreground">{studyProgramLabel}</p>
-          {studyPhaseLabel && <p className="text-sm text-muted-foreground">{studyPhaseLabel}</p>}
-        </div>
+        {studyProgramLabel && (
+          <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
+        )}
 
         {profile.intents && profile.intents.length > 0 && (
           <div className="mb-6">

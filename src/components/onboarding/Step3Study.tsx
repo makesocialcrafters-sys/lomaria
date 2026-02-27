@@ -42,10 +42,10 @@ export function Step3Study({ studyProgram, studyPhase, focus, onUpdate, onNext, 
 
       <div className="space-y-6">
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Studienrichtung</label>
+          <label className="text-sm text-muted-foreground mb-2 block">Hochschule & Studienrichtung</label>
           <Select value={studyProgram ?? ""} onValueChange={(v) => onUpdate({ study_program: v })}>
             <SelectTrigger className="input-elegant border-0 border-b border-primary/50 rounded-none focus:border-primary">
-              <SelectValue placeholder="Auswählen" />
+              <SelectValue placeholder="z.B. TU Wien – Informatik" />
             </SelectTrigger>
             <SelectContent>
               {STUDY_PROGRAMS.map((p) => (

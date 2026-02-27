@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Settings, Pencil } from "lucide-react";
 import { 
   STUDY_PROGRAMS, 
-  STUDY_PHASES, 
   GENDERS, 
   INTENTS, 
   INTERESTS,
@@ -143,7 +142,7 @@ export default function Profile() {
   }
   const genderLabel = GENDERS.find(g => g.value === userData?.gender)?.label;
   const studyProgramLabel = STUDY_PROGRAMS.find(p => p.value === userData?.study_program)?.label;
-  const studyPhaseLabel = STUDY_PHASES.find(s => s.value === userData?.study_phase)?.label;
+  
   const intentLabels = (userData?.intents || []).map(i => INTENTS.find(intent => intent.value === i)?.label).filter(Boolean);
   const interestLabels = (userData?.interests || []).map(i => INTERESTS.find(interest => interest.value === i)?.label).filter(Boolean);
   return <div className="px-6 py-8 animate-cinematic-enter">
@@ -186,13 +185,9 @@ export default function Profile() {
         </div>
 
         {/* Study Info */}
-        <div className="text-center mb-6">
-          <p className="text-foreground">{studyProgramLabel}</p>
-          <p className="text-muted-foreground">
-            {studyPhaseLabel}
-            {userData?.focus && ` · ${userData.focus}`}
-          </p>
-        </div>
+        {studyProgramLabel && (
+          <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
+        )}
 
         {/* Intents with Details */}
         {userData?.intents && userData.intents.length > 0 && <div className="mb-6">
