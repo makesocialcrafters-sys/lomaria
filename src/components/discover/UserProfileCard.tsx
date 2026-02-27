@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { STUDY_PROGRAMS, STUDY_PHASES, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { STUDY_PROGRAMS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import type { UserProfile } from "@/hooks/useDiscoverProfiles";
 
 interface UserProfileCardProps {
@@ -21,7 +21,7 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
   const age = user.age ?? null;
 
   const studyProgramLabel = STUDY_PROGRAMS.find((p) => p.value === user.study_program)?.label;
-  const studyPhaseLabel = STUDY_PHASES.find((p) => p.value === user.study_phase)?.label;
+  
 
   const firstIntent = user.intents?.[0];
   const intentLabel = INTENTS.find((i) => i.value === firstIntent)?.label;
@@ -58,10 +58,11 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
             {age && <span className="text-sm text-muted-foreground/70">· {age}</span>}
           </div>
 
-          <p className="text-sm text-muted-foreground truncate mt-1.5">
-            {studyProgramLabel}
-            {studyPhaseLabel && ` · ${studyPhaseLabel}`}
-          </p>
+          {studyProgramLabel && (
+            <p className="text-sm text-muted-foreground truncate mt-1.5">
+              {studyProgramLabel}
+            </p>
+          )}
 
           {interestLabels.length > 0 && (
             <div className="flex flex-wrap gap-2.5 mt-4">
