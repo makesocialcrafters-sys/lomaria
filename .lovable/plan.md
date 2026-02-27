@@ -1,55 +1,32 @@
 
 
-# Plan: Opportunity-Tab zwischen "Kontakte" und "Chats" verschieben
+# Plan: Study-Phase aus Profil-Header entfernen + Onboarding-Label anpassen
 
-## Übersicht
-Der "Opportunity"-Tab wird von seiner aktuellen Position (zwischen Chats und Profil) an die neue Position zwischen "Kontakte" und "Chats" verschoben.
+## 3 kleine Änderungen, keine DB/Logik-Änderungen
 
----
+### 1. `src/pages/Profile.tsx`
+- **Zeile 9**: `STUDY_PHASES` aus Import entfernen
+- **Zeile 20**: `StudyPhase` aus Type-Import entfernen
+- **Zeile 146**: `studyPhaseLabel`-Variable entfernen
+- **Zeilen 188–195**: Study-Info-Block ersetzen durch:
+  ```tsx
+  {studyProgramLabel && (
+    <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
+  )}
+  ```
+  Keine zweite Zeile, kein Focus, kein Phase.
 
-## Aktuelle Reihenfolge
-```text
-Entdecken | Kontakte | Chats | Opportunity | Profil
-```
+### 2. `src/pages/ProfileDetail.tsx`
+- **Zeile 14**: `STUDY_PHASES` aus Import entfernen
+- **Zeile 132**: `studyPhaseLabel`-Variable entfernen
+- **Zeilen 304–307**: Study-Block ersetzen durch:
+  ```tsx
+  {studyProgramLabel && (
+    <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
+  )}
+  ```
 
-## Neue Reihenfolge
-```text
-Entdecken | Kontakte | Opportunity | Chats | Profil
-```
-
----
-
-## Technische Änderung
-
-### `src/components/layout/BottomNavigation.tsx`
-
-**Anpassung der navItems-Struktur:**
-- Das Array `navItems` wird aufgeteilt in zwei Teile:
-  1. Erste Gruppe: Entdecken, Kontakte
-  2. Zweite Gruppe: Chats
-- Der Opportunity-Button wird zwischen diesen beiden Gruppen gerendert
-- Profil-Tab bleibt am Ende
-
-**Neue Render-Reihenfolge:**
-1. Map über erste Gruppe (Entdecken, Kontakte)
-2. Opportunity-Button (Coming Soon)
-3. Map über zweite Gruppe (Chats)
-4. Profil-Tab
-
----
-
-## Code-Änderungen
-
-```text
-const navItemsBeforeOpportunity = [
-  { to: "/discover", icon: User, label: "Entdecken" },
-  { to: "/contacts", icon: Users, label: "Kontakte" },
-];
-
-const navItemsAfterOpportunity = [
-  { to: "/chats", icon: MessageCircle, label: "Chats" },
-];
-```
-
-Die Render-Logik wird entsprechend angepasst, um die Tabs in der gewünschten Reihenfolge darzustellen.
+### 3. `src/components/onboarding/Step3Study.tsx`
+- **Zeile 46**: Label "Studienrichtung" → "Hochschule & Studienrichtung"
+- **Zeile 49**: Placeholder "Auswählen" → "z.B. TU Wien – Informatik"
 
