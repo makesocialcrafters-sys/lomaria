@@ -1,0 +1,2 @@
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_study_program_check;
+ALTER TABLE public.users ADD CONSTRAINT users_study_program_check CHECK (study_program IN ('uni_wien','meduni_wien','tu_wien','wu_wien','boku_wien','vetmeduni_wien','angewandte_wien','mdw_wien','muk_wien','sfu_wien','webster_wien','modul_wien','ceu_wien','jam_wien','fh_technikum','fh_wien','sonstige'));
