@@ -13,13 +13,13 @@ const Index = () => {
   return <main className="min-h-screen bg-background">
       <PublicHeader />
       <Helmet>
-        <title>Lomaria – Das Netzwerk für Wiener Studierende</title>
-        <meta name="description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv für Studierende in Wien." />
-        <meta name="keywords" content="Wien Studenten, Uni Wien, TU Wien, WU Wien, BOKU, Networking, Co-Founder finden, Lerngruppe, Studierende Wien" />
+        <title>Lomaria – Das Netzwerk für Studierende</title>
+        <meta name="description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv für Studierende." />
+        <meta name="keywords" content="Studenten, Networking, Co-Founder finden, Lerngruppe, Studierende, Universität" />
       </Helmet>
       
       {/* Visually hidden h1 for screen readers */}
-      <h1 className="sr-only">Lomaria – Networking-Plattform für Wiener Studierende</h1>
+      <h1 className="sr-only">Lomaria – Networking-Plattform für Studierende</h1>
       
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 relative">
@@ -33,7 +33,7 @@ const Index = () => {
         
         {/* Subline */}
         <p className="font-display text-base md:text-lg text-foreground/60 tracking-[0.08em] mb-3 animate-cinematic-stagger-3 text-center">
-          Das exklusive Netzwerk für Wiener Studierende.
+          Das exklusive Netzwerk für Studierende.
         </p>
         
         {/* Secondary line */}
@@ -86,7 +86,7 @@ const Index = () => {
                 Co-Founding & Business
               </h4>
               <p className="font-display text-sm text-foreground/50 leading-relaxed">
-                Du suchst einen Co-Founder oder Partner für ein Projekt? Finde Macher aus allen Wiener Unis.
+                Du suchst einen Co-Founder oder Partner für ein Projekt? Finde Macher aus allen Unis.
               </p>
             </div>
             
@@ -110,7 +110,7 @@ const Index = () => {
           <div className="w-16 h-px bg-primary/40 mx-auto mb-12" role="presentation" aria-hidden="true" />
           
           <h3 className="font-display text-xl md:text-2xl text-primary tracking-[0.1em] mb-6">
-            100% Verified. 100% Wien.
+            100% Verified. 100% Student.
           </h3>
           
           <p className="font-display text-sm text-foreground/50 leading-relaxed">
@@ -136,7 +136,7 @@ const Index = () => {
                 Was ist Lomaria genau?
               </AccordionTrigger>
               <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
-                Lomaria ist eine Plattform, die Studierende in Wien vernetzt – ob für gemeinsame Projekte, Lerngruppen, Co-Founder-Suche oder einfach neue Freundschaften. Nur verifizierte Studierende haben Zugang.
+                Lomaria ist eine Plattform, die Studierende vernetzt – ob für gemeinsame Projekte, Lerngruppen, Co-Founder-Suche oder einfach neue Freundschaften. Nur verifizierte Studierende haben Zugang.
               </AccordionContent>
             </AccordionItem>
 
@@ -154,7 +154,7 @@ const Index = () => {
                 Welche Unis werden unterstützt?
               </AccordionTrigger>
               <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
-                Alle größeren Universitäten und Hochschulen in Wien – Uni Wien, TU Wien, WU Wien, BOKU, Angewandte, MedUni, Vetmed, FH Campus Wien, FH Technikum und viele mehr.
+                Alle Universitäten und Hochschulen sind willkommen – egal ob Uni Wien, TU, WU, BOKU, FHs oder andere Hochschulen im deutschsprachigen Raum.
               </AccordionContent>
             </AccordionItem>
             
@@ -163,7 +163,7 @@ const Index = () => {
                 Ist Lomaria kostenlos?
               </AccordionTrigger>
               <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
-                Ja, komplett kostenlos für alle Studierenden in Wien. Keine versteckten Kosten, kein Premium-Modell.
+                Ja, komplett kostenlos für alle Studierenden. Keine versteckten Kosten, kein Premium-Modell.
               </AccordionContent>
             </AccordionItem>
 
