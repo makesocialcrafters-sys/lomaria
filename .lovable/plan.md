@@ -1,32 +1,54 @@
 
 
-# Plan: Study-Phase aus Profil-Header entfernen + Onboarding-Label anpassen
+# Plan: Onboarding Step3 – "Hochschule" + "Studienrichtung"
 
-## 3 kleine Änderungen, keine DB/Logik-Änderungen
+## Was sich ändert
 
-### 1. `src/pages/Profile.tsx`
-- **Zeile 9**: `STUDY_PHASES` aus Import entfernen
-- **Zeile 20**: `StudyPhase` aus Type-Import entfernen
-- **Zeile 146**: `studyPhaseLabel`-Variable entfernen
-- **Zeilen 188–195**: Study-Info-Block ersetzen durch:
-  ```tsx
-  {studyProgramLabel && (
-    <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
-  )}
-  ```
-  Keine zweite Zeile, kein Focus, kein Phase.
+### 1. `STUDY_PROGRAMS` → Universitäten-Liste
 
-### 2. `src/pages/ProfileDetail.tsx`
-- **Zeile 14**: `STUDY_PHASES` aus Import entfernen
-- **Zeile 132**: `studyPhaseLabel`-Variable entfernen
-- **Zeilen 304–307**: Study-Block ersetzen durch:
-  ```tsx
-  {studyProgramLabel && (
-    <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
-  )}
-  ```
+In **beiden** Constants-Dateien (`src/lib/constants.ts` und `src/lib/onboarding-constants.ts`) wird `STUDY_PROGRAMS` durch die vollständige Universitäten-Liste ersetzt:
 
-### 3. `src/components/onboarding/Step3Study.tsx`
-- **Zeile 46**: Label "Studienrichtung" → "Hochschule & Studienrichtung"
-- **Zeile 49**: Placeholder "Auswählen" → "z.B. TU Wien – Informatik"
+```
+Universität Wien
+Medizinische Universität Wien
+TU Wien
+WU Wien
+BOKU Wien
+Vetmeduni Wien
+Universität für angewandte Kunst Wien
+Universität für Musik und darstellende Kunst Wien
+Music and Arts University of the City of Vienna
+Sigmund Freud University Wien
+Webster University Vienna
+MODUL University Vienna
+CEU Wien
+Jam Music Lab
+Sonstige
+```
+
+### 2. Labels in Step3Study.tsx
+
+- Erstes Dropdown: **"Hochschule"** (statt "Hochschule & Studienrichtung")
+- Placeholder: **"Auswählen"**
+- Zweites Dropdown: **"Studienrichtung"** (statt "Studienphase")
+- Zweites Feld wird zu einem **freien Textfeld** (Input statt Select), da jede Uni andere Studienrichtungen hat
+- Placeholder: **"z.B. Informatik, BWL, Jus..."**
+
+### 3. Labels in EditProfileForm.tsx
+
+- `study_program`-Label: **"Hochschule"** (statt "Studiengang")
+- `study_phase`-Label: **"Studienrichtung"** (statt "Studienphase")
+- `study_phase`-Feld wird ebenfalls zu freiem Textfeld
+
+### 4. Schwerpunkt-Logik
+
+Da `study_phase` kein Select mehr ist, entfällt die Bedingung `studyPhase === "cbk_hauptstudium"` für den Schwerpunkt. Das Schwerpunkt-Feld wird entfernt (es ist ohnehin optional und im Profil nicht mehr sichtbar).
+
+### 5. Profil-Anzeige
+
+`studyProgramLabel` in Profile.tsx, ProfileDetail.tsx und UserProfileCard.tsx zeigt jetzt den **Universitätsnamen** an – das ist korrekt, da die Studienrichtung im Profil-Header nicht mehr angezeigt wird (bereits entfernt).
+
+---
+
+**Wichtiger Hinweis**: Bestehende User haben aktuell Werte wie "WiSo", "WiRe", "BBE" in `study_program` gespeichert. Diese werden nach der Änderung nicht mehr in der Dropdown-Liste gefunden und im Profil als leer angezeigt, bis der User sein Profil aktualisiert. Es findet **keine DB-Migration** statt – nur die UI-Optionen ändern sich.
 
