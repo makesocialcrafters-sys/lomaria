@@ -40,7 +40,7 @@ export function useIncomingRequests() {
 
       const senderIds = pendingData.map((r) => r.from_user);
       const { data: senderProfiles } = await supabase
-        .from("users")
+        .from("user_profiles")
         .select("id, first_name, profile_image, study_program, study_phase")
         .in("id", senderIds);
 

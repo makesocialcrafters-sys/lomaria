@@ -47,7 +47,7 @@ export function useAcceptedConnections() {
 
       // Get user profiles
       const { data: userProfiles } = await supabase
-        .from("users")
+        .from("user_profiles")
         .select("id, first_name, profile_image, study_program, study_phase")
         .in("id", otherUserIds);
 
