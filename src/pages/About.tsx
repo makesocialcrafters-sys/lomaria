@@ -49,7 +49,7 @@ const About = () => {
                 Exklusivität
               </h3>
               <p className="font-display text-sm text-foreground/50 leading-relaxed">
-                Nur wer eine aktive Uni-E-Mail hat, kommt rein. Wir bleiben unter Studierenden.
+                Nur verifizierte Studierende kommen rein. Wir bleiben unter echten Menschen.
               </p>
             </div>
             
