@@ -1,0 +1,1 @@
+ALTER TABLE public.users DROP CONSTRAINT users_study_phase_check;
