@@ -1,16 +1,16 @@
 
 
-## Studienrichtung unter der Uni anzeigen
+## Icebreaker Opener ändern
 
-Aktuell wird nur die Hochschule (`study_program`) angezeigt, aber die Studienrichtung (`study_phase`) fehlt. Die Änderung betrifft drei Stellen:
+Die aktuellen Texte werden durch lockere, kurze Opener ersetzt:
 
-### Änderungen
+**Aktuelle Texte → Neue Texte:**
 
-1. **ProfileDetail.tsx** (Zeile 303-305): Unter `studyProgramLabel` auch `profile.study_phase` anzeigen.
+| Label | Alt | Neu |
+|-------|-----|-----|
+| **Sag Hey** | "Zwischen LVs wenig Zeit, lass uns kurz schreiben." | "Hey! Was studierst du so?" |
+| **Gemeinsam** | "Ähnliche Ziele, lass kurz schauen, ob das passt." | "Wir haben einiges gemeinsam – erzähl mal!" |
+| **Kennenlernen** | "Gleicher Campus, gleiche Routine, lass uns das kurz ändern." | "Ich bin neugierig – was machst du neben dem Studium?" |
 
-2. **Profile.tsx** (Zeile 188-190): Unter `studyProgramLabel` auch `userData.study_phase` anzeigen.
-
-3. **UserProfileCard.tsx** (Zeile 60-64): Unter dem Studiengang-Label auch `user.study_phase` als zweite Zeile anzeigen.
-
-Alle drei Stellen folgen dem gleichen Muster: eine zusätzliche Textzeile in `text-sm text-muted-foreground` direkt unter der Uni-Zeile, nur wenn `study_phase` vorhanden ist.
+**Datei:** `src/components/chat/IcebreakerStarters.tsx` – Labels und Messages im `ICEBREAKERS`-Array austauschen.
 
