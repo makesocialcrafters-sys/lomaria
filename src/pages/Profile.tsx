@@ -16,7 +16,7 @@ import { EditProfileForm } from "@/components/settings/EditProfileForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { ProfileFormData } from "@/types/user";
-import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
+import type { Gender, Intent, Interest, StudyProgram } from "@/lib/constants";
 export default function Profile() {
   const {
     signOut,
@@ -106,7 +106,7 @@ export default function Profile() {
       age: userData.age,
       gender: userData.gender as Gender | null,
       study_program: userData.study_program as StudyProgram | null,
-      study_phase: userData.study_phase as StudyPhase | null,
+      study_phase: userData.study_phase ?? null,
       focus: userData.focus ?? "",
       intents: (userData.intents ?? []) as Intent[],
       interests: (userData.interests ?? []) as Interest[],

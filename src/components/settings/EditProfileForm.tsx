@@ -16,11 +16,10 @@ import { IntentListWithDetails } from "./IntentChipWithDetails";
 import {
   GENDERS,
   INTERESTS,
-  STUDY_PHASES,
   STUDY_PROGRAMS,
 } from "@/lib/constants";
 import type { ProfileFormData } from "@/types/user";
-import type { Gender, Intent, Interest, StudyPhase, StudyProgram } from "@/lib/constants";
+import type { Gender, Intent, Interest, StudyProgram } from "@/lib/constants";
 
 interface EditProfileFormProps {
   initialData: ProfileFormData;
@@ -40,7 +39,7 @@ export function EditProfileForm({
   const [formData, setFormData] = useState<ProfileFormData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const showSchwerpunkt = formData.study_phase === "cbk_hauptstudium";
+  
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -91,23 +90,9 @@ export function EditProfileForm({
     e.preventDefault();
     if (!validate()) return;
 
-    // Clear focus if not in CBK/Hauptstudium
-    const dataToSave = {
-      ...formData,
-      focus: showSchwerpunkt ? formData.focus : "",
-    };
-
-    await onSave(dataToSave);
+    await onSave(formData);
   };
 
-  const handleStudyPhaseChange = (value: string) => {
-    // Clear focus when switching to STEOP
-    if (value === "steop") {
-      setFormData((prev) => ({ ...prev, study_phase: value as StudyPhase, focus: "" }));
-    } else {
-      setFormData((prev) => ({ ...prev, study_phase: value as StudyPhase }));
-    }
-  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -189,7 +174,7 @@ export function EditProfileForm({
 
       {/* Study Info */}
       <div className="space-y-2">
-        <Label htmlFor="study_program">Studiengang</Label>
+        <Label htmlFor="study_program">Hochschule</Label>
         <Select
           value={formData.study_program ?? ""}
           onValueChange={(value) =>
@@ -197,7 +182,7 @@ export function EditProfileForm({
           }
         >
           <SelectTrigger>
-            <SelectValue placeholder="Studiengang auswählen" />
+            <SelectValue placeholder="Hochschule auswählen" />
           </SelectTrigger>
           <SelectContent>
             {STUDY_PROGRAMS.map((sp) => (
@@ -209,36 +194,14 @@ export function EditProfileForm({
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="study_phase">Studienphase</Label>
-          <Select
-            value={formData.study_phase ?? ""}
-            onValueChange={handleStudyPhaseChange}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Auswählen" />
-            </SelectTrigger>
-            <SelectContent>
-              {STUDY_PHASES.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {showSchwerpunkt && (
-          <div className="space-y-2">
-            <Label htmlFor="focus">Schwerpunkt (optional)</Label>
-            <Input
-              id="focus"
-              value={formData.focus}
-              onChange={(e) => setFormData((prev) => ({ ...prev, focus: e.target.value }))}
-              placeholder="z.B. Finance"
-            />
-          </div>
-        )}
+      <div className="space-y-2">
+        <Label htmlFor="study_phase">Studienrichtung</Label>
+        <Input
+          id="study_phase"
+          value={formData.study_phase ?? ""}
+          onChange={(e) => setFormData((prev) => ({ ...prev, study_phase: e.target.value }))}
+          placeholder="z.B. Informatik, BWL, Jus..."
+        />
       </div>
 
       {/* Intents */}

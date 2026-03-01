@@ -5,7 +5,7 @@ import { GoldLoader } from "@/components/ui/gold-loader";
 import { IncomingRequestCard } from "@/components/contacts/IncomingRequestCard";
 import { SentRequestCard } from "@/components/contacts/SentRequestCard";
 import { ConnectionCard } from "@/components/contacts/ConnectionCard";
-import { STUDY_PROGRAMS, STUDY_PHASES } from "@/lib/onboarding-constants";
+import { STUDY_PROGRAMS } from "@/lib/onboarding-constants";
 
 export default function Contacts() {
   const { data: incomingRequests = [], isLoading: loadingIncoming } = useIncomingRequests();
@@ -20,8 +20,7 @@ export default function Contacts() {
   };
 
   const getStudyPhaseLabel = (value: string | null) => {
-    if (!value) return null;
-    return STUDY_PHASES.find((p) => p.value === value)?.label || value;
+    return value || null;
   };
 
   if (isLoading) {
