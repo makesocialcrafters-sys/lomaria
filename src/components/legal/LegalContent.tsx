@@ -1,12 +1,14 @@
-export const ImpressumContent = () => (
-  <div className="space-y-8 font-display text-sm leading-relaxed">
+export const ImpressumContent = () =>
+<div className="space-y-8 font-display text-sm leading-relaxed">
     <section>
       <h2 className="text-base font-semibold text-primary tracking-wide mb-4">
         Angaben gemäß § 5 ECG, § 14 UGB und § 63 GewO
       </h2>
       <div className="space-y-3 text-foreground/70">
         <p><span className="text-foreground/90">Betreiber der Plattform:</span><br />Omar AL Azawi</p>
-        <p><span className="text-foreground/90">Adresse:</span><br />Alliiertenstrasse 7/10<br />1020 Wien, Österreich</p>
+        <p><span className="text-foreground/90">Adresse:</span><br />Adresse:
+Forsthausgasse 15/6/9
+1200 Wien, Österreich<br />1020 Wien, Österreich</p>
         <p><span className="text-foreground/90">Kontakt:</span><br />(Kommt bald)</p>
         <p><span className="text-foreground/90">Verantwortlich für den Inhalt:</span><br />Omar AL Azawi</p>
         <p><span className="text-foreground/90">Unternehmensform:</span><br />Einzelunternehmer</p>
@@ -33,11 +35,9 @@ export const ImpressumContent = () => (
         Für deren Inhalte übernehmen wir keine Haftung, da wir auf diese keinen Einfluss haben.
       </p>
     </section>
-  </div>
-);
-
-export const AGBContent = () => (
-  <div className="space-y-8 font-display text-sm leading-relaxed">
+  </div>;
+export const AGBContent = () =>
+<div className="space-y-8 font-display text-sm leading-relaxed">
     <section>
       <h2 className="text-base font-semibold text-primary tracking-wide mb-4">
         1. Geltungsbereich
@@ -159,11 +159,11 @@ export const AGBContent = () => (
         Es gilt österreichisches Recht unter Ausschluss des UN-Kaufrechts.
       </p>
     </section>
-  </div>
-);
+  </div>;
 
-export const DatenschutzContent = () => (
-  <div className="space-y-8 font-display text-sm leading-relaxed">
+
+export const DatenschutzContent = () =>
+<div className="space-y-8 font-display text-sm leading-relaxed">
     <section>
       <h2 className="text-base font-semibold text-primary tracking-wide mb-4">
         1. Allgemeines
@@ -265,11 +265,11 @@ export const DatenschutzContent = () => (
         <p className="pt-3">Kontakt: contact@lomaria.at</p>
       </div>
     </section>
-  </div>
-);
+  </div>;
 
-export const CookiesContent = () => (
-  <div className="space-y-8 font-display text-sm leading-relaxed">
+
+export const CookiesContent = () =>
+<div className="space-y-8 font-display text-sm leading-relaxed">
     <section>
       <h2 className="text-base font-semibold text-primary tracking-wide mb-4">
         1. Cookies
@@ -326,5 +326,4 @@ export const CookiesContent = () => (
         Diese Cookie-Richtlinie kann bei Bedarf angepasst werden.
       </p>
     </section>
-  </div>
-);
+  </div>;
