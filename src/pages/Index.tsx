@@ -131,30 +131,21 @@ const Index = () => {
           <div className="w-16 h-px bg-primary/40 mx-auto mb-12" role="presentation" aria-hidden="true" />
           
           <Accordion type="single" collapsible className="space-y-4">
+            <AccordionItem value="what" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Was ist Lomaria genau?
+              </AccordionTrigger>
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Lomaria ist eine Plattform, die Studierende in Wien vernetzt – ob für gemeinsame Projekte, Lerngruppen, Co-Founder-Suche oder einfach neue Freundschaften. Nur verifizierte Studierende haben Zugang.
+              </AccordionContent>
+            </AccordionItem>
+
             <AccordionItem value="verification" className="border-b border-primary/20">
               <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
                 Wie funktioniert die Verifizierung?
               </AccordionTrigger>
-              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
-                Ganz einfach per Magic Link an deine Uni-E-Mail-Adresse.
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="cost" className="border-b border-primary/20">
-              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
-                Ist Lomaria kostenlos?
-              </AccordionTrigger>
-              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
-                Ja, für alle Studierenden in Wien.
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="privacy" className="border-b border-primary/20">
-              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
-                Findet man mich auf Google?
-              </AccordionTrigger>
-              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
-                Nein. Dein Profil ist privat und nur für eingeloggte User sichtbar.
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Ganz einfach per Magic Link an deine Uni-E-Mail-Adresse. So stellen wir sicher, dass nur echte Studierende auf der Plattform sind.
               </AccordionContent>
             </AccordionItem>
 
@@ -162,8 +153,53 @@ const Index = () => {
               <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
                 Welche Unis werden unterstützt?
               </AccordionTrigger>
-              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
-                Alle größeren Universitäten und Hochschulen in Wien – von Uni Wien über TU und WU bis hin zu BOKU, Angewandte und mehr.
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Alle größeren Universitäten und Hochschulen in Wien – Uni Wien, TU Wien, WU Wien, BOKU, Angewandte, MedUni, Vetmed, FH Campus Wien, FH Technikum und viele mehr.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="cost" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Ist Lomaria kostenlos?
+              </AccordionTrigger>
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Ja, komplett kostenlos für alle Studierenden in Wien. Keine versteckten Kosten, kein Premium-Modell.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="difference" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Was unterscheidet Lomaria von LinkedIn oder Instagram?
+              </AccordionTrigger>
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Lomaria ist exklusiv für Studierende und fokussiert sich auf echte Verbindungen statt Follower-Zahlen. Hier geht es darum, die richtigen Leute für dein nächstes Projekt, deine Lerngruppe oder dein Startup zu finden.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="privacy" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Findet man mich auf Google?
+              </AccordionTrigger>
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Nein. Dein Profil ist privat und nur für eingeloggte, verifizierte Studierende sichtbar. Nichts davon erscheint in Suchmaschinen.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="matching" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Wie finde ich die richtigen Leute?
+              </AccordionTrigger>
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Über Filter wie Studienrichtung, Interessen und Absichten (z.B. Lerngruppe, Startup, Nachhilfe). So siehst du nur Profile, die wirklich zu dir passen.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="data" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Was passiert mit meinen Daten?
+              </AccordionTrigger>
+              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
+                Deine Daten werden ausschließlich für die Plattform verwendet und niemals an Dritte weitergegeben. Du kannst dein Konto jederzeit vollständig löschen.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
