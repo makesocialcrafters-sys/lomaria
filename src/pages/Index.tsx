@@ -46,7 +46,7 @@ const Index = () => {
                      hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background
                      animate-cinematic-stagger-5">
-          Mit Uni Email anmelden
+          Mit Email anmelden
         </button>
         
         {/* Disclaimer */}
@@ -114,7 +114,7 @@ const Index = () => {
           </h3>
           
           <p className="font-display text-sm text-foreground/50 leading-relaxed">
-            Zugang nur mit aktiver Uni-E-Mail-Adresse. Wir halten die Community sicher, exklusiv und frei von Fakes.
+            Zugang nur mit verifizierter E-Mail-Adresse. Wir halten die Community sicher, exklusiv und frei von Fakes.
           </p>
           
           <div className="w-16 h-px bg-primary/40 mx-auto mt-12" role="presentation" aria-hidden="true" />
@@ -145,7 +145,7 @@ const Index = () => {
                 Wie funktioniert die Verifizierung?
               </AccordionTrigger>
               <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
-                Ganz einfach per Magic Link an deine Uni-E-Mail-Adresse. So stellen wir sicher, dass nur echte Studierende auf der Plattform sind.
+                Ganz einfach per E-Mail registrieren und verifizieren. So stellen wir sicher, dass nur echte Studierende auf der Plattform sind.
               </AccordionContent>
             </AccordionItem>
 
