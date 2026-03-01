@@ -216,7 +216,7 @@ export default function Auth() {
       
       {/* Subline */}
       <p className="font-display text-sm text-foreground/50 tracking-[0.08em] mb-12 text-center animate-cinematic-stagger-3">
-        Exklusives Netzwerk für Wiener Studierende
+        Exklusives Netzwerk für Studierende
       </p>
 
       {/* Form */}
