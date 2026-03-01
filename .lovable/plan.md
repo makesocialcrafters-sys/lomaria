@@ -1,16 +1,22 @@
 
+1) Ursache fixieren
+- Der Save-Fehler kommt vom DB-Constraint `users_study_program_check` (aktuell nur `WiSo | WiRe | BBE` erlaubt), während UI jetzt Werte wie `uni_wien`, `tu_wien`, `wu_wien` sendet.
 
-# Plan: DB-Constraint `users_study_phase_check` entfernen
+2) Bestehende Daten migrieren (Daten-Update)
+- Legacy-Werte vor Constraint-Update normalisieren:
+  - `WiSo`, `WiRe`, `BBE` → `wu_wien` (oder alternativ `sonstige`, falls gewünscht).
 
-## Problem
-Die Datenbank hat einen CHECK-Constraint auf `study_phase`, der nur die Werte `'steop'` und `'cbk_hauptstudium'` erlaubt. Da `study_phase` jetzt als freies Textfeld für "Studienrichtung" genutzt wird (z.B. "Informatik"), schlägt jedes Speichern fehl.
+3) Schema korrigieren (Constraint neu setzen)
+- Alten Constraint `users_study_program_check` droppen.
+- Neuen Constraint für die aktuelle Hochschul-Liste anlegen:
+  - `uni_wien, meduni_wien, tu_wien, wu_wien, boku_wien, vetmeduni_wien, angewandte_wien, mdw_wien, muk_wien, sfu_wien, webster_wien, modul_wien, ceu_wien, jam_wien, sonstige`
+  - plus `NULL` erlauben.
 
-## Lösung
-Eine einzige SQL-Migration:
+4) Fehlertransparenz im Frontend verbessern
+- In `src/pages/Onboarding.tsx` im Catch die konkrete Supabase-Fehlermeldung im Toast anzeigen (nicht nur generisch), damit DB-Fehler sofort sichtbar sind.
+- Optional gleiches Muster auch in weiteren Save-Flows vereinheitlichen.
 
-```sql
-ALTER TABLE public.users DROP CONSTRAINT users_study_phase_check;
-```
-
-Keine Code-Änderung nötig. Nur dieser eine DB-Constraint muss entfernt werden.
-
+5) Verifikation (End-to-End)
+- Onboarding komplett durchlaufen und auf Schritt 8 speichern.
+- Danach `/profile` öffnen, `Hochschule` + `Studienrichtung` ändern und erneut speichern.
+- Prüfen: kein Fehlertoast, Daten bleiben nach Reload erhalten.
