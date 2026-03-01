@@ -45,7 +45,7 @@ export function useSentRequests() {
       // Get recipient profiles
       const recipientIds = pendingData.map((r) => r.to_user);
       const { data: recipientProfiles } = await supabase
-        .from("users")
+        .from("user_profiles")
         .select("id, first_name, profile_image, study_program, study_phase")
         .in("id", recipientIds);
 
