@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { STUDY_PROGRAMS, STUDY_PHASES } from "@/lib/onboarding-constants";
+import { STUDY_PROGRAMS } from "@/lib/onboarding-constants";
 
 interface Step3Props {
   studyProgram: string | null;
@@ -18,18 +18,8 @@ interface Step3Props {
   onBack: () => void;
 }
 
-export function Step3Study({ studyProgram, studyPhase, focus, onUpdate, onNext, onBack }: Step3Props) {
-  const isValid = studyProgram !== null && studyPhase !== null;
-  const showSchwerpunkt = studyPhase === "cbk_hauptstudium";
-
-  const handleStudyPhaseChange = (value: string) => {
-    // Clear focus when switching to STEOP
-    if (value === "steop") {
-      onUpdate({ study_phase: value, focus: "" });
-    } else {
-      onUpdate({ study_phase: value });
-    }
-  };
+export function Step3Study({ studyProgram, studyPhase, onUpdate, onNext, onBack }: Step3Props) {
+  const isValid = studyProgram !== null;
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -42,10 +32,10 @@ export function Step3Study({ studyProgram, studyPhase, focus, onUpdate, onNext, 
 
       <div className="space-y-6">
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Hochschule & Studienrichtung</label>
+          <label className="text-sm text-muted-foreground mb-2 block">Hochschule</label>
           <Select value={studyProgram ?? ""} onValueChange={(v) => onUpdate({ study_program: v })}>
             <SelectTrigger className="input-elegant border-0 border-b border-primary/50 rounded-none focus:border-primary">
-              <SelectValue placeholder="z.B. TU Wien – Informatik" />
+              <SelectValue placeholder="Auswählen" />
             </SelectTrigger>
             <SelectContent>
               {STUDY_PROGRAMS.map((p) => (
@@ -59,32 +49,12 @@ export function Step3Study({ studyProgram, studyPhase, focus, onUpdate, onNext, 
 
         {studyProgram && (
           <div className="animate-fade-in">
-            <label className="text-sm text-muted-foreground mb-2 block">Studienphase</label>
-            <Select value={studyPhase ?? ""} onValueChange={handleStudyPhaseChange}>
-              <SelectTrigger className="input-elegant border-0 border-b border-primary/50 rounded-none focus:border-primary">
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {STUDY_PHASES.map((s) => (
-                  <SelectItem key={s.value} value={s.value}>
-                    {s.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {showSchwerpunkt && (
-          <div className="animate-fade-in">
-            <label className="text-sm text-muted-foreground mb-2 block">
-              Schwerpunkt <span className="text-muted-foreground/50">(optional)</span>
-            </label>
+            <label className="text-sm text-muted-foreground mb-2 block">Studienrichtung</label>
             <Input
-              placeholder="z.B. Finance, Marketing..."
-              value={focus}
-              onChange={(e) => onUpdate({ focus: e.target.value })}
-              className="input-elegant"
+              variant="elegant"
+              placeholder="z.B. Informatik, BWL, Jus..."
+              value={studyPhase ?? ""}
+              onChange={(e) => onUpdate({ study_phase: e.target.value })}
             />
           </div>
         )}

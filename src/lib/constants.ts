@@ -1,15 +1,24 @@
 // Lomaria Constants - Study Programs, Intents, Interests
 
 export const STUDY_PROGRAMS = [
-  { value: "WiSo", label: "Wirtschafts- und Sozialwissenschaften (WiSo)" },
-  { value: "WiRe", label: "Wirtschaftsrecht (WiRe)" },
-  { value: "BBE", label: "Business and Economics (BBE)" },
+  { value: "uni_wien", label: "Universität Wien" },
+  { value: "meduni_wien", label: "Medizinische Universität Wien" },
+  { value: "tu_wien", label: "TU Wien" },
+  { value: "wu_wien", label: "WU Wien" },
+  { value: "boku_wien", label: "BOKU Wien" },
+  { value: "vetmeduni_wien", label: "Vetmeduni Wien" },
+  { value: "angewandte_wien", label: "Universität für angewandte Kunst Wien" },
+  { value: "mdw_wien", label: "Universität für Musik und darstellende Kunst Wien" },
+  { value: "muk_wien", label: "Music and Arts University of the City of Vienna" },
+  { value: "sfu_wien", label: "Sigmund Freud University Wien" },
+  { value: "webster_wien", label: "Webster University Vienna" },
+  { value: "modul_wien", label: "MODUL University Vienna" },
+  { value: "ceu_wien", label: "CEU Wien" },
+  { value: "jam_wien", label: "Jam Music Lab" },
+  { value: "sonstige", label: "Sonstige" },
 ] as const;
 
-export const STUDY_PHASES = [
-  { value: "steop", label: "STEOP-Phase" },
-  { value: "cbk_hauptstudium", label: "CBK/Hauptstudium/Spezialisierung" },
-] as const;
+export const STUDY_PHASES = [] as const;
 
 export const GENDERS = [
   { value: "maennlich", label: "Männlich" },
@@ -54,7 +63,7 @@ export const TUTORING_SUGGESTIONS = [
 ] as const;
 
 export type StudyProgram = typeof STUDY_PROGRAMS[number]["value"];
-export type StudyPhase = typeof STUDY_PHASES[number]["value"];
+export type StudyPhase = string;
 export type Gender = typeof GENDERS[number]["value"];
 export type Intent = typeof INTENTS[number]["value"];
 export type Interest = typeof INTERESTS[number]["value"];
