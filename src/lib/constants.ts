@@ -15,6 +15,8 @@ export const STUDY_PROGRAMS = [
   { value: "modul_wien", label: "MODUL University Vienna" },
   { value: "ceu_wien", label: "CEU Wien" },
   { value: "jam_wien", label: "Jam Music Lab" },
+  { value: "fh_technikum", label: "FH Technikum Wien" },
+  { value: "fh_wien", label: "FH des BFI Wien" },
   { value: "sonstige", label: "Sonstige" },
 ] as const;
 
