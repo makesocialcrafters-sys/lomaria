@@ -148,7 +148,8 @@ const profileData = {
       navigate("/discover", { replace: true });
     } catch (err) {
       console.error("[Onboarding] Save error:", err);
-      toast({ title: "Fehler beim Speichern", variant: "destructive" });
+      const message = err instanceof Error ? err.message : (err as any)?.message || "Unbekannter Fehler";
+      toast({ title: "Fehler beim Speichern", description: message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
