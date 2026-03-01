@@ -5,8 +5,8 @@ const About = () => {
   return <main className="min-h-screen bg-background">
       <PublicHeader />
       <Helmet>
-        <title>Über Lomaria – Die Vision für die WU Wien</title>
-        <meta name="description" content="Warum wir Lomaria gebaut haben: Schluss mit anonymem Campus-Leben. Unsere Mission für mehr Vernetzung, Gründertum und echte Kontakte an der WU." />
+        <title>Über Lomaria – Die Vision für Wiener Studierende</title>
+        <meta name="description" content="Warum wir Lomaria gebaut haben: Schluss mit anonymem Campus-Leben. Unsere Mission für mehr Vernetzung, Gründertum und echte Kontakte an Wiener Unis." />
       </Helmet>
 
       {/* Hero Section */}
@@ -18,7 +18,7 @@ const About = () => {
         <div className="w-16 h-px bg-primary/40 mb-6 animate-cinematic-stagger-2" role="presentation" aria-hidden="true" />
         
         <p className="font-display text-base md:text-lg text-foreground/60 tracking-[0.08em] text-center animate-cinematic-stagger-3">
-          Warum wir das soziale Betriebssystem für die WU bauen.
+          Warum wir das soziale Betriebssystem für Wiener Unis bauen.
         </p>
       </section>
 
@@ -27,7 +27,7 @@ const About = () => {
         <div className="max-w-2xl mx-auto text-center">
           <div className="w-16 h-px bg-primary/40 mx-auto mb-12" role="presentation" aria-hidden="true" />
           
-          <p className="font-display text-sm md:text-base text-foreground/50 leading-relaxed">Wir kennen das Problem: Du sitzt im LC, umgeben von 20.000 Menschen, und trotzdem ist es schwer, Anschluss zu finden. LinkedIn ist zu steif für einen Feierabend. Tinder ist zu random und oft peinlich, wenn man sich am nächsten Tag in der Vorlesung sieht. Wir wollten einen Ort schaffen, der dazwischen liegt.</p>
+          <p className="font-display text-sm md:text-base text-foreground/50 leading-relaxed">Wir kennen das Problem: Du sitzt in der Vorlesung, umgeben von tausenden Menschen, und trotzdem ist es schwer, Anschluss zu finden. LinkedIn ist zu steif für einen Feierabend. Tinder ist zu random und oft peinlich, wenn man sich am nächsten Tag im Hörsaal sieht. Wir wollten einen Ort schaffen, der dazwischen liegt – für alle Wiener Unis.</p>
           
           <div className="w-16 h-px bg-primary/40 mx-auto mt-12" role="presentation" aria-hidden="true" />
         </div>
@@ -49,7 +49,7 @@ const About = () => {
                 Exklusivität
               </h3>
               <p className="font-display text-sm text-foreground/50 leading-relaxed">
-                Nur wer eine aktive E-Mail der Wirtschaftsuniversität Wien hat, kommt rein. Wir bleiben unter uns.
+                Nur wer eine aktive Uni-E-Mail hat, kommt rein. Wir bleiben unter Studierenden.
               </p>
             </div>
             

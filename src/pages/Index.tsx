@@ -13,13 +13,13 @@ const Index = () => {
   return <main className="min-h-screen bg-background">
       <PublicHeader />
       <Helmet>
-        <title>Lomaria – Das exklusive Netzwerk für WU Studierende</title>
-        <meta name="description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv an der WU Wien." />
-        <meta name="keywords" content="WU Wien, Studenten Dating, Networking, Co-Founder finden, Lerngruppe, Wirtschaftsuniversität Wien" />
+        <title>Lomaria – Das Netzwerk für Wiener Studierende</title>
+        <meta name="description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv für Studierende in Wien." />
+        <meta name="keywords" content="Wien Studenten, Uni Wien, TU Wien, WU Wien, BOKU, Networking, Co-Founder finden, Lerngruppe, Studierende Wien" />
       </Helmet>
       
       {/* Visually hidden h1 for screen readers */}
-      <h1 className="sr-only">Lomaria – Exklusive Networking-Plattform für WU-Studierende</h1>
+      <h1 className="sr-only">Lomaria – Networking-Plattform für Wiener Studierende</h1>
       
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 relative">
@@ -33,7 +33,7 @@ const Index = () => {
         
         {/* Subline */}
         <p className="font-display text-base md:text-lg text-foreground/60 tracking-[0.08em] mb-3 animate-cinematic-stagger-3 text-center">
-          Das exklusive Netzwerk für WU Studierende.
+          Das exklusive Netzwerk für Wiener Studierende.
         </p>
         
         {/* Secondary line */}
@@ -46,7 +46,7 @@ const Index = () => {
                      hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background
                      animate-cinematic-stagger-5">
-          Mit WU Email anmelden
+          Mit Uni Email anmelden
         </button>
         
         {/* Disclaimer */}
@@ -86,7 +86,7 @@ const Index = () => {
                 Co-Founding & Business
               </h4>
               <p className="font-display text-sm text-foreground/50 leading-relaxed">
-                Du suchst einen Co-Founder für das Gründungszentrum? Oder Partner für ein Projekt? Finde Macher direkt am Campus.
+                Du suchst einen Co-Founder oder Partner für ein Projekt? Finde Macher aus allen Wiener Unis.
               </p>
             </div>
             
@@ -97,7 +97,7 @@ const Index = () => {
                 Study & Support
               </h4>
               <p className="font-display text-sm text-foreground/50 leading-relaxed">
-                Finde deine Lerngruppe für die nächste Prüfungswoche. Egal ob STEOP oder Master-Thesis.
+                Finde deine Lerngruppe für die nächste Prüfungswoche. Egal ob STEOP oder Master-Thesis – quer über alle Unis.
               </p>
             </div>
           </div>
@@ -110,11 +110,11 @@ const Index = () => {
           <div className="w-16 h-px bg-primary/40 mx-auto mb-12" role="presentation" aria-hidden="true" />
           
           <h3 className="font-display text-xl md:text-2xl text-primary tracking-[0.1em] mb-6">
-            100% Verified. 100% WU.
+            100% Verified. 100% Wien.
           </h3>
           
           <p className="font-display text-sm text-foreground/50 leading-relaxed">
-            Zugang nur mit aktiver WU-Wien E-Mail Adresse. Wir halten die Community sicher, exklusiv und frei von Fakes.
+            Zugang nur mit aktiver Uni-E-Mail-Adresse. Wir halten die Community sicher, exklusiv und frei von Fakes.
           </p>
           
           <div className="w-16 h-px bg-primary/40 mx-auto mt-12" role="presentation" aria-hidden="true" />
@@ -136,7 +136,7 @@ const Index = () => {
                 Wie funktioniert die Verifizierung?
               </AccordionTrigger>
               <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
-                Ganz einfach per Magic Link an deine @s.wu.ac.at Adresse.
+                Ganz einfach per Magic Link an deine Uni-E-Mail-Adresse.
               </AccordionContent>
             </AccordionItem>
             
@@ -145,7 +145,7 @@ const Index = () => {
                 Ist Lomaria kostenlos?
               </AccordionTrigger>
               <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
-                Ja, für alle WU Studierenden.
+                Ja, für alle Studierenden in Wien.
               </AccordionContent>
             </AccordionItem>
             
@@ -155,6 +155,15 @@ const Index = () => {
               </AccordionTrigger>
               <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
                 Nein. Dein Profil ist privat und nur für eingeloggte User sichtbar.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="unis" className="border-b border-primary/20">
+              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
+                Welche Unis werden unterstützt?
+              </AccordionTrigger>
+              <AccordionContent className="font-display text-sm text-foreground/50 pb-6">
+                Alle größeren Universitäten und Hochschulen in Wien – von Uni Wien über TU und WU bis hin zu BOKU, Angewandte und mehr.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
