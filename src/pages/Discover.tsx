@@ -112,8 +112,8 @@ export default function Discover() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <p className="text-foreground font-medium">1. Gemeinsame Intents</p>
-                      <p className="text-xs">Suchst du "Projektpartner"? Profile mit diesem Ziel erscheinen oben.</p>
-                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Leute kennenlernen, Profil → Leute kennenlernen</p>
+                      <p className="text-xs">Ihr habt das gleiche Ziel? Dann steht ihr weiter oben.</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Social & Activities, Profil → Social & Activities</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
@@ -134,8 +134,8 @@ export default function Discover() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <p className="text-foreground font-medium">2. Kompatible Ziele</p>
-                      <p className="text-xs">"Startup" und "Projektpartner" passen gut zusammen!</p>
-                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Startup, Profil → Projektpartner</p>
+                      <p className="text-xs">Manche Ziele ergänzen sich perfekt!</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Du → Business & Ideas, Profil → Testing & Feedback</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
@@ -156,8 +156,8 @@ export default function Discover() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <p className="text-foreground font-medium">3. Studienkontext</p>
-                      <p className="text-xs">Gleiches Programm oder Semester werden leicht bevorzugt.</p>
-                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Beide im Bereich WiSo</p>
+                      <p className="text-xs">Gleiche Uni oder Studienrichtung gibt einen kleinen Bonus.</p>
+                      <p className="text-xs text-primary/60 mt-0.5">z.B.: Beide an der WU Wien</p>
                     </div>
                     <div className="flex gap-0.5 mt-1">
                       {[...Array(5)].map((_, i) => (
