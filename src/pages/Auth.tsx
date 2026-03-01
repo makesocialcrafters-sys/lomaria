@@ -216,7 +216,7 @@ export default function Auth() {
       
       {/* Subline */}
       <p className="font-display text-sm text-foreground/50 tracking-[0.08em] mb-12 text-center animate-cinematic-stagger-3">
-        Exklusives Netzwerk für WU-Studierende
+        Exklusives Netzwerk für Wiener Studierende
       </p>
 
       {/* Form */}
@@ -229,7 +229,7 @@ export default function Auth() {
           <Input
             id="auth-email"
             type="email"
-            placeholder="E-Mail"
+            placeholder="Uni E-Mail"
             autoComplete="email"
             className="h-12 bg-transparent border-0 border-b border-primary/30 rounded-none text-foreground placeholder:text-foreground/30 focus:border-primary/60 focus-visible:ring-0 font-display tracking-wide transition-colors duration-500"
             {...register("email")}
@@ -324,7 +324,7 @@ export default function Auth() {
 
       {/* Footnote */}
       <p className="absolute bottom-4 font-display text-[10px] text-foreground/20 tracking-[0.08em] animate-cinematic-stagger-5">
-        Testmodus: @gmail.com erlaubt
+        Verwende deine Uni E-Mail-Adresse
       </p>
     </main>
   );
