@@ -5,16 +5,16 @@ interface IcebreakerStartersProps {
 
 const ICEBREAKERS = [
   {
-    label: "Studium & Alltag",
-    message: "Zwischen LVs wenig Zeit, lass uns kurz schreiben."
+    label: "Sag Hey",
+    message: "Hey! Was studierst du so?"
   },
   {
-    label: "Ziele & Projekte",
-    message: "Ähnliche Ziele, lass kurz schauen, ob das passt."
+    label: "Gemeinsam",
+    message: "Wir haben einiges gemeinsam – erzähl mal!"
   },
   {
-    label: "Kennenlernen & Campus",
-    message: "Gleicher Campus, gleiche Routine, lass uns das kurz ändern."
+    label: "Kennenlernen",
+    message: "Ich bin neugierig – was machst du neben dem Studium?"
   }
 ];
 
