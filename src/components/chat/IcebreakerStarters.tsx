@@ -5,15 +5,15 @@ interface IcebreakerStartersProps {
 
 const ICEBREAKERS = [
   {
-    label: "Sag Hey",
+    label: "Sag mal Hey",
     message: "Hey! Was studierst du so?"
   },
   {
-    label: "Gemeinsam",
+    label: "Was haben wir gemeinsam?",
     message: "Wir haben einiges gemeinsam – erzähl mal!"
   },
   {
-    label: "Kennenlernen",
+    label: "Lass uns kennenlernen",
     message: "Ich bin neugierig – was machst du neben dem Studium?"
   }
 ];
