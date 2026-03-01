@@ -300,8 +300,11 @@ export default function ProfileDetail() {
 
         <div className="divider-subtle mb-6" />
 
-        {studyProgramLabel && (
-          <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
+        {(studyProgramLabel || profile.study_phase) && (
+          <div className="text-sm text-foreground/70 text-center mb-6">
+            {studyProgramLabel && <p>{studyProgramLabel}</p>}
+            {profile.study_phase && <p className="text-muted-foreground">{profile.study_phase}</p>}
+          </div>
         )}
 
         {profile.intents && profile.intents.length > 0 && (

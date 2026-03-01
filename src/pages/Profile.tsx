@@ -185,8 +185,11 @@ export default function Profile() {
         </div>
 
         {/* Study Info */}
-        {studyProgramLabel && (
-          <p className="text-sm text-foreground/70 text-center mb-6">{studyProgramLabel}</p>
+        {(studyProgramLabel || userData?.study_phase) && (
+          <div className="text-sm text-foreground/70 text-center mb-6">
+            {studyProgramLabel && <p>{studyProgramLabel}</p>}
+            {userData?.study_phase && <p className="text-muted-foreground">{userData.study_phase}</p>}
+          </div>
         )}
 
         {/* Intents with Details */}

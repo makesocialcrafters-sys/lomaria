@@ -58,10 +58,11 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
             {age && <span className="text-sm text-muted-foreground/70">· {age}</span>}
           </div>
 
-          {studyProgramLabel && (
-            <p className="text-sm text-muted-foreground truncate mt-1.5">
-              {studyProgramLabel}
-            </p>
+          {(studyProgramLabel || user.study_phase) && (
+            <div className="mt-1.5">
+              {studyProgramLabel && <p className="text-sm text-muted-foreground truncate">{studyProgramLabel}</p>}
+              {user.study_phase && <p className="text-xs text-muted-foreground/70 truncate">{user.study_phase}</p>}
+            </div>
           )}
 
           {interestLabels.length > 0 && (
