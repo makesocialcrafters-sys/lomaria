@@ -1,22 +1,16 @@
 
-1) Ursache fixieren
-- Der Save-Fehler kommt vom DB-Constraint `users_study_program_check` (aktuell nur `WiSo | WiRe | BBE` erlaubt), während UI jetzt Werte wie `uni_wien`, `tu_wien`, `wu_wien` sendet.
 
-2) Bestehende Daten migrieren (Daten-Update)
-- Legacy-Werte vor Constraint-Update normalisieren:
-  - `WiSo`, `WiRe`, `BBE` → `wu_wien` (oder alternativ `sonstige`, falls gewünscht).
+## Studienrichtung unter der Uni anzeigen
 
-3) Schema korrigieren (Constraint neu setzen)
-- Alten Constraint `users_study_program_check` droppen.
-- Neuen Constraint für die aktuelle Hochschul-Liste anlegen:
-  - `uni_wien, meduni_wien, tu_wien, wu_wien, boku_wien, vetmeduni_wien, angewandte_wien, mdw_wien, muk_wien, sfu_wien, webster_wien, modul_wien, ceu_wien, jam_wien, sonstige`
-  - plus `NULL` erlauben.
+Aktuell wird nur die Hochschule (`study_program`) angezeigt, aber die Studienrichtung (`study_phase`) fehlt. Die Änderung betrifft drei Stellen:
 
-4) Fehlertransparenz im Frontend verbessern
-- In `src/pages/Onboarding.tsx` im Catch die konkrete Supabase-Fehlermeldung im Toast anzeigen (nicht nur generisch), damit DB-Fehler sofort sichtbar sind.
-- Optional gleiches Muster auch in weiteren Save-Flows vereinheitlichen.
+### Änderungen
 
-5) Verifikation (End-to-End)
-- Onboarding komplett durchlaufen und auf Schritt 8 speichern.
-- Danach `/profile` öffnen, `Hochschule` + `Studienrichtung` ändern und erneut speichern.
-- Prüfen: kein Fehlertoast, Daten bleiben nach Reload erhalten.
+1. **ProfileDetail.tsx** (Zeile 303-305): Unter `studyProgramLabel` auch `profile.study_phase` anzeigen.
+
+2. **Profile.tsx** (Zeile 188-190): Unter `studyProgramLabel` auch `userData.study_phase` anzeigen.
+
+3. **UserProfileCard.tsx** (Zeile 60-64): Unter dem Studiengang-Label auch `user.study_phase` als zweite Zeile anzeigen.
+
+Alle drei Stellen folgen dem gleichen Muster: eine zusätzliche Textzeile in `text-sm text-muted-foreground` direkt unter der Uni-Zeile, nur wenn `study_phase` vorhanden ist.
+
