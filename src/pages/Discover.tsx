@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Info } from "lucide-react";
-import { useDiscoverProfiles, useTutoringSubjects, UserProfile } from "@/hooks/useDiscoverProfiles";
+import { useDiscoverProfiles, UserProfile } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
 import {
@@ -33,7 +33,7 @@ export default function Discover() {
     intent,
     page,
   });
-  const { data: tutoringSubjects = [] } = useTutoringSubjects();
+  // tutoringSubjects list no longer needed - filter is free text now
 
   // Reset page and profiles when filters change
   useEffect(() => {
@@ -208,7 +208,7 @@ export default function Discover() {
             studyProgram={studyProgram}
             tutoringSubject={tutoringSubject}
             intent={intent}
-            tutoringSubjects={tutoringSubjects}
+            
             onStudyProgramChange={handleStudyProgramChange}
             onTutoringSubjectChange={handleTutoringSubjectChange}
             onIntentChange={handleIntentChange}

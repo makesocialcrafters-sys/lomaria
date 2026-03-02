@@ -70,7 +70,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         query = query.eq("study_program", studyProgram);
       }
       if (tutoringSubject) {
-        query = query.eq("tutoring_subject", tutoringSubject);
+        query = query.ilike("tutoring_subject", `%${tutoringSubject}%`);
       }
       if (intent) {
         query = query.contains("intents", [intent]);
