@@ -48,7 +48,7 @@ export function DiscoverFilters({
           onValueChange={(v) => onStudyProgramChange(v || null)}
         >
           <SelectTrigger className="bg-transparent border-primary/20 font-display hover:border-primary/40 transition-all duration-500">
-            <SelectValue placeholder="Studienrichtung" />
+            <SelectValue placeholder="Hochschule" />
           </SelectTrigger>
           <SelectContent>
             {STUDY_PROGRAMS.map((program) => (
