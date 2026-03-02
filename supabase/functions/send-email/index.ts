@@ -64,6 +64,29 @@ const emailWrapper = (content: string) => `
 </html>
 `;
 
+// HTML escape to prevent XSS in email templates
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Sanitize all string values in template data
+function sanitizeData(data: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === "string") {
+      sanitized[key] = escapeHtml(value.substring(0, 2000));
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
+
 // Email templates
 const templates = {
   contact_request: (data: { recipientName: string; senderName: string; senderProgram?: string; message: string; appUrl: string }) => ({
@@ -191,15 +214,32 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Sending ${type} email to ${to}`);
 
     if (!type || !to || !data) {
-      throw new Error("Missing required fields: type, to, data");
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: type, to, data" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (typeof to !== "string" || to.length > 254 || !emailRegex.test(to)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid email address" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     if (!(type in templates)) {
-      throw new Error(`Unknown email type: ${type}`);
+      return new Response(
+        JSON.stringify({ error: "Unknown email type" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
+    // Sanitize user-supplied data before passing to templates
+    const sanitizedData = sanitizeData(data);
     const templateFn = templates[type as EmailType];
-    const template = templateFn(data as never);
+    const template = templateFn(sanitizedData as never);
 
     const emailResponse = await resend.emails.send({
       from: "Lomaria <hi@hi.lomaria.at>",
@@ -218,7 +258,7 @@ const handler = async (req: Request): Promise<Response> => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error in send-email function:", errorMessage);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

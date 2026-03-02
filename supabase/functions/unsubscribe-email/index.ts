@@ -67,10 +67,10 @@ serve(async (req: Request) => {
       );
     }
 
-    // Validate email format
+    // Validate email format and length
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.error("Invalid email format:", email);
+    if (email.length > 254 || !emailRegex.test(email)) {
+      console.error("Invalid email format");
       return new Response(
         JSON.stringify({ error: "Invalid email format" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -102,17 +102,17 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(`Email notifications disabled for: ${email}`);
+    console.log("Email notifications disabled successfully");
 
     return new Response(
-      JSON.stringify({ success: true, email }),
+      JSON.stringify({ success: true }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error in unsubscribe-email:", errorMessage);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }

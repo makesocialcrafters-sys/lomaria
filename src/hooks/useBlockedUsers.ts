@@ -41,10 +41,10 @@ export function useBlockedUsers() {
         return [];
       }
 
-      // Fetch user profiles for blocked users
+      // Fetch user profiles for blocked users via the safe view
       const blockedIds = blocks.map(b => b.blocked_id);
       const { data: users, error: usersError } = await supabase
-        .from("users")
+        .from("user_profiles")
         .select("id, first_name, profile_image, study_program, study_phase")
         .in("id", blockedIds);
 

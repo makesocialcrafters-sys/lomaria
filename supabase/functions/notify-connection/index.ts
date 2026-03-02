@@ -9,6 +9,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// HTML escape to prevent XSS in email templates
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// UUID v4 validation
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isValidUUID(value: unknown): value is string {
+  return typeof value === "string" && UUID_REGEX.test(value);
+}
+
 // Lomaria Brand Colors
 const BRAND_COLORS = {
   background: "#0c0c0c",
@@ -88,6 +105,8 @@ interface NotifyRequest {
   message?: string;
 }
 
+const VALID_TYPES = ["contact_request", "request_accepted", "new_message"];
+
 const handler = async (req: Request): Promise<Response> => {
   console.log("notify-connection invoked, method:", req.method);
   
@@ -103,7 +122,33 @@ const handler = async (req: Request): Promise<Response> => {
     const body = await req.json();
     const { type, connectionId, fromUserId, toUserId, message }: NotifyRequest = body;
 
-    console.log("Request body:", JSON.stringify(body));
+    // --- Input validation ---
+    if (!type || !VALID_TYPES.includes(type)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid request type" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!isValidUUID(fromUserId) || !isValidUUID(toUserId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid user IDs" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (connectionId !== undefined && !isValidUUID(connectionId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid connection ID" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Sanitize and limit message length
+    const sanitizedMessage = message
+      ? escapeHtml(String(message).substring(0, 2000))
+      : undefined;
+
     console.log(`Notify connection: ${type} from ${fromUserId} to ${toUserId}`);
 
     // Fetch sender info
@@ -139,9 +184,9 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const senderName = `${sender.first_name || ""} ${sender.last_name || ""}`.trim() || "Ein Nutzer";
-    const senderProgram = sender.study_program ? STUDY_PROGRAMS[sender.study_program] || sender.study_program : undefined;
-    const recipientName = recipient.first_name || "dort";
+    const senderName = escapeHtml(`${sender.first_name || ""} ${sender.last_name || ""}`.trim() || "Ein Nutzer");
+    const senderProgram = sender.study_program ? escapeHtml(STUDY_PROGRAMS[sender.study_program] || sender.study_program) : undefined;
+    const recipientName = escapeHtml(recipient.first_name || "dort");
     const recipientEmail = recipient.email;
     const appUrl = "https://lomaria.at";
 
@@ -149,7 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
     let htmlContent = "";
 
     if (type === "contact_request") {
-      subject = `${senderName} möchte sich mit dir vernetzen`;
+      subject = `${sender.first_name || "Ein Nutzer"} möchte sich mit dir vernetzen`;
       htmlContent = emailWrapper(`
         <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
           Neue Kontaktanfrage
@@ -162,14 +207,14 @@ const handler = async (req: Request): Promise<Response> => {
             ${senderName}
           </p>
           ${senderProgram ? `<p style="margin: 0 0 12px 0; font-size: 14px; color: ${BRAND_COLORS.textMuted};">${senderProgram}</p>` : ''}
-          ${message ? `<p style="margin: 0; font-size: 15px; color: ${BRAND_COLORS.text}; font-style: italic; line-height: 1.5;">"${message}"</p>` : ''}
+          ${sanitizedMessage ? `<p style="margin: 0; font-size: 15px; color: ${BRAND_COLORS.text}; font-style: italic; line-height: 1.5;">"${sanitizedMessage}"</p>` : ''}
         </div>
         <a href="${appUrl}/contacts" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
           Anfrage ansehen
         </a>
       `, recipientEmail);
     } else if (type === "request_accepted") {
-      subject = `${senderName} hat deine Anfrage angenommen! 🎉`;
+      subject = `${sender.first_name || "Ein Nutzer"} hat deine Anfrage angenommen! 🎉`;
       htmlContent = emailWrapper(`
         <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
           Gute Nachrichten!
@@ -193,8 +238,8 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `, recipientEmail);
     } else if (type === "new_message") {
-      const preview = message && message.length > 100 ? message.substring(0, 100) + "..." : message;
-      subject = `Neue Nachricht von ${senderName}`;
+      const preview = sanitizedMessage && sanitizedMessage.length > 100 ? sanitizedMessage.substring(0, 100) + "..." : sanitizedMessage;
+      subject = `Neue Nachricht von ${sender.first_name || "einem Nutzer"}`;
       htmlContent = emailWrapper(`
         <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
           Neue Nachricht
@@ -244,7 +289,7 @@ const handler = async (req: Request): Promise<Response> => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error in notify-connection:", errorMessage);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
