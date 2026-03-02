@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -5,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { STUDY_PROGRAMS, INTENTS } from "@/lib/onboarding-constants";
 import { X } from "lucide-react";
@@ -14,7 +16,6 @@ interface DiscoverFiltersProps {
   studyProgram: string | null;
   tutoringSubject: string | null;
   intent: string | null;
-  tutoringSubjects: string[];
   onStudyProgramChange: (value: string | null) => void;
   onTutoringSubjectChange: (value: string | null) => void;
   onIntentChange: (value: string | null) => void;
@@ -28,7 +29,6 @@ export function DiscoverFilters({
   studyProgram,
   tutoringSubject,
   intent,
-  tutoringSubjects,
   onStudyProgramChange,
   onTutoringSubjectChange,
   onIntentChange,
@@ -38,6 +38,21 @@ export function DiscoverFilters({
   onReset,
 }: DiscoverFiltersProps) {
   const hasFilters = studyProgram || tutoringSubject || intent;
+  const [tutoringInput, setTutoringInput] = useState(tutoringSubject || "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Sync external changes (e.g. clear filter)
+  useEffect(() => {
+    setTutoringInput(tutoringSubject || "");
+  }, [tutoringSubject]);
+
+  const handleTutoringInput = (value: string) => {
+    setTutoringInput(value);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      onTutoringSubjectChange(value.trim() || null);
+    }, 400);
+  };
 
   return (
     <div className="space-y-3">
@@ -59,22 +74,13 @@ export function DiscoverFilters({
           </SelectContent>
         </Select>
 
-        {/* Tutoring Subject Filter */}
-        <Select
-          value={tutoringSubject || ""}
-          onValueChange={(v) => onTutoringSubjectChange(v || null)}
-        >
-          <SelectTrigger className="bg-transparent border-primary/20 font-display hover:border-primary/40 transition-all duration-500">
-            <SelectValue placeholder="Nachhilfe-Fach" />
-          </SelectTrigger>
-          <SelectContent>
-            {tutoringSubjects.map((subject) => (
-              <SelectItem key={subject} value={subject}>
-                {subject}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Tutoring Subject Filter - Free text input */}
+        <Input
+          value={tutoringInput}
+          onChange={(e) => handleTutoringInput(e.target.value)}
+          placeholder="Nachhilfe-Fach"
+          className="bg-transparent border-primary/20 font-display hover:border-primary/40 transition-all duration-500"
+        />
 
         {/* Intent Filter */}
         <Select
