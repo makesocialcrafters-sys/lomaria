@@ -157,15 +157,6 @@ const Index = () => {
                 Alle Universitäten und Hochschulen sind willkommen – egal ob Uni Wien, TU, WU, BOKU, FHs oder andere Hochschulen im deutschsprachigen Raum.
               </AccordionContent>
             </AccordionItem>
-            
-            <AccordionItem value="cost" className="border-b border-primary/20">
-              <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
-                Ist Lomaria kostenlos?
-              </AccordionTrigger>
-              <AccordionContent className="text-foreground/50 text-sm leading-relaxed">
-                Ja, komplett kostenlos für alle Studierenden. Keine versteckten Kosten, kein Premium-Modell.
-              </AccordionContent>
-            </AccordionItem>
 
             <AccordionItem value="difference" className="border-b border-primary/20">
               <AccordionTrigger className="font-display text-sm text-foreground/80 tracking-[0.05em] hover:text-primary transition-colors duration-500 py-6">
