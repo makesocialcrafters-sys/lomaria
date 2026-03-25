@@ -68,6 +68,8 @@ export function BottomNavigation() {
         {/* Opportunity Tab - Coming Soon */}
         <button
           type="button"
+          aria-disabled="true"
+          aria-label="Opportunity – coming soon"
           onClick={() => toast({
             title: "Bald verfügbar",
             description: "Opportunity kommt bald! Bleib dran.",

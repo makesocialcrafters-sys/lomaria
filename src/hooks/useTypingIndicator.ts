@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function useTypingIndicator(connectionId: string | undefined, currentUserId: string | undefined) {
   const [isOtherTyping, setIsOtherTyping] = useState(false);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!connectionId || !currentUserId) return;

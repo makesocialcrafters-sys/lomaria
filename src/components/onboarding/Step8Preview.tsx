@@ -1,6 +1,6 @@
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { OnboardingData, STUDY_PROGRAMS, STUDY_PHASES, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { OnboardingData, STUDY_PROGRAMS, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 
 interface Step8Props {
   data: OnboardingData;
@@ -59,7 +59,7 @@ export function Step8Preview({ data, onBack, onSave, saving }: Step8Props) {
             {getLabel(data.study_program, STUDY_PROGRAMS)}
           </p>
           <p className="text-xs text-muted-foreground">
-            {getLabel(data.study_phase, STUDY_PHASES)}
+            {data.study_phase}
             {data.focus && <span> · {data.focus}</span>}
           </p>
         </div>

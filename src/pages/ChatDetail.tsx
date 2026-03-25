@@ -45,7 +45,7 @@ export default function ChatDetail() {
   
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const typingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -377,7 +377,7 @@ export default function ChatDetail() {
       {/* Input area */}
       <div className="sticky bottom-0 bg-background border-t border-primary/20">
         {/* Icebreaker Starters - nur bei leerem Chat */}
-        {messages.length === 0 && (
+        {!isLoading && messages.length === 0 && (
           <IcebreakerStarters 
             onSelect={handleIcebreakerSelect}
             disabled={sending}
