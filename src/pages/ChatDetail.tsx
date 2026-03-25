@@ -133,6 +133,9 @@ export default function ChatDetail() {
           if (user) {
             queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
           }
+        })
+        .catch((err) => {
+          console.error("Failed to mark messages as read:", err);
         });
     }
   }, [chatData?.messages, chatData?.currentUserId, markMessagesAsRead, queryClient]);

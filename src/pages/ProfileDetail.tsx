@@ -307,6 +307,7 @@ export default function ProfileDetail() {
             <div className="flex flex-wrap gap-2">
               {profile.intents.map((intentValue) => {
                 const intentLabel = INTENTS.find((int) => int.value === intentValue)?.label;
+                if (!intentLabel) return null;
                 return (
                   <span key={intentValue} className="text-sm px-3 py-1 bg-card border border-primary/10 rounded text-foreground/80">
                     {intentLabel}
