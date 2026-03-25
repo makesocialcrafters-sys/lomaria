@@ -33,7 +33,7 @@ export function useOwnProfile() {
         .from("users")
         .select("*")
         .eq("auth_user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error loading profile:", error);

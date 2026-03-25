@@ -14,7 +14,7 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
     if (onClick) {
       onClick();
     } else {
-      navigate(`/profile/${user.id}`);
+      navigate(`/discover/profile/${user.id}`);
     }
   };
 
