@@ -60,11 +60,16 @@ export function BlockDialog({
         .delete()
         .eq("id", connectionId);
 
-      // Invalidate caches
+      // Optimistic update: remove user from discover cache
+      queryClient.setQueriesData(
+        { queryKey: ["discover-profiles"] },
+        (old: any) => Array.isArray(old) ? old.filter((p: any) => p.id !== targetUserId) : old
+      );
+
+      // Invalidate other caches
       if (user) {
         queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
         queryClient.invalidateQueries({ queryKey: ["accepted-connections", user.id] });
-        queryClient.invalidateQueries({ queryKey: ["discover-profiles"] });
         queryClient.invalidateQueries({ queryKey: ["blocked-user-ids", user.id] });
         queryClient.invalidateQueries({ queryKey: ["chat", connectionId] });
       }

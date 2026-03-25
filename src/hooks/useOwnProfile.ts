@@ -31,7 +31,7 @@ export function useOwnProfile() {
 
       const { data, error } = await supabase
         .from("users")
-        .select("*")
+        .select("id, first_name, last_name, profile_image, age, gender, study_program, study_phase, focus, intents, interests, tutoring_subject, tutoring_desc, tutoring_price, bio, intent_details, email_notifications_enabled")
         .eq("auth_user_id", user.id)
         .maybeSingle();
 

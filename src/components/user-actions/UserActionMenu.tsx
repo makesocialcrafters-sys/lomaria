@@ -56,6 +56,7 @@ export function UserActionMenu({
       <UnmatchDialog
         open={unmatchOpen}
         onOpenChange={setUnmatchOpen}
+        targetUserId={targetUserId}
         targetUserName={targetUserName}
         connectionId={connectionId}
         onComplete={onActionComplete}
