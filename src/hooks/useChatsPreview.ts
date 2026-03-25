@@ -28,7 +28,6 @@ export function useChatsPreview() {
     queryFn: async (): Promise<ChatPreview[]> => {
       if (!user) return [];
 
-      // Get current user's profile ID
       const { data: currentUser } = await supabase
         .from("users")
         .select("id")
@@ -37,7 +36,6 @@ export function useChatsPreview() {
 
       if (!currentUser) return [];
 
-      // Load accepted connections
       const { data: acceptedData } = await supabase
         .from("connections")
         .select("id, from_user, to_user")
@@ -46,46 +44,61 @@ export function useChatsPreview() {
 
       if (!acceptedData || acceptedData.length === 0) return [];
 
-      // Get other user IDs, filter out blocked users
-      const otherUserIds = acceptedData
-        .map((c) => c.from_user === currentUser.id ? c.to_user : c.from_user)
-        .filter((id) => !blockedUserIds.includes(id));
-
-      if (otherUserIds.length === 0) return [];
-
-      // Filter connections to only include non-blocked users
       const filteredConnections = acceptedData.filter((c) => {
         const otherId = c.from_user === currentUser.id ? c.to_user : c.from_user;
         return !blockedUserIds.includes(otherId);
       });
 
-      // Get other user profiles
-      const { data: otherProfiles } = await supabase
-        .from("user_profiles")
-        .select("id, first_name, profile_image, study_program")
-        .in("id", otherUserIds);
+      if (filteredConnections.length === 0) return [];
 
-      // Get all messages for connections (for last message and unread count)
+      const otherUserIds = filteredConnections.map((c) =>
+        c.from_user === currentUser.id ? c.to_user : c.from_user
+      );
       const connectionIds = filteredConnections.map((c) => c.id);
-      const { data: messages } = await supabase
-        .from("messages")
-        .select("connection_id, sender_id, text, created_at, read_at")
-        .in("connection_id", connectionIds)
-        .order("created_at", { ascending: false });
 
-      // Build chat previews
+      // Fetch profiles, last messages, and unread counts in parallel
+      const [profilesResult, messagesResult, unreadResult] = await Promise.all([
+        supabase
+          .from("user_profiles")
+          .select("id, first_name, profile_image, study_program")
+          .in("id", otherUserIds),
+        // Get recent messages — one per connection via client-side dedup
+        supabase
+          .from("messages")
+          .select("connection_id, sender_id, text, created_at")
+          .in("connection_id", connectionIds)
+          .order("created_at", { ascending: false }),
+        // Get only unread messages (for count)
+        supabase
+          .from("messages")
+          .select("connection_id, sender_id", { count: "exact" })
+          .in("connection_id", connectionIds)
+          .neq("sender_id", currentUser.id)
+          .is("read_at", null),
+      ]);
+
+      const otherProfiles = profilesResult.data;
+      const allMessages = messagesResult.data || [];
+      const unreadMessages = unreadResult.data || [];
+
+      // Deduplicate: keep only the first (newest) message per connection
+      const lastMessageMap = new Map<string, typeof allMessages[0]>();
+      for (const msg of allMessages) {
+        if (!lastMessageMap.has(msg.connection_id)) {
+          lastMessageMap.set(msg.connection_id, msg);
+        }
+      }
+
+      // Count unread per connection
+      const unreadCountMap = new Map<string, number>();
+      for (const msg of unreadMessages) {
+        unreadCountMap.set(msg.connection_id, (unreadCountMap.get(msg.connection_id) || 0) + 1);
+      }
+
       const chatPreviews: ChatPreview[] = filteredConnections.map((conn) => {
         const otherId = conn.from_user === currentUser.id ? conn.to_user : conn.from_user;
         const other = otherProfiles?.find((p) => p.id === otherId);
-        
-        // Get messages for this connection
-        const connMessages = messages?.filter((m) => m.connection_id === conn.id) || [];
-        const lastMsg = connMessages[0]; // Already sorted desc
-        
-        // Count unread messages from other user (not from current user, no read_at)
-        const unreadCount = connMessages.filter(
-          (m) => m.sender_id !== currentUser.id && !m.read_at
-        ).length;
+        const lastMsg = lastMessageMap.get(conn.id);
 
         return {
           connectionId: conn.id,
@@ -99,11 +112,10 @@ export function useChatsPreview() {
             ? { text: lastMsg.text, created_at: lastMsg.created_at }
             : null,
           lastMessageFromMe: !!lastMsg && lastMsg.sender_id === currentUser.id,
-          unreadCount,
+          unreadCount: unreadCountMap.get(conn.id) || 0,
         };
       });
 
-      // Sort by last message timestamp
       chatPreviews.sort((a, b) => {
         if (!a.lastMessage && !b.lastMessage) return 0;
         if (!a.lastMessage) return 1;

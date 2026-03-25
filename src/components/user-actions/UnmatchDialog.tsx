@@ -17,6 +17,7 @@ import {
 interface UnmatchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  targetUserId: string;
   targetUserName: string;
   connectionId: string;
   onComplete?: () => void;
@@ -25,6 +26,7 @@ interface UnmatchDialogProps {
 export function UnmatchDialog({
   open,
   onOpenChange,
+  targetUserId,
   targetUserName,
   connectionId,
   onComplete,
@@ -47,12 +49,17 @@ export function UnmatchDialog({
         return;
       }
 
-      // Invalidate caches
+      // Optimistic update: remove user from discover cache
+      queryClient.setQueriesData(
+        { queryKey: ["discover-profiles"] },
+        (old: any) => Array.isArray(old) ? old.filter((p: any) => p.id !== targetUserId) : old
+      );
+
+      // Invalidate other caches
       if (user) {
         queryClient.invalidateQueries({ queryKey: ["chats-preview", user.id] });
         queryClient.invalidateQueries({ queryKey: ["accepted-connections", user.id] });
         queryClient.invalidateQueries({ queryKey: ["chat", connectionId] });
-        queryClient.invalidateQueries({ queryKey: ["discover-profiles"] });
       }
 
       toast.success("Verbindung beendet");

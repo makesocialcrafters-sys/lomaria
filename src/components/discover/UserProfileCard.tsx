@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { STUDY_PROGRAMS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import type { UserProfile } from "@/hooks/useDiscoverProfiles";
@@ -7,7 +8,7 @@ interface UserProfileCardProps {
   onClick?: () => void;
 }
 
-export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
+const UserProfileCardInner = ({ user, onClick }: UserProfileCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -90,4 +91,6 @@ export function UserProfileCard({ user, onClick }: UserProfileCardProps) {
       </div>
     </div>
   );
-}
+};
+
+export const UserProfileCard = React.memo(UserProfileCardInner);
