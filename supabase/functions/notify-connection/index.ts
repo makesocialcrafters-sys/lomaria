@@ -9,7 +9,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// HTML escape to prevent XSS in email templates
 function escapeHtml(unsafe: string): string {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -19,14 +18,12 @@ function escapeHtml(unsafe: string): string {
     .replace(/'/g, "&#039;");
 }
 
-// UUID v4 validation
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isValidUUID(value: unknown): value is string {
   return typeof value === "string" && UUID_REGEX.test(value);
 }
 
-// Lomaria Brand Colors
 const BRAND_COLORS = {
   background: "#0c0c0c",
   cardBg: "#1a1a1a",
@@ -37,7 +34,6 @@ const BRAND_COLORS = {
   border: "#2a2a2a",
 };
 
-// Study program labels
 const STUDY_PROGRAMS: Record<string, string> = {
   bachelor_wiso: "Bachelor Wirtschafts- und Sozialwissenschaften",
   bachelor_bwl: "Bachelor Betriebswirtschaft",
@@ -144,6 +140,22 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // --- Rate limiting: max 10 email notifications per sender per hour ---
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count } = await supabase
+      .from("messages")
+      .select("*", { count: "exact", head: true })
+      .eq("sender_id", fromUserId)
+      .gte("created_at", oneHourAgo);
+
+    if ((count ?? 0) > 10) {
+      console.log(`Rate limit exceeded for sender ${fromUserId}`);
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded" }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // Sanitize and limit message length
     const sanitizedMessage = message
       ? escapeHtml(String(message).substring(0, 2000))
@@ -166,7 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Fetch recipient info
     const { data: recipient, error: recipientError } = await supabase
       .from("users")
-      .select("first_name, last_name, email, email_notifications_enabled")
+      .select("first_name, last_name, email, email_notifications_enabled, last_active_at")
       .eq("id", toUserId)
       .single();
 
@@ -182,6 +194,21 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ success: true, skipped: true, reason: "notifications_disabled" }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
+    }
+
+    // Skip new_message email if recipient is currently active (within 2 minutes)
+    if (type === "new_message") {
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+      if (
+        recipient.last_active_at &&
+        recipient.last_active_at > twoMinutesAgo
+      ) {
+        console.log(`Recipient ${toUserId} is active, skipping new_message email`);
+        return new Response(
+          JSON.stringify({ success: true, skipped: true, reason: "recipient_active" }),
+          { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
     }
 
     const senderName = escapeHtml(`${sender.first_name || ""} ${sender.last_name || ""}`.trim() || "Ein Nutzer");

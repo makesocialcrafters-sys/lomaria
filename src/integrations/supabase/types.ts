@@ -313,7 +313,6 @@ export type Database = {
           first_name: string | null
           focus: string | null
           id: string | null
-          intent_details: Json | null
           intents: string[] | null
           interests: string[] | null
           last_active_at: string | null
@@ -333,7 +332,6 @@ export type Database = {
           first_name?: string | null
           focus?: string | null
           id?: string | null
-          intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
           last_active_at?: string | null
@@ -353,7 +351,6 @@ export type Database = {
           first_name?: string | null
           focus?: string | null
           id?: string | null
-          intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
           last_active_at?: string | null
