@@ -13,11 +13,6 @@ import {
   STUDY_PROGRAMS, 
   INTENTS, 
   INTERESTS,
-  INTENT_DETAIL_OPTIONS,
-  INTENT_LABELS,
-  getIntentDetailLabel,
-  getIntentDetailFieldTitle,
-  type IntentDetails
 } from "@/lib/onboarding-constants";
 
 
@@ -36,7 +31,6 @@ interface UserProfile {
   tutoring_desc: string | null;
   tutoring_price: number | null;
   bio: string | null;
-  intent_details?: IntentDetails | null;
 }
 
 // Connection types for role-based CTA logic
@@ -310,32 +304,13 @@ export default function ProfileDetail() {
         {profile.intents && profile.intents.length > 0 && (
           <div className="mb-6">
             <h3 className="font-display text-xs uppercase tracking-[0.15em] text-muted-foreground mb-3">Suche nach</h3>
-            <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
               {profile.intents.map((intentValue) => {
                 const intentLabel = INTENTS.find((int) => int.value === intentValue)?.label;
-                const details = profile.intent_details?.[intentValue];
-                const hasDetails = details && Object.keys(details).length > 0;
-
                 return (
-                  <div key={intentValue} className="p-3 bg-card border border-primary/10 rounded-lg">
-                    <p className="text-sm font-medium text-foreground">{intentLabel}</p>
-                    {hasDetails && (
-                      <div className="mt-2 space-y-1">
-                        {Object.entries(details).map(([field, value]) => {
-                          const fieldTitle = getIntentDetailFieldTitle(intentValue, field);
-                          const labels = Array.isArray(value)
-                            ? value.map((v) => getIntentDetailLabel(intentValue, field, v)).join(", ")
-                            : getIntentDetailLabel(intentValue, field, value);
-                          
-                          return (
-                            <p key={field} className="text-xs text-muted-foreground">
-                              <span className="text-foreground/70">{fieldTitle}:</span> {labels}
-                            </p>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                  <span key={intentValue} className="text-sm px-3 py-1 bg-card border border-primary/10 rounded text-foreground/80">
+                    {intentLabel}
+                  </span>
                 );
               })}
             </div>
