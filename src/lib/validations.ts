@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-// For testing: @gmail.com allowed. Change to @s.wu.ac.at for production
-const ALLOWED_EMAIL_DOMAIN = "@gmail.com";
+const ALLOWED_EMAIL_DOMAIN = "@s.wu.ac.at";
 
 export const emailSchema = z
   .string()
