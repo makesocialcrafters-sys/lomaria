@@ -212,14 +212,12 @@ const profileData = {
 {step === 4 && (
           <Step4Intents
             intents={data.intents}
-            intentDetails={data.intent_details}
             tutoringData={{
               tutoring_subject: data.tutoring_subject,
               tutoring_desc: data.tutoring_desc,
               tutoring_price: data.tutoring_price,
             }}
             onUpdate={updateData}
-            onUpdateIntentDetails={updateIntentDetails}
             onUpdateTutoring={(tutoringData) => updateData({
               tutoring_subject: tutoringData.tutoring_subject ?? data.tutoring_subject,
               tutoring_desc: tutoringData.tutoring_desc ?? data.tutoring_desc,
