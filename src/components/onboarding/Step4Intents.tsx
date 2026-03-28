@@ -19,19 +19,11 @@ interface Step4Props {
   onUpdateTutoring: (data: Partial<TutoringData>) => void;
   onNext: () => void;
   onBack: () => void;
-}
-  onUpdateIntentDetails: (intent: string, field: string, value: string | string[]) => void;
-  onUpdateTutoring: (data: Partial<TutoringData>) => void;
-  onNext: () => void;
-  onBack: () => void;
-}
 
 export function Step4Intents({ 
   intents, 
-  intentDetails,
   tutoringData,
   onUpdate, 
-  onUpdateIntentDetails,
   onUpdateTutoring,
   onNext, 
   onBack 
