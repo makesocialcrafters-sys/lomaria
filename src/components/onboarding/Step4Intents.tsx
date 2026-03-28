@@ -14,9 +14,12 @@ interface TutoringData {
 
 interface Step4Props {
   intents: string[];
-  intentDetails: IntentDetails;
   tutoringData: TutoringData;
   onUpdate: (data: { intents: string[] }) => void;
+  onUpdateTutoring: (data: Partial<TutoringData>) => void;
+  onNext: () => void;
+  onBack: () => void;
+}
   onUpdateIntentDetails: (intent: string, field: string, value: string | string[]) => void;
   onUpdateTutoring: (data: Partial<TutoringData>) => void;
   onNext: () => void;
