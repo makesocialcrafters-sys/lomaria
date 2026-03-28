@@ -19,8 +19,9 @@ interface Step4Props {
   onUpdateTutoring: (data: Partial<TutoringData>) => void;
   onNext: () => void;
   onBack: () => void;
+}
 
-export function Step4Intents({ 
+
   intents, 
   tutoringData,
   onUpdate, 
