@@ -4,9 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { INTENTS, TUTORING_SUGGESTIONS } from "@/lib/onboarding-constants";
-import { INTENT_DETAIL_OPTIONS, IntentDetails } from "@/lib/onboarding-constants";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 interface TutoringData {
   tutoring_subject: string;
@@ -62,16 +60,6 @@ export function Step4Intents({
           tutoring_price: null,
         });
       }
-      // Clear intent details when deselecting
-      if (intentDetails[intentValue]) {
-        // Clear by setting empty values for each field
-        const config = INTENT_DETAIL_OPTIONS[intentValue];
-        if (config) {
-          config.screens.forEach(screen => {
-            onUpdateIntentDetails(intentValue, screen.id, screen.multiSelect ? [] : "");
-          });
-        }
-      }
     }
   };
 
@@ -101,10 +89,8 @@ export function Step4Intents({
             intent={intent.value}
             label={intent.label}
             isActive={intents.includes(intent.value)}
-            intentDetails={intentDetails}
             tutoringData={tutoringData}
             onToggle={handleIntentToggle}
-            onDetailChange={onUpdateIntentDetails}
             onTutoringChange={onUpdateTutoring}
           />
         ))}
@@ -131,10 +117,8 @@ interface IntentChipInlineProps {
   intent: string;
   label: string;
   isActive: boolean;
-  intentDetails: IntentDetails;
   tutoringData: TutoringData;
   onToggle: (intent: string, checked: boolean) => void;
-  onDetailChange: (intent: string, field: string, value: string | string[]) => void;
   onTutoringChange: (data: Partial<TutoringData>) => void;
 }
 
@@ -142,15 +126,11 @@ function IntentChipInline({
   intent,
   label,
   isActive,
-  intentDetails,
   tutoringData,
   onToggle,
-  onDetailChange,
   onTutoringChange,
 }: IntentChipInlineProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const hasDetailScreens = !!INTENT_DETAIL_OPTIONS[intent];
-  const details = intentDetails[intent] || {};
   const isNachhilfe = intent === "nachhilfe_anbieten";
 
   const filteredSuggestions = isNachhilfe
@@ -158,71 +138,6 @@ function IntentChipInline({
         s.toLowerCase().includes(tutoringData.tutoring_subject.toLowerCase())
       )
     : [];
-
-  // Check if a value is selected for a field
-  const isSelected = (fieldId: string, optionValue: string): boolean => {
-    const fieldValue = details[fieldId];
-    if (!fieldValue) return false;
-    if (Array.isArray(fieldValue)) {
-      return fieldValue.includes(optionValue);
-    }
-    return fieldValue === optionValue;
-  };
-
-  // Toggle selection for multi-select or single-select
-  const handleOptionToggle = (fieldId: string, optionValue: string, isMultiSelect: boolean) => {
-    const currentValue = details[fieldId];
-    
-    if (isMultiSelect) {
-      const currentArray = Array.isArray(currentValue) ? currentValue : [];
-      const newArray = currentArray.includes(optionValue)
-        ? currentArray.filter(v => v !== optionValue)
-        : [...currentArray, optionValue];
-      onDetailChange(intent, fieldId, newArray);
-    } else {
-      const newValue = currentValue === optionValue ? "" : optionValue;
-      onDetailChange(intent, fieldId, newValue);
-    }
-  };
-
-  // Render inline detail chips for each screen
-  const renderInlineDetailFields = () => {
-    if (!hasDetailScreens || !isActive) return null;
-    
-    const config = INTENT_DETAIL_OPTIONS[intent];
-    
-    return (
-      <div className="mt-3 space-y-3 pt-3 border-t border-border/50">
-        {config.screens.map(screen => (
-          <div key={screen.id}>
-            <label className="text-xs text-muted-foreground mb-1.5 block">
-              {screen.title}
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {screen.options.map(option => {
-                const selected = isSelected(screen.id, option.value);
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handleOptionToggle(screen.id, option.value, screen.multiSelect)}
-                    className={cn(
-                      "px-2.5 py-1 text-xs rounded-md border transition-colors",
-                      selected
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50"
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   // Render tutoring fields inline
   const renderTutoringFields = () => {
@@ -324,7 +239,6 @@ function IntentChipInline({
             {label}
           </label>
           
-          {renderInlineDetailFields()}
           {renderTutoringFields()}
         </div>
       </div>
