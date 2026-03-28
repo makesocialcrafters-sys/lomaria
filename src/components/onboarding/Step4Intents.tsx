@@ -21,7 +21,7 @@ interface Step4Props {
   onBack: () => void;
 }
 
-
+export function Step4Intents({ 
   intents, 
   tutoringData,
   onUpdate, 
