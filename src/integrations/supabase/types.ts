@@ -10,364 +10,138 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
-      blocks: {
+      profiles: {
         Row: {
-          blocked_id: string
-          blocker_id: string
-          created_at: string | null
-          id: string
-        }
-        Insert: {
-          blocked_id: string
-          blocker_id: string
-          created_at?: string | null
-          id?: string
-        }
-        Update: {
-          blocked_id?: string
-          blocker_id?: string
-          created_at?: string | null
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blocks_blocked_id_fkey"
-            columns: ["blocked_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocked_id_fkey"
-            columns: ["blocked_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocker_id_fkey"
-            columns: ["blocker_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blocks_blocker_id_fkey"
-            columns: ["blocker_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      connections: {
-        Row: {
-          created_at: string
-          from_user: string
-          id: string
-          message: string | null
-          rejected_at: string | null
-          status: string
-          to_user: string
-        }
-        Insert: {
-          created_at?: string
-          from_user: string
-          id?: string
-          message?: string | null
-          rejected_at?: string | null
-          status?: string
-          to_user: string
-        }
-        Update: {
-          created_at?: string
-          from_user?: string
-          id?: string
-          message?: string | null
-          rejected_at?: string | null
-          status?: string
-          to_user?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "connections_from_user_fkey"
-            columns: ["from_user"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_from_user_fkey"
-            columns: ["from_user"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_to_user_fkey"
-            columns: ["to_user"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_to_user_fkey"
-            columns: ["to_user"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      messages: {
-        Row: {
-          connection_id: string
-          created_at: string
-          id: string
-          read_at: string | null
-          sender_id: string
-          text: string
-        }
-        Insert: {
-          connection_id: string
-          created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id: string
-          text: string
-        }
-        Update: {
-          connection_id?: string
-          created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id?: string
-          text?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_connection_id_fkey"
-            columns: ["connection_id"]
-            isOneToOne: false
-            referencedRelation: "connections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      reports: {
-        Row: {
-          created_at: string | null
-          id: string
-          reason: string
-          reported_id: string
-          reporter_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          reason: string
-          reported_id: string
-          reporter_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          reason?: string
-          reported_id?: string
-          reporter_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reports_reported_id_fkey"
-            columns: ["reported_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reports_reported_id_fkey"
-            columns: ["reported_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reports_reporter_id_fkey"
-            columns: ["reporter_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reports_reporter_id_fkey"
-            columns: ["reporter_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      users: {
-        Row: {
-          age: number | null
-          auth_user_id: string
+          avatar_url: string | null
           bio: string | null
-          birthyear: number | null
-          created_at: string | null
-          email: string
-          email_notifications_enabled: boolean
-          first_name: string | null
-          focus: string | null
-          gender: string | null
+          club_name: string | null
+          created_at: string
+          display_name: string | null
           id: string
-          intent_details: Json | null
-          intents: string[] | null
-          interests: string[] | null
-          last_active_at: string | null
-          last_name: string | null
-          profile_image: string | null
-          semester: string | null
-          study_phase: string | null
-          study_program: string | null
-          tutoring_desc: string | null
-          tutoring_price: number | null
-          tutoring_subject: string | null
+          position: string | null
+          total_earnings: number
+          username: string | null
         }
         Insert: {
-          age?: number | null
-          auth_user_id: string
+          avatar_url?: string | null
           bio?: string | null
-          birthyear?: number | null
-          created_at?: string | null
-          email: string
-          email_notifications_enabled?: boolean
-          first_name?: string | null
-          focus?: string | null
-          gender?: string | null
-          id?: string
-          intent_details?: Json | null
-          intents?: string[] | null
-          interests?: string[] | null
-          last_active_at?: string | null
-          last_name?: string | null
-          profile_image?: string | null
-          semester?: string | null
-          study_phase?: string | null
-          study_program?: string | null
-          tutoring_desc?: string | null
-          tutoring_price?: number | null
-          tutoring_subject?: string | null
+          club_name?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          position?: string | null
+          total_earnings?: number
+          username?: string | null
         }
         Update: {
-          age?: number | null
-          auth_user_id?: string
+          avatar_url?: string | null
           bio?: string | null
-          birthyear?: number | null
-          created_at?: string | null
-          email?: string
-          email_notifications_enabled?: boolean
-          first_name?: string | null
-          focus?: string | null
-          gender?: string | null
+          club_name?: string | null
+          created_at?: string
+          display_name?: string | null
           id?: string
-          intent_details?: Json | null
-          intents?: string[] | null
-          interests?: string[] | null
-          last_active_at?: string | null
-          last_name?: string | null
-          profile_image?: string | null
-          semester?: string | null
-          study_phase?: string | null
-          study_program?: string | null
-          tutoring_desc?: string | null
-          tutoring_price?: number | null
-          tutoring_subject?: string | null
+          position?: string | null
+          total_earnings?: number
+          username?: string | null
         }
         Relationships: []
+      }
+      tips: {
+        Row: {
+          amount: number
+          created_at: string
+          fan_name: string | null
+          id: string
+          message: string | null
+          player_id: string
+          status: string
+          stripe_session_id: string | null
+          video_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          fan_name?: string | null
+          id?: string
+          message?: string | null
+          player_id: string
+          status?: string
+          stripe_session_id?: string | null
+          video_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fan_name?: string | null
+          id?: string
+          message?: string | null
+          player_id?: string
+          status?: string
+          stripe_session_id?: string | null
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tips_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tips_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          created_at: string
+          id: string
+          player_id: string
+          title: string
+          video_url: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          player_id: string
+          title: string
+          video_url: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          player_id?: string
+          title?: string
+          video_url?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      user_profiles: {
-        Row: {
-          age: number | null
-          bio: string | null
-          created_at: string | null
-          first_name: string | null
-          focus: string | null
-          id: string | null
-          intents: string[] | null
-          interests: string[] | null
-          last_active_at: string | null
-          last_name: string | null
-          profile_image: string | null
-          semester: string | null
-          study_phase: string | null
-          study_program: string | null
-          tutoring_desc: string | null
-          tutoring_price: number | null
-          tutoring_subject: string | null
-        }
-        Insert: {
-          age?: number | null
-          bio?: string | null
-          created_at?: string | null
-          first_name?: string | null
-          focus?: string | null
-          id?: string | null
-          intents?: string[] | null
-          interests?: string[] | null
-          last_active_at?: string | null
-          last_name?: string | null
-          profile_image?: string | null
-          semester?: string | null
-          study_phase?: string | null
-          study_program?: string | null
-          tutoring_desc?: string | null
-          tutoring_price?: number | null
-          tutoring_subject?: string | null
-        }
-        Update: {
-          age?: number | null
-          bio?: string | null
-          created_at?: string | null
-          first_name?: string | null
-          focus?: string | null
-          id?: string | null
-          intents?: string[] | null
-          interests?: string[] | null
-          last_active_at?: string | null
-          last_name?: string | null
-          profile_image?: string | null
-          semester?: string | null
-          study_phase?: string | null
-          study_program?: string | null
-          tutoring_desc?: string | null
-          tutoring_price?: number | null
-          tutoring_subject?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_view_count: { Args: { video_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
