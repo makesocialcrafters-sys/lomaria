@@ -46,7 +46,7 @@ const Index = () => {
                      hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background
                      animate-cinematic-stagger-5">
-          Mit Email anmelden
+          Anmelden
         </button>
         
         {/* Disclaimer */}
@@ -207,7 +207,7 @@ const Index = () => {
           <button onClick={() => navigate("/auth")} className="px-12 py-4 min-h-[48px] border border-primary/50 text-primary font-display text-sm tracking-[0.1em]
                        hover:border-primary/80 transition-all duration-700 ease-out bg-transparent
                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-            Jetzt dabei sein
+            Anmelden
           </button>
         </div>
       </section>
