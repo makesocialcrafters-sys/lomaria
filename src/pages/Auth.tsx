@@ -21,7 +21,7 @@ export default function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [view, setView] = useState<ForgotPasswordView>("auth");
   const [showPassword, setShowPassword] = useState(false);
-  const { user, loading, authEvent, clearAuthEvent, signIn, signUp, signInWithGoogle } = useAuth();
+  const { user, loading, authEvent, clearAuthEvent, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
