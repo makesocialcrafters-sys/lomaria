@@ -51,7 +51,7 @@ const Index = () => {
         
         {/* Disclaimer */}
         <p className="font-display text-[10px] text-foreground/25 tracking-[0.08em] mt-6 animate-cinematic-stagger-5">
-          Zugang nur für verifizierte Studierende.
+          {"\n"}
         </p>
         
         {/* Scroll Indicator */}
