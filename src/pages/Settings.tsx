@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Settings as SettingsIcon, User, MapPin, AtSign, Trash2, CreditCard } from "lucide-react";
+import { Settings as SettingsIcon, User, MapPin, AtSign, Trash2, CreditCard, ExternalLink } from "lucide-react";
 import { Check, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,10 +32,12 @@ const SectionCard = ({ icon: Icon, title, children }: { icon: React.ElementType;
 
 const Settings = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, refreshProfile, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [connectLoading, setConnectLoading] = useState(false);
 
   // Editable fields
   const [displayName, setDisplayName] = useState("");
@@ -55,6 +57,18 @@ const Settings = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteText, setDeleteText] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  // Handle Stripe Connect return URLs
+  useEffect(() => {
+    const connect = searchParams.get("connect");
+    if (connect === "success") {
+      toast.success("Stripe-Konto erfolgreich verbunden! ✅");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (connect === "refresh") {
+      toast.info("Bitte starte das Stripe-Onboarding erneut.");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user) return;
@@ -163,6 +177,22 @@ const Settings = () => {
       toast.error("Speichern fehlgeschlagen. Bitte versuche es nochmal.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleConnectOnboarding = async () => {
+    setConnectLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke("connect-onboarding", {
+        headers: { authorization: `Bearer ${session?.access_token}` },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (err: any) {
+      console.error("Connect error:", err);
+      toast.error("Stripe-Verbindung fehlgeschlagen. Bitte versuche es nochmal.");
+      setConnectLoading(false);
     }
   };
 
@@ -310,16 +340,49 @@ const Settings = () => {
             </div>
           </SectionCard>
 
-          {/* Payment Info (placeholder) */}
-          <SectionCard icon={CreditCard} title="ZAHLUNGSINFORMATIONEN">
-            <div className="rounded-lg border border-border bg-background p-4 text-center">
-              <p className="text-muted-foreground text-sm">
-                💳 Zahlungsinformationen werden bald verfügbar sein.
-              </p>
-              <p className="text-muted-foreground/60 text-xs mt-1">
-                Hier kannst du später dein Stripe-Konto verbinden, um Auszahlungen zu erhalten.
-              </p>
-            </div>
+          {/* Stripe Connect */}
+          <SectionCard icon={CreditCard} title="AUSZAHLUNGEN">
+            {profile.stripe_account_id ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-green-500 font-medium">
+                  <Check className="w-4 h-4" />
+                  Stripe-Konto verbunden
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Deine Einnahmen werden automatisch auf dein Stripe-Konto überwiesen.
+                  Du kannst dein Konto im Stripe-Dashboard verwalten.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 border-card-border"
+                  onClick={handleConnectOnboarding}
+                  disabled={connectLoading}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  {connectLoading ? "Weiterleitung…" : "Stripe-Konto verwalten"}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Verbinde dein Stripe-Konto, um Auszahlungen zu erhalten. Du wirst durch
+                  das sichere Stripe-Onboarding geleitet (KYC + IBAN).
+                </p>
+                <p className="text-xs text-muted-foreground/70">
+                  Die Plattform behält 10 % als Servicegebühr. Der Rest geht direkt an dich.
+                </p>
+                <Button
+                  variant="neon"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={handleConnectOnboarding}
+                  disabled={connectLoading}
+                >
+                  {connectLoading ? "Weiterleitung…" : "💳 Stripe verbinden & Auszahlungen aktivieren"}
+                </Button>
+              </div>
+            )}
           </SectionCard>
 
           {/* Save */}

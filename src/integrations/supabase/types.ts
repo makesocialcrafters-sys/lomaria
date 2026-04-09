@@ -23,6 +23,7 @@ export type Database = {
           display_name: string | null
           id: string
           position: string | null
+          stripe_account_id: string | null
           total_earnings: number
           username: string | null
         }
@@ -34,6 +35,7 @@ export type Database = {
           display_name?: string | null
           id: string
           position?: string | null
+          stripe_account_id?: string | null
           total_earnings?: number
           username?: string | null
         }
@@ -45,6 +47,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           position?: string | null
+          stripe_account_id?: string | null
           total_earnings?: number
           username?: string | null
         }

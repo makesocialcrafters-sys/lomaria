@@ -7,6 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const PLATFORM_FEE_PERCENT = 0.10; // 10%
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -33,11 +35,12 @@ Deno.serve(async (req) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, stripe_account_id")
       .eq("id", playerId)
       .single();
 
     const playerName = profile?.display_name || "Spieler";
+    const stripeAccountId = profile?.stripe_account_id ?? null;
 
     // Insert pending tip
     const { data: tip, error: tipError } = await supabase
@@ -55,10 +58,13 @@ Deno.serve(async (req) => {
 
     if (tipError) throw tipError;
 
-    const origin = req.headers.get("origin") || "https://footykick.lovable.app";
+    const origin = req.headers.get("origin") || "https://footytips.app";
+    const applicationFeeAmount = Math.round(amount * PLATFORM_FEE_PERCENT);
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      // Card covers Apple Pay & Google Pay wallets automatically on eligible devices.
+      // Explicit wallet entries unlock them as distinct line items in the Stripe Dashboard.
+      payment_method_types: ["card", "link"],
       mode: "payment",
       line_items: [
         {
@@ -75,6 +81,15 @@ Deno.serve(async (req) => {
           quantity: 1,
         },
       ],
+      // Destination charge: route funds to creator, keep platform fee
+      ...(stripeAccountId
+        ? {
+            payment_intent_data: {
+              application_fee_amount: applicationFeeAmount,
+              transfer_data: { destination: stripeAccountId },
+            },
+          }
+        : {}),
       metadata: {
         tip_id: tip.id,
         player_id: playerId,

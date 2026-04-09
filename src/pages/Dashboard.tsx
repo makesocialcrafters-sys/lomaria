@@ -21,13 +21,14 @@ const Dashboard = () => {
   const [tips, setTips] = useState<Tip[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Initial data load
   useEffect(() => {
     if (!user) return;
     const load = async () => {
       const [profileRes, videosRes, tipsRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('videos').select('*').eq('player_id', user.id).order('created_at', { ascending: false }),
-        supabase.from('tips').select('*').eq('player_id', user.id).eq('status', 'completed').order('created_at', { ascending: false }).limit(20),
+        supabase.from("profiles").select("*").eq("id", user.id).single(),
+        supabase.from("videos").select("*").eq("player_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("tips").select("*").eq("player_id", user.id).eq("status", "completed").order("created_at", { ascending: false }).limit(20),
       ]);
       setProfile(profileRes.data as Profile | null);
       setVideos((videosRes.data as Video[]) ?? []);
@@ -35,6 +36,41 @@ const Dashboard = () => {
       setLoading(false);
     };
     load();
+  }, [user]);
+
+  // Realtime: listen for newly completed tips
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`dashboard-tips-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tips",
+          filter: `player_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const incoming = payload.new as Tip;
+          if (incoming.status !== "completed") return;
+
+          // Prepend tip (avoid duplicate if initial fetch already got it)
+          setTips((prev) => {
+            if (prev.some((t) => t.id === incoming.id)) return prev;
+            return [incoming, ...prev].slice(0, 20);
+          });
+
+          // Update earnings counter in real time
+          setProfile((prev) =>
+            prev ? { ...prev, total_earnings: prev.total_earnings + incoming.amount } : prev
+          );
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
   if (loading || !profile) {
@@ -93,7 +129,10 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <h2 className="font-display text-2xl mb-4">FAN-NACHRICHTEN</h2>
+            <h2 className="font-display text-2xl mb-4">
+              FAN-NACHRICHTEN
+              <span className="ml-2 inline-block w-2 h-2 rounded-full bg-neon animate-pulse" title="Live" />
+            </h2>
             {tips.length === 0 ? (
               <div className="rounded-xl border border-card-border bg-card p-8 text-center">
                 <p className="text-4xl mb-2">💌</p>

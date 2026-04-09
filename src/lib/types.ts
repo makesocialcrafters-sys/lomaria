@@ -17,6 +17,7 @@ export interface Profile {
   position: string | null
   avatar_url: string | null
   bio: string | null
+  stripe_account_id: string | null
   total_earnings: number
   created_at: string
 }
