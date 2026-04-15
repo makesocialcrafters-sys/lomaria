@@ -114,7 +114,7 @@ const Index = () => {
           </h3>
           
           <p className="font-display text-sm text-foreground/50 leading-relaxed">
-            Zugang nur mit verifizierter E-Mail-Adresse. Wir halten die Community sicher, exklusiv und frei von Fakes.
+            Zugang nur mit verifizierter E-Mail-Adresse. Wir halten die Community sicher und exklusiv.
           </p>
           
           <div className="w-16 h-px bg-primary/40 mx-auto mt-12" role="presentation" aria-hidden="true" />
