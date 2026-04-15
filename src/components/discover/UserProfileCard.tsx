@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { STUDY_PROGRAMS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import type { UserProfile } from "@/hooks/useDiscoverProfiles";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 
 interface UserProfileCardProps {
   user: UserProfile;
@@ -38,20 +39,12 @@ const UserProfileCardInner = ({ user, onClick }: UserProfileCardProps) => {
       className="bg-card border border-primary/10 rounded-xl p-6 cursor-pointer hover:border-primary/30 transition-all duration-500 ease-out"
     >
       <div className="flex items-start gap-5">
-        <div className="w-24 h-24 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
-          {user.profile_image ? (
-            <img
-              src={user.profile_image}
-              alt={user.first_name || "Profile"}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-2xl font-medium">
-              {user.first_name?.charAt(0)?.toUpperCase() || "?"}
-            </div>
-          )}
-        </div>
+        <SignedAvatar
+          storagePath={user.profile_image}
+          name={user.first_name}
+          className="w-24 h-24 flex-shrink-0"
+          fallbackClassName="text-2xl font-medium"
+        />
 
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
