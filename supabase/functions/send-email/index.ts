@@ -1,12 +1,8 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@2.0.0";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { Resend } from "https://esm.sh/resend@2.1.0";
+import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 // Lomaria Brand Colors
 const BRAND_COLORS = {
@@ -202,11 +198,58 @@ interface EmailRequest {
   data: Record<string, unknown>;
 }
 
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+// Rate limiting helper
+async function checkRateLimit(userId: string, action: string): Promise<boolean> {
+  const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+
+  // Try to get existing record
+  const { data: existing } = await supabase
+    .from("rate_limits")
+    .select("request_count, window_start")
+    .eq("user_id", userId)
+    .eq("action", action)
+    .maybeSingle();
+
+  if (!existing) {
+    // First request — insert
+    await supabase.from("rate_limits").insert({ user_id: userId, action, request_count: 1 });
+    return true;
   }
+
+  if (existing.window_start < oneMinuteAgo) {
+    // Window expired — reset
+    await supabase
+      .from("rate_limits")
+      .update({ request_count: 1, window_start: new Date().toISOString() })
+      .eq("user_id", userId)
+      .eq("action", action);
+    return true;
+  }
+
+  if (existing.request_count >= 5) {
+    return false; // Rate limited
+  }
+
+  // Increment
+  await supabase
+    .from("rate_limits")
+    .update({ request_count: existing.request_count + 1 })
+    .eq("user_id", userId)
+    .eq("action", action);
+  return true;
+}
+
+const handler = async (req: Request): Promise<Response> => {
+  const corsResponse = handleCorsPreflightRequest(req);
+  if (corsResponse) return corsResponse;
+
+  const corsHeaders = getCorsHeaders(req);
 
   try {
     // Verify JWT authentication
@@ -231,6 +274,17 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const userId = claimsData.claims.sub as string;
+
+    // Rate limiting: 5 requests per minute
+    const allowed = await checkRateLimit(userId, "send_email");
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded" }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -286,7 +340,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
       }
     );
   }

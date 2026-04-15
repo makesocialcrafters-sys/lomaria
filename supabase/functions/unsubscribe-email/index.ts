@@ -1,28 +1,23 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
 serve(async (req: Request) => {
   console.log("unsubscribe-email invoked");
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsResponse = handleCorsPreflightRequest(req);
+  if (corsResponse) return corsResponse;
+
+  const corsHeaders = getCorsHeaders(req);
 
   try {
     let email: string | null = null;
     const url = new URL(req.url);
 
-    // GET: URL parameter (footer link click)
     if (req.method === "GET") {
       email = url.searchParams.get("email");
     }
 
-    // POST: Form data (Gmail One-Click) or JSON
     if (req.method === "POST") {
       const contentType = req.headers.get("content-type") || "";
 
@@ -56,7 +51,6 @@ serve(async (req: Request) => {
       );
     }
 
-    // Validate email format and length
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email.length > 254 || !emailRegex.test(email)) {
       return new Response(
@@ -70,8 +64,6 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Always execute the update — returns 0 rows if email doesn't exist.
-    // No branching on result to keep response timing constant.
     await supabase
       .from("users")
       .update({ email_notifications_enabled: false })
@@ -87,7 +79,7 @@ serve(async (req: Request) => {
     console.error("Error in unsubscribe-email");
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   }
 });
