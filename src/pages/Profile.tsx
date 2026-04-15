@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOwnProfile } from "@/hooks/useOwnProfile";
@@ -165,11 +166,12 @@ export default function Profile() {
 
         {/* Profile Image */}
         <div className="flex justify-center mb-6">
-          <div className="w-28 h-28 rounded-full bg-skeleton overflow-hidden">
-            {userData?.profile_image ? <img src={userData.profile_image} alt={userData.first_name || "Profile"} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-display">
-                {userData?.first_name?.charAt(0)?.toUpperCase() || "?"}
-              </div>}
-          </div>
+          <SignedAvatar
+            storagePath={userData?.profile_image}
+            name={userData?.first_name}
+            className="w-28 h-28"
+            fallbackClassName="text-3xl"
+          />
         </div>
 
         {/* Name + Age + Gender */}

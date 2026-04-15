@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,8 +16,43 @@ export function ProfileImageUpload({ value, onChange, userId }: ProfileImageUplo
   const [uploading, setUploading] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Generate signed URL for preview when value changes
+  useEffect(() => {
+    if (!value) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const getSignedUrl = async () => {
+      let path = value;
+      if (path.startsWith("http")) {
+        const marker = "/avatars/";
+        const idx = path.indexOf(marker);
+        if (idx !== -1) {
+          path = path.substring(idx + marker.length).split("?")[0];
+        } else {
+          setPreviewUrl(null);
+          return;
+        }
+      } else {
+        path = path.split("?")[0];
+      }
+
+      const { data } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(path, 3600);
+
+      if (data?.signedUrl) {
+        setPreviewUrl(data.signedUrl);
+      }
+    };
+
+    getSignedUrl();
+  }, [value]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,14 +95,17 @@ export function ProfileImageUpload({ value, onChange, userId }: ProfileImageUplo
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: publicUrl } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
+      // Store relative path only
+      onChange(filePath);
 
-      // Add cache buster to force reload
-      const urlWithCacheBuster = `${publicUrl.publicUrl}?t=${Date.now()}`;
-      onChange(urlWithCacheBuster);
+      // Get signed URL for immediate preview
+      const { data: signedData } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(filePath, 3600);
+
+      if (signedData?.signedUrl) {
+        setPreviewUrl(signedData.signedUrl);
+      }
 
       toast({
         title: "Bild hochgeladen",
@@ -93,6 +131,7 @@ export function ProfileImageUpload({ value, onChange, userId }: ProfileImageUplo
 
   const handleRemoveImage = () => {
     onChange(null);
+    setPreviewUrl(null);
   };
 
   return (
@@ -108,9 +147,9 @@ export function ProfileImageUpload({ value, onChange, userId }: ProfileImageUplo
           uploading && "opacity-50"
         )}
       >
-        {value ? (
+        {previewUrl ? (
           <img
-            src={value}
+            src={previewUrl}
             alt="Profilbild"
             className="h-full w-full object-cover"
           />

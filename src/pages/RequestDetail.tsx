@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -211,18 +212,13 @@ export default function RequestDetail() {
           className="w-full flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity duration-300 mb-6"
         >
           {/* Profile Image */}
-          <div className="w-28 h-28 rounded-full bg-skeleton overflow-hidden mb-4">
-            {request.sender.profile_image ? (
-              <img
-                src={request.sender.profile_image}
-                alt={request.sender.first_name || "Profile"}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-3xl font-display">
-                {request.sender.first_name?.charAt(0)?.toUpperCase() || "?"}
-              </div>
-            )}
+          <div className="mb-4">
+            <SignedAvatar
+              storagePath={request.sender.profile_image}
+              name={request.sender.first_name}
+              className="w-28 h-28"
+              fallbackClassName="text-3xl"
+            />
           </div>
 
           {/* Name */}

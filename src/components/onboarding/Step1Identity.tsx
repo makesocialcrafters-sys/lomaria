@@ -20,6 +20,7 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
   const [uploading, setUploading] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [selectedImageSrc, setSelectedImageSrc] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -27,23 +28,61 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
   // Profile image is REQUIRED
   const isValid = firstName.trim().length > 0 && lastName.trim().length > 0 && !!profileImage;
 
+  // Generate signed URL for preview when profileImage changes
+  useEffect(() => {
+    if (!profileImage) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const getSignedUrl = async () => {
+      // Extract path from full URL or use as-is
+      let path = profileImage;
+      if (path.startsWith("http")) {
+        const marker = "/avatars/";
+        const idx = path.indexOf(marker);
+        if (idx !== -1) {
+          path = path.substring(idx + marker.length).split("?")[0];
+        } else {
+          setPreviewUrl(null);
+          return;
+        }
+      } else {
+        path = path.split("?")[0];
+      }
+
+      const { data } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(path, 3600);
+
+      if (data?.signedUrl) {
+        setPreviewUrl(data.signedUrl);
+      }
+    };
+
+    getSignedUrl();
+  }, [profileImage]);
+
   // Check for existing avatar on mount if no profile image in state
   useEffect(() => {
     if (!profileImage && user) {
       const checkExistingAvatar = async () => {
-        const { data: publicUrl } = supabase.storage
+        const path = `${user.id}/avatar.jpg`;
+        const { data } = await supabase.storage
           .from("avatars")
-          .getPublicUrl(`${user.id}/avatar.jpg`);
+          .createSignedUrl(path, 3600);
         
-        // Verify the image actually exists by loading it
-        const img = new Image();
-        img.onload = () => {
-          onUpdate({ profile_image: `${publicUrl.publicUrl}?t=${Date.now()}` });
-        };
-        img.onerror = () => {
-          // No existing avatar, do nothing
-        };
-        img.src = publicUrl.publicUrl;
+        if (data?.signedUrl) {
+          // Verify the image actually exists by loading it
+          const img = new Image();
+          img.onload = () => {
+            onUpdate({ profile_image: path });
+          };
+          img.onerror = () => {
+            // No existing avatar, do nothing
+          };
+          img.src = data.signedUrl;
+        }
       };
       checkExistingAvatar();
     }
@@ -92,14 +131,17 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: publicUrl } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
+      // Store relative path only
+      onUpdate({ profile_image: filePath });
 
-      // Add cache buster to force reload
-      const urlWithCacheBuster = `${publicUrl.publicUrl}?t=${Date.now()}`;
-      onUpdate({ profile_image: urlWithCacheBuster });
+      // Get signed URL for immediate preview
+      const { data: signedData } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(filePath, 3600);
+
+      if (signedData?.signedUrl) {
+        setPreviewUrl(signedData.signedUrl);
+      }
 
       toast({
         title: "Bild hochgeladen",
@@ -140,9 +182,9 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
           disabled={uploading}
           className="relative w-28 h-28 rounded-full bg-skeleton flex items-center justify-center overflow-hidden border-2 border-primary/30 hover:border-primary transition-colors duration-150"
         >
-          {profileImage ? (
+          {previewUrl ? (
             <img
-              src={profileImage}
+              src={previewUrl}
               alt="Profilbild"
               className="w-full h-full object-cover"
             />

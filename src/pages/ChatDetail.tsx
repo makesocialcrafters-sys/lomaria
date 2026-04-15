@@ -11,6 +11,7 @@ import { useChatData, Message, ChatData } from "@/hooks/useChatData";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
 import { IcebreakerStarters } from "@/components/chat/IcebreakerStarters";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 
 
 const INTENT_LABELS: Record<string, string> = {
@@ -274,18 +275,13 @@ export default function ChatDetail() {
           onClick={() => otherUser?.id && navigate(`/discover/profile/${otherUser.id}`)}
           className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-all duration-500"
         >
-          <div className="w-10 h-10 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
-            {otherUser?.profile_image ? (
-              <img
-                src={otherUser.profile_image}
-                alt={otherUser.first_name || "User"}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm font-display">
-                {otherUser?.first_name?.charAt(0)?.toUpperCase() || "?"}
-              </div>
-            )}
+          <div className="w-10 h-10 flex-shrink-0">
+            <SignedAvatar
+              storagePath={otherUser?.profile_image}
+              name={otherUser?.first_name}
+              className="w-10 h-10"
+              fallbackClassName="text-sm"
+            />
           </div>
           
           <div className="flex-1 min-w-0 text-left">

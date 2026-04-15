@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -272,15 +273,12 @@ export default function ProfileDetail() {
 
       <div className="px-6 py-8 pb-32">
         <div className="flex justify-center mb-6">
-          <div className="w-32 h-32 rounded-full bg-skeleton overflow-hidden">
-            {profile.profile_image ? (
-              <img src={profile.profile_image} alt={profile.first_name || "Profile"} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-4xl font-display">
-                {profile.first_name?.charAt(0)?.toUpperCase() || "?"}
-              </div>
-            )}
-          </div>
+          <SignedAvatar
+            storagePath={profile.profile_image}
+            name={profile.first_name}
+            className="w-32 h-32"
+            fallbackClassName="text-4xl"
+          />
         </div>
 
         <div className="text-center mb-6">
