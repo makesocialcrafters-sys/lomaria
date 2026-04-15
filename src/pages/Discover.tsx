@@ -200,7 +200,7 @@ export default function Discover() {
             </PopoverContent>
           </Popover>
         </div>
-        <div className="divider-subtle mb-8" />
+        
 
         {/* Filters */}
         <div className="mb-6">
