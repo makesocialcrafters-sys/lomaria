@@ -1,6 +1,7 @@
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OnboardingData, STUDY_PROGRAMS, GENDERS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 
 interface Step8Props {
   data: OnboardingData;
@@ -29,19 +30,12 @@ export function Step8Preview({ data, onBack, onSave, saving }: Step8Props) {
       <div className="bg-card border border-border/50 rounded-md p-6 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
-            {data.profile_image ? (
-              <img
-                src={data.profile_image}
-                alt="Profil"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <User className="w-8 h-8 text-muted-foreground" />
-              </div>
-            )}
-          </div>
+          <SignedAvatar
+            storagePath={data.profile_image}
+            name={data.first_name}
+            className="w-16 h-16 flex-shrink-0"
+            fallbackClassName="text-xl"
+          />
           <div>
             <h3 className="font-display font-bold text-lg text-foreground">
               {data.first_name} {data.last_name}

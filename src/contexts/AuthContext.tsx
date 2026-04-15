@@ -79,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    localStorage.removeItem('lomaria_onboarding_draft');
     await supabase.auth.signOut();
   };
 

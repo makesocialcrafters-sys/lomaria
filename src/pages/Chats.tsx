@@ -4,6 +4,7 @@ import { GoldLoader } from "@/components/ui/gold-loader";
 import { STUDY_PROGRAMS } from "@/lib/onboarding-constants";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 
 export default function Chats() {
   const navigate = useNavigate();
@@ -55,19 +56,12 @@ export default function Chats() {
               >
                 {/* Profile Image */}
                 <div className="relative w-12 h-12 flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-skeleton overflow-hidden">
-                    {chat.otherUser.profile_image ? (
-                      <img
-                        src={chat.otherUser.profile_image}
-                        alt={chat.otherUser.first_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-lg font-display">
-                        {chat.otherUser.first_name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
+                  <SignedAvatar
+                    storagePath={chat.otherUser.profile_image}
+                    name={chat.otherUser.first_name}
+                    className="w-12 h-12"
+                    fallbackClassName="text-lg"
+                  />
                   {/* Unread badge */}
                   {chat.unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-medium rounded-full min-w-5 h-5 flex items-center justify-center px-1.5">

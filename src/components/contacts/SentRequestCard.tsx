@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 
 interface SentRequestCardProps {
   recipientId: string;
@@ -25,19 +26,12 @@ export function SentRequestCard({
       className="w-full flex items-center gap-4 p-4 bg-card border border-border/30 rounded-md hover:border-primary/50 transition-colors text-left"
     >
       {/* Profile Image */}
-      <div className="w-14 h-14 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
-        {recipientImage ? (
-          <img
-            src={recipientImage}
-            alt={recipientName}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-lg font-medium">
-            {recipientName.charAt(0).toUpperCase()}
-          </div>
-        )}
-      </div>
+      <SignedAvatar
+        storagePath={recipientImage}
+        name={recipientName}
+        className="w-14 h-14 flex-shrink-0"
+        fallbackClassName="text-lg font-medium"
+      />
 
       {/* Content */}
       <div className="flex-1 min-w-0">

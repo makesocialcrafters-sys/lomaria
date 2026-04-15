@@ -1,13 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "https://esm.sh/resend@2.0.0";
+import { Resend } from "https://esm.sh/resend@2.1.0";
+import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 function escapeHtml(unsafe: string): string {
   return unsafe
@@ -103,12 +99,50 @@ interface NotifyRequest {
 
 const VALID_TYPES = ["contact_request", "request_accepted", "new_message"];
 
+// Rate limiting helper
+async function checkRateLimit(supabase: ReturnType<typeof createClient>, userId: string, action: string): Promise<boolean> {
+  const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+
+  const { data: existing } = await supabase
+    .from("rate_limits")
+    .select("request_count, window_start")
+    .eq("user_id", userId)
+    .eq("action", action)
+    .maybeSingle();
+
+  if (!existing) {
+    await supabase.from("rate_limits").insert({ user_id: userId, action, request_count: 1 });
+    return true;
+  }
+
+  if (existing.window_start < oneMinuteAgo) {
+    await supabase
+      .from("rate_limits")
+      .update({ request_count: 1, window_start: new Date().toISOString() })
+      .eq("user_id", userId)
+      .eq("action", action);
+    return true;
+  }
+
+  if (existing.request_count >= 5) {
+    return false;
+  }
+
+  await supabase
+    .from("rate_limits")
+    .update({ request_count: existing.request_count + 1 })
+    .eq("user_id", userId)
+    .eq("action", action);
+  return true;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   console.log("notify-connection invoked, method:", req.method);
   
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsResponse = handleCorsPreflightRequest(req);
+  if (corsResponse) return corsResponse;
+
+  const corsHeaders = getCorsHeaders(req);
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -140,15 +174,9 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // --- Rate limiting: max 10 email notifications per sender per hour ---
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { count } = await supabase
-      .from("messages")
-      .select("*", { count: "exact", head: true })
-      .eq("sender_id", fromUserId)
-      .gte("created_at", oneHourAgo);
-
-    if ((count ?? 0) > 10) {
+    // --- Rate limiting: 5 notifications per sender per minute ---
+    const allowed = await checkRateLimit(supabase, fromUserId, "notify_connection");
+    if (!allowed) {
       console.log(`Rate limit exceeded for sender ${fromUserId}`);
       return new Response(
         JSON.stringify({ error: "Rate limit exceeded" }),
@@ -319,7 +347,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: { "Content-Type": "application/json", ...getCorsHeaders(req) },
       }
     );
   }

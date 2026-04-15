@@ -1,16 +1,12 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  const corsResponse = handleCorsPreflightRequest(req);
+  if (corsResponse) return corsResponse;
+
+  const corsHeaders = getCorsHeaders(req);
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -22,7 +18,6 @@ serve(async (req) => {
       );
     }
 
-    // Extract JWT token and validate with getClaims
     const token = authHeader.replace("Bearer ", "");
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -42,13 +37,11 @@ serve(async (req) => {
     const authUserId = claimsData.claims.sub as string;
     console.log("Deleting account for user:", authUserId);
 
-    // Use service role client for admin operations
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // First get the user's public.users id
     const { data: userData } = await supabaseAdmin
       .from("users")
       .select("id")
@@ -56,7 +49,6 @@ serve(async (req) => {
       .single();
 
     if (userData) {
-      // Delete all messages where user is sender
       const { error: deleteMessagesError } = await supabaseAdmin
         .from("messages")
         .delete()
@@ -66,7 +58,6 @@ serve(async (req) => {
         console.error("Error deleting messages:", deleteMessagesError);
       }
 
-      // Delete all connections where user is involved
       const { error: deleteConnectionsError } = await supabaseAdmin
         .from("connections")
         .delete()
@@ -77,7 +68,6 @@ serve(async (req) => {
       }
     }
 
-    // Delete user data from public.users
     const { error: deleteDataError } = await supabaseAdmin
       .from("users")
       .delete()
@@ -87,7 +77,6 @@ serve(async (req) => {
       console.error("Error deleting user data:", deleteDataError);
     }
 
-    // Delete storage files (avatars)
     const { data: files } = await supabaseAdmin.storage
       .from("avatars")
       .list(authUserId);
@@ -98,7 +87,6 @@ serve(async (req) => {
       console.log("Deleted avatar files:", filePaths);
     }
 
-    // Delete auth account
     const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(authUserId);
 
     if (deleteAuthError) {

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -16,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useBlockedUsers, BlockedUser } from "@/hooks/useBlockedUsers";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 
 export function BlockedUsersList() {
   const { data: blockedUsers, isLoading } = useBlockedUsers();
@@ -91,12 +91,12 @@ export function BlockedUsersList() {
             key={user.blockId}
             className="flex items-center gap-4 p-4 bg-card border border-border/30 rounded-md"
           >
-            <Avatar className="w-12 h-12">
-              <AvatarImage src={user.profileImage || undefined} />
-              <AvatarFallback className="bg-muted text-muted-foreground">
-                {user.firstName?.charAt(0) || "?"}
-              </AvatarFallback>
-            </Avatar>
+            <SignedAvatar
+              storagePath={user.profileImage}
+              name={user.firstName}
+              className="w-12 h-12"
+              fallbackClassName="text-sm"
+            />
             <div className="flex-1 min-w-0">
               <p className="font-medium text-foreground truncate">{user.firstName}</p>
               <p className="text-sm text-muted-foreground truncate">

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { SignedAvatar } from "@/components/ui/SignedAvatar";
 
 interface IncomingRequestCardProps {
   connectionId: string;
@@ -30,15 +31,12 @@ export function IncomingRequestCard({
       onClick={() => navigate(`/contacts/request/${connectionId}`)}
       className="w-full flex items-center gap-4 p-4 bg-card border border-primary/20 rounded-md hover:border-primary/40 transition-all duration-500 ease-out text-left"
     >
-      <div className="w-14 h-14 rounded-full bg-skeleton overflow-hidden flex-shrink-0">
-        {senderImage ? (
-          <img src={senderImage} alt={senderName} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-lg font-medium">
-            {senderName.charAt(0).toUpperCase()}
-          </div>
-        )}
-      </div>
+      <SignedAvatar
+        storagePath={senderImage}
+        name={senderName}
+        className="w-14 h-14 flex-shrink-0"
+        fallbackClassName="text-lg font-medium"
+      />
 
       <div className="flex-1 min-w-0">
         <p className="font-display text-foreground truncate">{senderName}</p>
