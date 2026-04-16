@@ -391,7 +391,28 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_own_profile: {
+        Args: never
+        Returns: {
+          age: number
+          bio: string
+          email_notifications_enabled: boolean
+          first_name: string
+          focus: string
+          gender: string
+          id: string
+          intent_details: Json
+          intents: string[]
+          interests: string[]
+          last_name: string
+          profile_image: string
+          study_phase: string
+          study_program: string
+          tutoring_desc: string
+          tutoring_price: number
+          tutoring_subject: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
