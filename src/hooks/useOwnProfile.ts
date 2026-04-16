@@ -29,21 +29,33 @@ export function useOwnProfile() {
     queryFn: async (): Promise<OwnProfileData | null> => {
       if (!user) return null;
 
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, first_name, last_name, profile_image, age, gender, study_program, study_phase, focus, intents, interests, tutoring_subject, tutoring_desc, tutoring_price, bio, intent_details, email_notifications_enabled")
-        .eq("auth_user_id", user.id)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc("get_own_profile");
 
       if (error) {
         console.error("Error loading profile:", error);
         throw error;
       }
 
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row) return null;
+
       return {
-        ...data,
-        intent_details: (data.intent_details as Record<string, Record<string, string | string[]>>) ?? null,
-        email_notifications_enabled: data.email_notifications_enabled ?? true,
+        first_name: row.first_name ?? null,
+        last_name: row.last_name ?? null,
+        profile_image: row.profile_image ?? null,
+        age: row.age ?? null,
+        gender: row.gender ?? null,
+        study_program: row.study_program ?? null,
+        study_phase: row.study_phase ?? null,
+        focus: row.focus ?? null,
+        intents: row.intents ?? null,
+        interests: row.interests ?? null,
+        tutoring_subject: row.tutoring_subject ?? null,
+        tutoring_desc: row.tutoring_desc ?? null,
+        tutoring_price: row.tutoring_price ?? null,
+        bio: row.bio ?? null,
+        intent_details: (row.intent_details as Record<string, Record<string, string | string[]>>) ?? null,
+        email_notifications_enabled: row.email_notifications_enabled ?? true,
       };
     },
     enabled: !!user,
