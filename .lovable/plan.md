@@ -1,22 +1,19 @@
 
 
-## Rückgängig machen über die History
+## Fix: Set `ALLOWED_EMAIL_DOMAIN` secret to `@gmail.com`
 
-Du willst alles ab deiner Nachricht *„profil wird nicht gespeichert, es steht permission denied for table users“* verwerfen — sowohl die Code-/Migrations-Änderungen als auch die Chat-Verläufe danach.
+### Root cause
+`auth-email-hook/index.ts` reads `Deno.env.get("ALLOWED_EMAIL_DOMAIN")` and falls back to `@s.wu.ac.at` when unset. The secret is missing in this Supabase project (confirmed: secrets list contains no `ALLOWED_EMAIL_DOMAIN`), so every signup is rejected with HTTP 422.
 
-### Das geht nicht über eine neue Migration
-Wenn ich jetzt eine „Anti-Migration“ schreibe, stapelt sich der Zustand nur weiter. Sauber rückgängig machen lässt sich das ausschließlich über die **History**:
+### Fix
+Add the secret `ALLOWED_EMAIL_DOMAIN` = `@gmail.com` to the project's Edge Function secrets. No code change needed — the hook already reads it correctly, and `src/lib/validations.ts` is already aligned to `@gmail.com` for the client-side check.
 
-1. Öffne die History (Button unten oder oben im Chat).
-2. Wähle die Version **direkt vor** deiner Nachricht „profil wird nicht gespeichert…“.
-3. Klick auf Revert.
+### Steps
+1. Add the runtime secret via the secrets tool (handled in default mode after approval).
+2. No redeploy of `auth-email-hook` is required — Edge Functions read secrets at invocation time.
+3. Confirm by attempting a signup with a `@gmail.com` address.
 
-Damit wird in einem Rutsch zurückgesetzt:
-- die zwei Security-Migrationen (RPC `get_own_profile`, View-Recreation, GRANT-Hin-und-Her),
-- die Code-Änderung in `src/hooks/useOwnProfile.ts`,
-- die Edits in `security/security-memory.md`,
-- die zugehörigen Chat-Nachrichten ab diesem Punkt werden archiviert.
-
-### Danach
-Sobald revertiert ist, ist der Zustand exakt wie vor deinem Vertipper. Es bleibt nichts zu tun — keine Test-Chats löschen, keine weitere Migration, kein Code-Patch.
+### Notes
+- Pre-launch switch to `@s.wu.ac.at`: just update the same secret value, no code change.
+- Nothing else touched: no migrations, no code edits, no template changes.
 
