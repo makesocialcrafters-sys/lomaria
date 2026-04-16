@@ -88,27 +88,40 @@ const profileData = {
 
       console.log("[Onboarding] Saving profile data for user:", user.id);
 
-      // The handle_new_user() trigger already created a row at signup.
-      // Always UPDATE by auth_user_id (no SELECT first — column GRANTs hide most cols).
-      const { error: updateError, count } = await supabase
+      // Check if user record already exists
+      const { data: existingUser, error: checkError } = await supabase
         .from("users")
-        .update(profileData, { count: "exact" })
-        .eq("auth_user_id", user.id);
+        .select("id")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
 
-      let saveError = updateError;
-      console.log("[Onboarding] Update result:", { error: updateError, count });
+      if (checkError) {
+        console.error("[Onboarding] Check error:", checkError);
+        throw checkError;
+      }
 
-      // Fallback: if no row was updated (trigger somehow didn't fire), insert one.
-      if (!saveError && count === 0) {
-        const { error: insertError } = await supabase
+      console.log("[Onboarding] Existing user check:", { exists: !!existingUser });
+
+      let saveError;
+      if (existingUser) {
+        // Update existing record
+        const { error } = await supabase
+          .from("users")
+          .update(profileData)
+          .eq("auth_user_id", user.id);
+        saveError = error;
+        console.log("[Onboarding] Update result:", { error });
+      } else {
+        // Insert new record
+        const { error } = await supabase
           .from("users")
           .insert({
             auth_user_id: user.id,
             email: user.email!,
             ...profileData,
           });
-        saveError = insertError;
-        console.log("[Onboarding] Fallback insert result:", { error: insertError });
+        saveError = error;
+        console.log("[Onboarding] Insert result:", { error });
       }
 
       if (saveError) throw saveError;
