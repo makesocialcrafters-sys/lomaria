@@ -1,19 +1,24 @@
 
 
-## Fix: Set `ALLOWED_EMAIL_DOMAIN` secret to `@gmail.com`
+## Beliebige E-Mail-Domains erlauben
 
-### Root cause
-`auth-email-hook/index.ts` reads `Deno.env.get("ALLOWED_EMAIL_DOMAIN")` and falls back to `@s.wu.ac.at` when unset. The secret is missing in this Supabase project (confirmed: secrets list contains no `ALLOWED_EMAIL_DOMAIN`), so every signup is rejected with HTTP 422.
+Du willst die Domain-Restriktion komplett aufheben — jede E-Mail-Adresse soll registrieren können.
 
-### Fix
-Add the secret `ALLOWED_EMAIL_DOMAIN` = `@gmail.com` to the project's Edge Function secrets. No code change needed — the hook already reads it correctly, and `src/lib/validations.ts` is already aligned to `@gmail.com` for the client-side check.
+### Änderungen
 
-### Steps
-1. Add the runtime secret via the secrets tool (handled in default mode after approval).
-2. No redeploy of `auth-email-hook` is required — Edge Functions read secrets at invocation time.
-3. Confirm by attempting a signup with a `@gmail.com` address.
+**1. `supabase/functions/auth-email-hook/index.ts`**
+Den Domain-Check beim `signup`-Event komplett entfernen (Zeilen ~178–192). Kein Fallback, keine Prüfung.
 
-### Notes
-- Pre-launch switch to `@s.wu.ac.at`: just update the same secret value, no code change.
-- Nothing else touched: no migrations, no code edits, no template changes.
+**2. `src/lib/validations.ts`**
+`emailSchema` vereinfachen — nur noch `.email()`-Validierung, kein `.refine()` mit Domain-Check mehr. Konstante `ALLOWED_EMAIL_DOMAIN` entfernen.
+
+**3. Secret `ALLOWED_EMAIL_DOMAIN`**
+Bleibt einfach gesetzt, wird aber nicht mehr gelesen — kein Aufräumen nötig (schadet nicht). Falls du willst, können wir es später in den Edge Function Secrets löschen.
+
+### Was nicht angefasst wird
+- Captcha-Thema bleibt separat (siehe vorherige Antwort) — falls Signup weiter 500 wirft, muss Captcha im Supabase-Dashboard deaktiviert oder ins Frontend integriert werden.
+- Keine Migrationen, keine Template-Änderungen, keine sonstigen Auth-Anpassungen.
+
+### Memory-Update
+`mem://auth/registration-policy-pivot` aktualisieren: „Keine Domain-Restriktion mehr — alle gültigen E-Mail-Adressen erlaubt."
 
