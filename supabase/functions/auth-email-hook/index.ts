@@ -198,23 +198,6 @@ Deno.serve(async (req) => {
 
     console.log(`Auth email hook triggered for ${email_data.email_action_type} to ${user.email}`);
 
-    // Server-side email domain check for signups
-    if (email_data.email_action_type === "signup") {
-      const allowedDomain = Deno.env.get("ALLOWED_EMAIL_DOMAIN") || "@s.wu.ac.at";
-      if (!user.email.endsWith(allowedDomain)) {
-        console.log(`Signup rejected: ${user.email} does not match ${allowedDomain}`);
-        return new Response(
-          JSON.stringify({
-            error: {
-              http_code: 422,
-              message: `Nur E-Mail-Adressen mit ${allowedDomain} sind erlaubt.`,
-            },
-          }),
-          { status: 422, headers: { "Content-Type": "application/json" } }
-        );
-      }
-    }
-
     const emailType = email_data.email_action_type;
     
     if (!(emailType in authTemplates)) {
