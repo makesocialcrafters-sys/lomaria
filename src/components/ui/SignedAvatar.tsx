@@ -24,7 +24,10 @@ export function SignedAvatar({
   const { data: signedUrl } = useSignedAvatarUrl(storagePath);
 
   return (
-    <div className={cn("rounded-full bg-skeleton overflow-hidden", className)}>
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className={cn("rounded-full bg-skeleton overflow-hidden cursor-default", className)}
+    >
       {signedUrl ? (
         <img
           src={signedUrl}
