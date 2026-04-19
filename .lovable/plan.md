@@ -1,32 +1,37 @@
 
 
-## Profilbilder: nur select-none + draggable=false
+## Inline-Styles für garantiertes Non-Select-Verhalten
 
-Ohne `pointer-events-none` — Klicks auf umliegende Karten funktionieren normal weiter.
+`select-none` reicht in Safari/iOS oft nicht — Inline-Styles erzwingen das Verhalten zuverlässig.
 
 ### Änderungen
 
 **1. `src/components/ui/SignedAvatar.tsx`**
-- Wrapper-`<div>`: Klasse `select-none` ergänzen
-- `<img>`: Klasse `select-none` + `draggable={false}` ergänzen
-- Fallback-`<div>` (Initialen): `select-none` ergänzen
+Auf Wrapper-`<div>`, `<img>` und Fallback-`<div>` jeweils ergänzen:
+```tsx
+style={{
+  userSelect: 'none',
+  WebkitUserSelect: 'none',
+  WebkitTouchCallout: 'none',
+}}
+```
+(`WebkitTouchCallout: 'none'` zusätzlich, weil iOS sonst beim Long-Press das Speichern-Menü zeigt — passt zum Ziel "nicht auswählbar".)
 
 **2. `src/components/ui/avatar.tsx`** (Radix-Wrapper)
-- `AvatarPrimitive.Root`: `select-none` ergänzen
-- `AvatarImage`: `select-none` + `draggable={false}` ergänzen
-- `AvatarFallback`: `select-none` ergänzen
+Selbe Inline-Styles auf `AvatarPrimitive.Root`, `AvatarImage` und `AvatarFallback`.
 
-**3. Direkte `<img>`-Verwendungen für Profilbilder**
-Jeweils `select-none` + `draggable={false}` am `<img>`:
+**3. Direkte `<img>`-Profilbilder**
+Selbe Inline-Styles auf `<img>` ergänzen:
 - `src/pages/ProfileDetail.tsx`
 - `src/pages/Profile.tsx`
-- `src/components/onboarding/Step8Preview.tsx` (nutzt SignedAvatar — bereits abgedeckt, kein Extra-Edit nötig)
+
+(`Step8Preview.tsx` nutzt SignedAvatar — bereits abgedeckt.)
 
 ### Bewusst ausgenommen
-- `ProfileImageUpload.tsx`, `image-crop-dialog.tsx`, `lazy-image.tsx` — wie zuvor.
+- `ProfileImageUpload.tsx`, `image-crop-dialog.tsx`, `lazy-image.tsx`
 
 ### Effekt
-- Bild nicht markierbar, nicht ziehbar
-- Karten-Klicks funktionieren normal (kein `pointer-events-none`)
-- Stop-Propagation aus vorheriger Änderung bleibt bestehen — Avatar-Tap navigiert weiterhin nicht, Tap auf Rest der Karte schon
+- Browser-übergreifend (inkl. Safari/iOS) nicht markierbar
+- Long-Press auf iOS zeigt kein Bild-Kontextmenü mehr
+- Bestehendes `select-none`, `draggable={false}`, Click-Stop bleiben unverändert
 
