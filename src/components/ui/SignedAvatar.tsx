@@ -26,19 +26,20 @@ export function SignedAvatar({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className={cn("rounded-full bg-skeleton overflow-hidden cursor-default", className)}
+      className={cn("rounded-full bg-skeleton overflow-hidden cursor-default select-none", className)}
     >
       {signedUrl ? (
         <img
           src={signedUrl}
           alt={name || "Avatar"}
-          className={cn("w-full h-full object-cover", imgClassName)}
+          className={cn("w-full h-full object-cover select-none", imgClassName)}
           loading="lazy"
+          draggable={false}
         />
       ) : (
         <div
           className={cn(
-            "w-full h-full flex items-center justify-center text-muted-foreground font-display",
+            "w-full h-full flex items-center justify-center text-muted-foreground font-display select-none",
             fallbackClassName
           )}
         >
