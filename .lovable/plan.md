@@ -1,33 +1,32 @@
 
 
-## Avatar-Klick „schlucken" (Variante A)
+## Profilbilder: nur select-none + draggable=false
 
-Avatar-Bereich gibt Taps nicht mehr an die umgebende Karte weiter.
+Ohne `pointer-events-none` — Klicks auf umliegende Karten funktionieren normal weiter.
 
 ### Änderungen
 
 **1. `src/components/ui/SignedAvatar.tsx`**
-Am äußeren `<div>` ergänzen:
-- `onClick={(e) => e.stopPropagation()}`
-- Klasse `cursor-default`
+- Wrapper-`<div>`: Klasse `select-none` ergänzen
+- `<img>`: Klasse `select-none` + `draggable={false}` ergänzen
+- Fallback-`<div>` (Initialen): `select-none` ergänzen
 
-**2. `src/components/ui/avatar.tsx`** (Radix-Wrapper, in Header/Listen genutzt)
-An `Avatar.Root` selbe Behandlung: `onClick`-Stop + `cursor-default`.
+**2. `src/components/ui/avatar.tsx`** (Radix-Wrapper)
+- `AvatarPrimitive.Root`: `select-none` ergänzen
+- `AvatarImage`: `select-none` + `draggable={false}` ergänzen
+- `AvatarFallback`: `select-none` ergänzen
 
 **3. Direkte `<img>`-Verwendungen für Profilbilder**
-Suche bestätigt diese Stellen — alle bekommen Wrapper-`<div>` oder `onClick`-Stop + `cursor-default`:
-- `src/pages/ProfileDetail.tsx` (großes Profilbild)
-- `src/pages/Profile.tsx` (eigenes Profilbild)
-- `src/components/onboarding/Step8Preview.tsx` (Vorschau)
-- `src/components/settings/ProfileImageUpload.tsx` (Upload-Vorschau — falls in klickbarem Container)
+Jeweils `select-none` + `draggable={false}` am `<img>`:
+- `src/pages/ProfileDetail.tsx`
+- `src/pages/Profile.tsx`
+- `src/components/onboarding/Step8Preview.tsx` (nutzt SignedAvatar — bereits abgedeckt, kein Extra-Edit nötig)
 
-### Nicht angefasst
-- `image-crop-dialog.tsx` (Crop-UI ist eigener Modal-Flow, kein Karten-Kontext)
-- `lazy-image.tsx` (nicht für Avatare im Einsatz, geprüft)
-- Kartenkomponenten (ConnectionCard, IncomingRequestCard, SentRequestCard, UserProfileCard) — bleiben klickbar, nur Avatar-Region schluckt den Tap
+### Bewusst ausgenommen
+- `ProfileImageUpload.tsx`, `image-crop-dialog.tsx`, `lazy-image.tsx` — wie zuvor.
 
 ### Effekt
-- Tap auf Avatar → nichts passiert
-- Tap auf Name/Text/restliche Karte → navigiert wie bisher
-- Cursor über Avatar = Default-Pfeil statt Pointer
+- Bild nicht markierbar, nicht ziehbar
+- Karten-Klicks funktionieren normal (kein `pointer-events-none`)
+- Stop-Propagation aus vorheriger Änderung bleibt bestehen — Avatar-Tap navigiert weiterhin nicht, Tap auf Rest der Karte schon
 
