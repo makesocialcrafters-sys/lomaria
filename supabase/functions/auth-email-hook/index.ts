@@ -1,252 +1,317 @@
-import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
-import { Resend } from "https://esm.sh/resend@2.1.0";
+import * as React from 'npm:react@18.3.1'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
+import { parseEmailWebhookPayload } from 'npm:@lovable.dev/email-js'
+import { WebhookError, verifyWebhookRequest } from 'npm:@lovable.dev/webhooks-js'
+import { createClient } from 'npm:@supabase/supabase-js@2'
+import { SignupEmail } from '../_shared/email-templates/signup.tsx'
+import { InviteEmail } from '../_shared/email-templates/invite.tsx'
+import { MagicLinkEmail } from '../_shared/email-templates/magic-link.tsx'
+import { RecoveryEmail } from '../_shared/email-templates/recovery.tsx'
+import { EmailChangeEmail } from '../_shared/email-templates/email-change.tsx'
+import { ReauthenticationEmail } from '../_shared/email-templates/reauthentication.tsx'
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-const hookSecret = Deno.env.get("SEND_EMAIL_HOOK_SECRET")?.replace("v1,whsec_", "") || "";
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, x-lovable-signature, x-lovable-timestamp, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+}
 
-// Lomaria Brand Colors
-const BRAND_COLORS = {
-  background: "#0c0c0c",
-  cardBg: "#1a1a1a",
-  gold: "#D4AF37",
-  goldLight: "#E8C547",
-  text: "#ffffff",
-  textMuted: "#a0a0a0",
-  border: "#2a2a2a",
-};
+const EMAIL_SUBJECTS: Record<string, string> = {
+  signup: 'Confirm your email',
+  invite: "You've been invited",
+  magiclink: 'Your login link',
+  recovery: 'Reset your password',
+  email_change: 'Confirm your new email',
+  reauthentication: 'Your verification code',
+}
 
-// Base email template wrapper
-const emailWrapper = (content: string) => `
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lomaria</title>
-</head>
-<body style="margin: 0; padding: 0; background-color: ${BRAND_COLORS.background}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
-    <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 520px; width: 100%; border-collapse: collapse;">
-          <!-- Logo -->
-          <tr>
-            <td align="center" style="padding-bottom: 32px;">
-              <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: ${BRAND_COLORS.gold}; letter-spacing: 2px;">LOMARIA</h1>
-            </td>
-          </tr>
-          <!-- Content Card -->
-          <tr>
-            <td style="background-color: ${BRAND_COLORS.cardBg}; border-radius: 16px; padding: 40px; border: 1px solid ${BRAND_COLORS.border};">
-              ${content}
-            </td>
-          </tr>
-          <!-- Footer -->
-          <tr>
-            <td align="center" style="padding-top: 32px;">
-              <p style="margin: 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">
-                © ${new Date().getFullYear()} Lomaria. Alle Rechte vorbehalten.
-              </p>
-              <p style="margin: 8px 0 0 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">
-                Exklusiv für Studierende der Wirtschaftsuniversität Wien
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-`;
+// Template mapping
+const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
+  signup: SignupEmail,
+  invite: InviteEmail,
+  magiclink: MagicLinkEmail,
+  recovery: RecoveryEmail,
+  email_change: EmailChangeEmail,
+  reauthentication: ReauthenticationEmail,
+}
 
-// Email templates for auth actions
-const authTemplates = {
-  signup: (data: { confirmationUrl: string }) => ({
-    subject: "Bestätige deine E-Mail-Adresse",
-    html: emailWrapper(`
-      <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
-        E-Mail bestätigen
-      </h2>
-      <p style="margin: 0 0 24px 0; font-size: 16px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Willkommen bei Lomaria! Bitte bestätige deine E-Mail-Adresse, um fortzufahren.
-      </p>
-      <div style="text-align: center; margin-bottom: 24px;">
-        <a href="${data.confirmationUrl}" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
-          E-Mail bestätigen
-        </a>
-      </div>
-      <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br>
-        <a href="${data.confirmationUrl}" style="color: ${BRAND_COLORS.gold}; word-break: break-all;">${data.confirmationUrl}</a>
-      </p>
-    `),
-  }),
+// Configuration
+const SITE_NAME = "campus-link-wu"
+const SENDER_DOMAIN = "notify.lomaria.at"
+const ROOT_DOMAIN = "lomaria.at"
+const FROM_DOMAIN = "lomaria.at" // Domain shown in From address (may be root or sender subdomain)
 
-  recovery: (data: { confirmationUrl: string }) => ({
-    subject: "Passwort zurücksetzen",
-    html: emailWrapper(`
-      <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
-        Passwort zurücksetzen
-      </h2>
-      <p style="margin: 0 0 24px 0; font-size: 16px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Du hast angefordert, dein Passwort zurückzusetzen. Klicke auf den Button unten, um ein neues Passwort zu wählen.
-      </p>
-      <div style="text-align: center; margin-bottom: 24px;">
-        <a href="${data.confirmationUrl}" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
-          Neues Passwort wählen
-        </a>
-      </div>
-      <p style="margin: 0 0 16px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br>
-        <a href="${data.confirmationUrl}" style="color: ${BRAND_COLORS.gold}; word-break: break-all;">${data.confirmationUrl}</a>
-      </p>
-      <div style="background-color: ${BRAND_COLORS.background}; border-radius: 8px; padding: 16px; margin-top: 24px;">
-        <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; line-height: 1.5;">
-          ⚠️ Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren. Dein Passwort bleibt unverändert.
-        </p>
-      </div>
-    `),
-  }),
+// Sample data for preview mode ONLY (not used in actual email sending).
+// URLs are baked in at scaffold time from the project's real data.
+// The sample email uses a fixed placeholder (RFC 6761 .test TLD) so the Go backend
+// can always find-and-replace it with the actual recipient when sending test emails,
+// even if the project's domain has changed since the template was scaffolded.
+const SAMPLE_PROJECT_URL = "https://campus-link-wu.lovable.app"
+const SAMPLE_EMAIL = "user@example.test"
+const SAMPLE_DATA: Record<string, object> = {
+  signup: {
+    siteName: SITE_NAME,
+    siteUrl: SAMPLE_PROJECT_URL,
+    recipient: SAMPLE_EMAIL,
+    confirmationUrl: SAMPLE_PROJECT_URL,
+  },
+  magiclink: {
+    siteName: SITE_NAME,
+    confirmationUrl: SAMPLE_PROJECT_URL,
+  },
+  recovery: {
+    siteName: SITE_NAME,
+    confirmationUrl: SAMPLE_PROJECT_URL,
+  },
+  invite: {
+    siteName: SITE_NAME,
+    siteUrl: SAMPLE_PROJECT_URL,
+    confirmationUrl: SAMPLE_PROJECT_URL,
+  },
+  email_change: {
+    siteName: SITE_NAME,
+    email: SAMPLE_EMAIL,
+    newEmail: SAMPLE_EMAIL,
+    confirmationUrl: SAMPLE_PROJECT_URL,
+  },
+  reauthentication: {
+    token: '123456',
+  },
+}
 
-  magic_link: (data: { confirmationUrl: string }) => ({
-    subject: "Dein Login-Link für Lomaria",
-    html: emailWrapper(`
-      <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
-        Magic Link Login
-      </h2>
-      <p style="margin: 0 0 24px 0; font-size: 16px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Klicke auf den Button unten, um dich bei Lomaria anzumelden.
-      </p>
-      <div style="text-align: center; margin-bottom: 24px;">
-        <a href="${data.confirmationUrl}" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
-          Bei Lomaria anmelden
-        </a>
-      </div>
-      <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br>
-        <a href="${data.confirmationUrl}" style="color: ${BRAND_COLORS.gold}; word-break: break-all;">${data.confirmationUrl}</a>
-      </p>
-    `),
-  }),
+// Preview endpoint handler - returns rendered HTML without sending email
+async function handlePreview(req: Request): Promise<Response> {
+  const previewCorsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, content-type',
+  }
 
-  email_change: (data: { confirmationUrl: string }) => ({
-    subject: "Bestätige deine neue E-Mail-Adresse",
-    html: emailWrapper(`
-      <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
-        E-Mail-Adresse ändern
-      </h2>
-      <p style="margin: 0 0 24px 0; font-size: 16px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Du hast angefordert, deine E-Mail-Adresse zu ändern. Bitte bestätige deine neue E-Mail-Adresse.
-      </p>
-      <div style="text-align: center; margin-bottom: 24px;">
-        <a href="${data.confirmationUrl}" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
-          E-Mail bestätigen
-        </a>
-      </div>
-      <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
-        Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br>
-        <a href="${data.confirmationUrl}" style="color: ${BRAND_COLORS.gold}; word-break: break-all;">${data.confirmationUrl}</a>
-      </p>
-    `),
-  }),
-};
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: previewCorsHeaders })
+  }
 
-type AuthEmailType = keyof typeof authTemplates;
+  const apiKey = Deno.env.get('LOVABLE_API_KEY')
+  const authHeader = req.headers.get('Authorization')
 
-interface AuthEmailPayload {
-  user: {
-    id: string;
-    email: string;
-    user_metadata?: {
-      first_name?: string;
-    };
-  };
-  email_data: {
-    token: string;
-    token_hash: string;
-    redirect_to: string;
-    email_action_type: AuthEmailType;
-    site_url: string;
-  };
+  if (!apiKey || authHeader !== `Bearer ${apiKey}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  let type: string
+  try {
+    const body = await req.json()
+    type = body.type
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
+      status: 400,
+      headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  const EmailTemplate = EMAIL_TEMPLATES[type]
+
+  if (!EmailTemplate) {
+    return new Response(JSON.stringify({ error: `Unknown email type: ${type}` }), {
+      status: 400,
+      headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  const sampleData = SAMPLE_DATA[type] || {}
+  const html = await renderAsync(React.createElement(EmailTemplate, sampleData))
+
+  return new Response(html, {
+    status: 200,
+    headers: { ...previewCorsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+  })
+}
+
+// Webhook handler - verifies signature and sends email
+async function handleWebhook(req: Request): Promise<Response> {
+  const apiKey = Deno.env.get('LOVABLE_API_KEY')
+
+  if (!apiKey) {
+    console.error('LOVABLE_API_KEY not configured')
+    return new Response(
+      JSON.stringify({ error: 'Server configuration error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+
+  // Verify signature + timestamp, then parse payload.
+  let payload: any
+  let run_id = ''
+  try {
+    const verified = await verifyWebhookRequest({
+      req,
+      secret: apiKey,
+      parser: parseEmailWebhookPayload,
+    })
+    payload = verified.payload
+    run_id = payload.run_id
+  } catch (error) {
+    if (error instanceof WebhookError) {
+      switch (error.code) {
+        case 'invalid_signature':
+        case 'missing_timestamp':
+        case 'invalid_timestamp':
+        case 'stale_timestamp':
+          console.error('Invalid webhook signature', { error: error.message })
+          return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        case 'invalid_payload':
+        case 'invalid_json':
+          console.error('Invalid webhook payload', { error: error.message })
+          return new Response(
+            JSON.stringify({ error: 'Invalid webhook payload' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+      }
+    }
+
+    console.error('Webhook verification failed', { error })
+    return new Response(
+      JSON.stringify({ error: 'Invalid webhook payload' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+
+  if (!run_id) {
+    console.error('Webhook payload missing run_id')
+    return new Response(
+      JSON.stringify({ error: 'Invalid webhook payload' }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
+  }
+
+  if (payload.version !== '1') {
+    console.error('Unsupported payload version', { version: payload.version, run_id })
+    return new Response(
+      JSON.stringify({ error: `Unsupported payload version: ${payload.version}` }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
+  }
+
+  // The email action type is in payload.data.action_type (e.g., "signup", "recovery")
+  // payload.type is the hook event type ("auth")
+  const emailType = payload.data.action_type
+  console.log('Received auth event', { emailType, email: payload.data.email, run_id })
+
+  const EmailTemplate = EMAIL_TEMPLATES[emailType]
+  if (!EmailTemplate) {
+    console.error('Unknown email type', { emailType, run_id })
+    return new Response(
+      JSON.stringify({ error: `Unknown email type: ${emailType}` }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+
+  // Build template props from payload.data (HookData structure)
+  const templateProps = {
+    siteName: SITE_NAME,
+    siteUrl: `https://${ROOT_DOMAIN}`,
+    recipient: payload.data.email,
+    confirmationUrl: payload.data.url,
+    token: payload.data.token,
+    email: payload.data.email,
+    newEmail: payload.data.new_email,
+  }
+
+  // Render React Email to HTML and plain text
+  const html = await renderAsync(React.createElement(EmailTemplate, templateProps))
+  const text = await renderAsync(React.createElement(EmailTemplate, templateProps), {
+    plainText: true,
+  })
+
+  // Enqueue email for async processing by the dispatcher (process-email-queue).
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  const messageId = crypto.randomUUID()
+
+  // Log pending BEFORE enqueue so we have a record even if enqueue crashes
+  await supabase.from('email_send_log').insert({
+    message_id: messageId,
+    template_name: emailType,
+    recipient_email: payload.data.email,
+    status: 'pending',
+  })
+
+  const { error: enqueueError } = await supabase.rpc('enqueue_email', {
+    queue_name: 'auth_emails',
+    payload: {
+      run_id,
+      message_id: messageId,
+      to: payload.data.email,
+      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      sender_domain: SENDER_DOMAIN,
+      subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+      html,
+      text,
+      purpose: 'transactional',
+      label: emailType,
+      queued_at: new Date().toISOString(),
+    },
+  })
+
+  if (enqueueError) {
+    console.error('Failed to enqueue auth email', { error: enqueueError, run_id, emailType })
+    await supabase.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: emailType,
+      recipient_email: payload.data.email,
+      status: 'failed',
+      error_message: 'Failed to enqueue email',
+    })
+    return new Response(JSON.stringify({ error: 'Failed to enqueue email' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  console.log('Auth email enqueued', { emailType, email: payload.data.email, run_id })
+
+  return new Response(
+    JSON.stringify({ success: true, queued: true }),
+    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  )
 }
 
 Deno.serve(async (req) => {
-  if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
+  const url = new URL(req.url)
+
+  // Handle CORS preflight for main endpoint
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders })
   }
 
-  const payload = await req.text();
-  const headers = Object.fromEntries(req.headers);
+  // Route to preview handler for /preview path
+  if (url.pathname.endsWith('/preview')) {
+    return handlePreview(req)
+  }
 
-  // Verify webhook signature
-  const wh = new Webhook(hookSecret);
-  let data: AuthEmailPayload;
-
+  // Main webhook handler
   try {
-    data = wh.verify(payload, headers) as AuthEmailPayload;
+    return await handleWebhook(req)
   } catch (error) {
-    console.error("Webhook signature verification failed:", error);
-    return new Response(
-      JSON.stringify({ error: { http_code: 401, message: "Unauthorized" } }),
-      { status: 401, headers: { "Content-Type": "application/json" } }
-    );
+    console.error('Webhook handler error:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
-
-  try {
-    const { user, email_data } = data;
-
-    console.log(`Auth email hook triggered for ${email_data.email_action_type} to ${user.email}`);
-
-    const emailType = email_data.email_action_type;
-    
-    if (!(emailType in authTemplates)) {
-      console.log(`Unknown email type: ${emailType}, falling back to default Supabase email`);
-      return new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Build confirmation URL
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const confirmationUrl = `${supabaseUrl}/auth/v1/verify?token=${email_data.token_hash}&type=${emailType}&redirect_to=${email_data.redirect_to}`;
-
-    const templateFn = authTemplates[emailType as AuthEmailType];
-    const template = templateFn({ confirmationUrl });
-
-    const { error } = await resend.emails.send({
-      from: "Lomaria <hi@hi.lomaria.at>",
-      to: [user.email],
-      subject: template.subject,
-      html: template.html,
-    });
-
-    if (error) {
-      console.error("Error sending auth email:", error);
-      throw error;
-    }
-
-    console.log(`Auth email ${emailType} sent successfully to ${user.email}`);
-
-    return new Response(JSON.stringify({}), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Error in auth-email-hook:", errorMessage);
-    return new Response(
-      JSON.stringify({
-        error: {
-          http_code: 500,
-          message: errorMessage,
-        },
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-  }
-});
+})
