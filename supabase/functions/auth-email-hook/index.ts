@@ -198,6 +198,27 @@ async function sendEmailDirectly({
   }
 }
 
+async function insertEmailLog(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  payload: {
+    message_id: string
+    template_name: string
+    recipient_email: string
+    status: string
+    error_message?: string
+  }
+) {
+  const { error } = await supabase.from('email_send_log').insert(payload)
+
+  if (error) {
+    console.warn('Failed to write email_send_log entry', {
+      error,
+      message_id: payload.message_id,
+      status: payload.status,
+    })
+  }
+}
+
 function buildSupabaseConfirmationUrl({
   emailType,
   tokenHash,
@@ -388,7 +409,7 @@ async function handleWebhook(req: Request): Promise<Response> {
   const supabase = createSupabaseAdminClient()
   const messageId = crypto.randomUUID()
 
-  await supabase.from('email_send_log').insert({
+  await insertEmailLog(supabase, {
     message_id: messageId,
     template_name: emailType,
     recipient_email: recipientEmail,
@@ -428,7 +449,7 @@ async function handleWebhook(req: Request): Promise<Response> {
           text,
         })
 
-        await supabase.from('email_send_log').insert({
+        await insertEmailLog(supabase, {
           message_id: messageId,
           template_name: emailType,
           recipient_email: recipientEmail,
@@ -452,7 +473,7 @@ async function handleWebhook(req: Request): Promise<Response> {
       }
     }
 
-    await supabase.from('email_send_log').insert({
+    await insertEmailLog(supabase, {
       message_id: messageId,
       template_name: emailType,
       recipient_email: recipientEmail,
