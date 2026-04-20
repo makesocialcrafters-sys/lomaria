@@ -19,16 +19,15 @@ interface ReauthenticationEmailProps {
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
   <Html lang="de" dir="ltr">
     <Head />
-    <Preview>Dein Bestätigungscode</Preview>
+    <Preview>Dein Verifizierungscode</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={brand}>LOMARIA</Text>
         <Heading style={h1}>Identität bestätigen</Heading>
-        <Text style={text}>Verwende diesen Code, um deine Identität zu bestätigen:</Text>
+        <Text style={text}>Verwende den Code unten, um deine Identität zu bestätigen:</Text>
         <Text style={codeStyle}>{token}</Text>
         <Text style={footer}>
-          Der Code ist nur kurz gültig. Falls du das nicht angefordert hast,
-          ignoriere diese E-Mail einfach.
+          Dieser Code läuft in Kürze ab. Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.
         </Text>
       </Container>
     </Body>
@@ -66,7 +65,7 @@ const codeStyle = {
   fontSize: '28px',
   fontWeight: 'bold' as const,
   color: '#C6A94D',
-  margin: '0 0 30px',
   letterSpacing: '4px',
+  margin: '0 0 30px',
 }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

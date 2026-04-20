@@ -31,19 +31,19 @@ export const InviteEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Text style={brand}>LOMARIA</Text>
-        <Heading style={h1}>Einladung</Heading>
+        <Heading style={h1}>Du bist eingeladen</Heading>
         <Text style={text}>
-          Du wurdest eingeladen,{' '}
+          Du wurdest zu{' '}
           <Link href={siteUrl} style={link}>
             <strong>{siteName}</strong>
           </Link>{' '}
-          beizutreten. Klicke auf den Button, um die Einladung anzunehmen.
+          eingeladen. Klicke auf den Button unten, um die Einladung anzunehmen und dein Konto zu erstellen.
         </Text>
         <Button style={button} href={confirmationUrl}>
           Einladung annehmen
         </Button>
         <Text style={footer}>
-          Falls du diese Einladung nicht erwartet hast, ignoriere diese E-Mail einfach.
+          Falls du diese Einladung nicht erwartet hast, kannst du diese E-Mail ignorieren.
         </Text>
       </Container>
     </Body>

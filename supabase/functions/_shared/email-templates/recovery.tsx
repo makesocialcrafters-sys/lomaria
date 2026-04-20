@@ -30,15 +30,13 @@ export const RecoveryEmail = ({
         <Text style={brand}>LOMARIA</Text>
         <Heading style={h1}>Passwort zurücksetzen</Heading>
         <Text style={text}>
-          Wir haben eine Anfrage erhalten, dein Passwort für {siteName} zurückzusetzen.
-          Klicke auf den Button, um ein neues Passwort zu wählen.
+          Wir haben eine Anfrage zum Zurücksetzen deines Passworts für {siteName} erhalten. Klicke auf den Button unten, um ein neues Passwort zu wählen.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Neues Passwort wählen
+          Passwort zurücksetzen
         </Button>
         <Text style={footer}>
-          Falls du das nicht angefordert hast, ignoriere diese E-Mail einfach.
-          Dein Passwort bleibt unverändert.
+          Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren. Dein Passwort wird nicht geändert.
         </Text>
       </Container>
     </Body>

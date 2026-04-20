@@ -35,24 +35,21 @@ export const EmailChangeEmail = ({
         <Text style={brand}>LOMARIA</Text>
         <Heading style={h1}>E-Mail-Änderung bestätigen</Heading>
         <Text style={text}>
-          Du hast angefordert, deine E-Mail-Adresse für {siteName} von{' '}
+          Du hast eine Änderung deiner E-Mail-Adresse für {siteName} angefragt — von{' '}
           <Link href={`mailto:${email}`} style={link}>
             {email}
           </Link>{' '}
           zu{' '}
           <Link href={`mailto:${newEmail}`} style={link}>
             {newEmail}
-          </Link>{' '}
-          zu ändern.
-        </Text>
-        <Text style={text}>
-          Klicke auf den Button, um die Änderung zu bestätigen:
+          </Link>
+          .
         </Text>
         <Button style={button} href={confirmationUrl}>
           Änderung bestätigen
         </Button>
         <Text style={footer}>
-          Falls du diese Änderung nicht angefordert hast, sichere bitte sofort dein Konto.
+          Falls du diese Änderung nicht angefordert hast, sichere dein Konto bitte umgehend.
         </Text>
       </Container>
     </Body>

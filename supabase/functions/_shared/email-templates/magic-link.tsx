@@ -30,13 +30,13 @@ export const MagicLinkEmail = ({
         <Text style={brand}>LOMARIA</Text>
         <Heading style={h1}>Dein Login-Link</Heading>
         <Text style={text}>
-          Klicke auf den Button, um dich bei {siteName} anzumelden. Der Link ist nur kurz gültig.
+          Klicke auf den Button unten, um dich bei {siteName} anzumelden. Der Link läuft in Kürze ab.
         </Text>
         <Button style={button} href={confirmationUrl}>
           Anmelden
         </Button>
         <Text style={footer}>
-          Falls du diesen Link nicht angefordert hast, ignoriere diese E-Mail einfach.
+          Falls du diesen Link nicht angefordert hast, kannst du diese E-Mail ignorieren.
         </Text>
       </Container>
     </Body>
