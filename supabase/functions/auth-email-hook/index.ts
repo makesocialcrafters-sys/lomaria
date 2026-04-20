@@ -3,6 +3,7 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { parseEmailWebhookPayload } from 'npm:@lovable.dev/email-js'
 import { WebhookError, verifyWebhookRequest } from 'npm:@lovable.dev/webhooks-js'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { Resend } from 'npm:resend@2.1.0'
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { SignupEmail } from '../_shared/email-templates/signup.tsx'
 import { InviteEmail } from '../_shared/email-templates/invite.tsx'
@@ -163,6 +164,38 @@ function createSupabaseAdminClient() {
   }
 
   return createClient(supabaseUrl, serviceRoleKey)
+}
+
+async function sendEmailDirectly({
+  to,
+  subject,
+  html,
+  text,
+}: {
+  to: string
+  subject: string
+  html: string
+  text: string
+}) {
+  const apiKey = Deno.env.get('RESEND_API_KEY')
+
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY not configured')
+  }
+
+  const resend = new Resend(apiKey)
+
+  const { error } = await resend.emails.send({
+    from: `${SITE_NAME} <hi@hi.${FROM_DOMAIN}>`,
+    to: [to],
+    subject,
+    html,
+    text,
+  })
+
+  if (error) {
+    throw new Error(`Direct send failed: ${error.message}`)
+  }
 }
 
 function buildSupabaseConfirmationUrl({
@@ -385,6 +418,39 @@ async function handleWebhook(req: Request): Promise<Response> {
       run_id: runId,
       emailType,
     })
+
+    if (enqueueError.code === 'PGRST202') {
+      try {
+        await sendEmailDirectly({
+          to: recipientEmail,
+          subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+          html,
+          text,
+        })
+
+        await supabase.from('email_send_log').insert({
+          message_id: messageId,
+          template_name: emailType,
+          recipient_email: recipientEmail,
+          status: 'sent',
+          error_message: 'Fallback direct send used because enqueue_email is unavailable',
+        })
+
+        console.log('Auth email sent via direct fallback', {
+          emailType,
+          email: recipientEmail,
+          run_id: runId,
+        })
+
+        return jsonResponse({ success: true, queued: false, fallback: 'direct' }, 200)
+      } catch (directSendError) {
+        console.error('Direct fallback send failed', {
+          error: directSendError instanceof Error ? directSendError.message : directSendError,
+          run_id: runId,
+          emailType,
+        })
+      }
+    }
 
     await supabase.from('email_send_log').insert({
       message_id: messageId,
