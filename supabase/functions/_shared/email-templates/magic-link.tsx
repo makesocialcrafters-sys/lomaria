@@ -22,21 +22,21 @@ export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
 }: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="de" dir="ltr">
     <Head />
-    <Preview>Your login link for {siteName}</Preview>
+    <Preview>Dein Login-Link für {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Your login link</Heading>
+        <Text style={brand}>LOMARIA</Text>
+        <Heading style={h1}>Dein Login-Link</Heading>
         <Text style={text}>
-          Click the button below to log in to {siteName}. This link will expire
-          shortly.
+          Klicke auf den Button unten, um dich bei {siteName} anzumelden. Der Link läuft in Kürze ab.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Log In
+          Anmelden
         </Button>
         <Text style={footer}>
-          If you didn't request this link, you can safely ignore this email.
+          Falls du diesen Link nicht angefordert hast, kannst du diese E-Mail ignorieren.
         </Text>
       </Container>
     </Body>
@@ -45,26 +45,38 @@ export const MagicLinkEmail = ({
 
 export default MagicLinkEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const main = { backgroundColor: '#ffffff', fontFamily: "'Josefin Sans', Arial, sans-serif" }
+const container = { padding: '40px 25px', maxWidth: '480px', margin: '0 auto' }
+const brand = {
+  fontSize: '14px',
+  fontWeight: 'bold' as const,
+  color: '#C6A94D',
+  letterSpacing: '3px',
+  textTransform: 'uppercase' as const,
+  margin: '0 0 30px',
+}
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  color: '#1F1F1F',
   margin: '0 0 20px',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '1px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
+  color: '#555555',
+  lineHeight: '1.6',
   margin: '0 0 25px',
 }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
+  backgroundColor: '#C6A94D',
+  color: '#1F1F1F',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: 'bold' as const,
+  borderRadius: '6px',
+  padding: '12px 24px',
   textDecoration: 'none',
+  letterSpacing: '0.5px',
 }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
