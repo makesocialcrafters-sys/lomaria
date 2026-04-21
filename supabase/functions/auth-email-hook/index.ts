@@ -34,7 +34,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "campus-link-wu"
+const SITE_NAME = "Lomaria"
 const SENDER_DOMAIN = "notify.lomaria.at"
 const ROOT_DOMAIN = "lomaria.at"
 const FROM_DOMAIN = "lomaria.at" // Domain shown in From address (may be root or sender subdomain)
