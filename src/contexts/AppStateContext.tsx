@@ -26,7 +26,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("users")
-        .select("first_name, last_name, study_program, intents, interests")
+        .select("first_name, profile_image, age, study_program, intents, interests")
         .eq("auth_user_id", session.user.id)
         .maybeSingle();
 
@@ -35,10 +35,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       } else {
         const isComplete = !!(
           data.first_name &&
-          data.last_name &&
+          data.profile_image &&
+          data.age &&
           data.study_program &&
-          data.intents?.length >= 3 &&
-          data.interests?.length >= 3
+          (data.intents?.length ?? 0) >= 2 &&
+          (data.interests?.length ?? 0) >= 2
         );
         setIsOnboardingComplete(isComplete);
       }
