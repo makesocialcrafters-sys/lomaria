@@ -1,36 +1,67 @@
 
 
-## Fix: Auth Email Hook re-registrieren
+## Onboarding vereinfachen — Pflichtfelder reduzieren
 
-### Problem
-Der `auth-email-hook` ist deployed und in den Supabase-Auth-Settings als Send-Email-Hook aktiviert — trotzdem ruft Supabase ihn nicht auf und fällt auf den Standard-SMTP zurück (→ 429 Rate-Limit beim Signup). Die Function-Logs zeigen ausschließlich Boot/Shutdown, **null** eingehende Webhook-Aufrufe.
+Das Onboarding wird entschlackt. Mehrere bisher verpflichtende Felder werden optional und können später in den Einstellungen ergänzt werden. Pflichtfelder werden klar mit einem goldenen Stern (*) markiert.
 
-### Ursache
-Die Verknüpfung zwischen Supabase Auth und der Edge Function ist „verklebt": Sie gilt im Dashboard als aktiv, ist im Auth-Backend aber nicht sauber registriert. Üblicher Auslöser nach mehreren Re-Scaffolds + alten Secrets (`SEND_EMAIL_HOOK_SECRET` ist noch gesetzt, obwohl der neue Hook ausschließlich `LOVABLE_API_KEY` zur Signaturprüfung nutzt).
+### Neue Pflicht-Logik
 
-### Vorgehen
+| Schritt | Feld | Bisher | Neu |
+|---|---|---|---|
+| 1 Identität | Vorname | Pflicht | **Pflicht *** |
+| 1 Identität | Nachname | Pflicht | Optional |
+| 1 Identität | Profilbild | Pflicht | Pflicht (unverändert) |
+| 2 Demografie | Alter | Pflicht | **Pflicht *** |
+| 2 Demografie | Geschlecht | Pflicht | Optional |
+| 3 Studium | Universität | Pflicht | **Pflicht *** |
+| 3 Studium | Studienrichtung | Pflicht | Optional |
+| 3 Studium | Phase | Pflicht | Optional |
+| 4 Intents | Min. Auswahl | 1 | **Min. 2 *** |
+| 5 Interessen | Min. Auswahl | 3 | **Min. 2 *** |
 
-1. **Email-Pipeline aus- und wieder einschalten** — `email_domain--toggle_project_emails` mit `enabled: false`, dann `enabled: true`. Der Off→On-Zyklus erzwingt eine vollständige Neu-Registrierung des Hooks im Supabase-Auth-Backend (Hook-URL, Secret, `verify_jwt`-Konfiguration werden frisch geschrieben).
+### Änderungen pro Datei
 
-2. **Hook re-scaffolden** — `email_domain--scaffold_auth_email_templates` mit `confirm_overwrite: true`. Schreibt `supabase/functions/auth-email-hook/index.ts` und `config.toml`-Eintrag neu, ohne die bestehenden Lomaria-gebrandeten Templates inhaltlich zu verändern.
+**`src/components/onboarding/Step1Identity.tsx`**
+- `isValid`: Nachname-Check entfernen → nur noch Vorname + Profilbild
+- Vorname-Input bekommt Stern-Label "Vorname *"
+- Nachname-Input bleibt ohne Stern
 
-3. **Function deployen** — `supabase--deploy_edge_functions(["auth-email-hook"])`.
+**`src/components/onboarding/Step2Demographics.tsx`**
+- `isValid`: nur noch Alter prüfen, Geschlecht-Check entfernen
+- Label "Alter *" mit Stern, "Geschlecht" ohne Stern
+- Hinweistext bleibt
 
-4. **Verifikation per Logs** — direkt nach Deploy:
-   - In den `auth-email-hook`-Logs muss bei einem neuen Signup `Received auth event` mit `emailType: signup` erscheinen, **nicht** mehr nur Boot/Shutdown.
-   - In den Auth-Logs muss `POST /signup` mit Status `200` (statt `429`) auftauchen.
+**`src/components/onboarding/Step3Study.tsx`**
+- `isValid`: nur noch Universität prüfen
+- Label "Universität *" mit Stern, andere Felder ohne
+- Studienrichtung & Phase bleiben sichtbar, aber optional
 
-5. **Falls Schritt 4 weiterhin keine Webhook-Calls zeigt** — dann ist die Hook-Verknüpfung auf Backend-Seite blockiert und nicht code-seitig lösbar. Konkrete Anweisung an dich: **Cloud → Emails öffnen** und nach „Action required", „Setup incomplete" oder „Rerun Setup" suchen und auslösen.
+**`src/components/onboarding/Step4Intents.tsx`**
+- `minSelect={1}` → `minSelect={2}`
+- Untertitel: "(min. 2)" statt "(min. 1)"
+- Validierung entsprechend anpassen
 
-### Was NICHT angefasst wird
-- `Auth.tsx`, `AuthContext.tsx`, Validierungen, Frontend-Logik
-- Lomaria-Branding der Templates (Gold #C6A94D, Josefin Sans, deutscher Text bleiben erhalten)
-- Andere Edge Functions (`send-email`, `notify-connection`, `delete-account`, `unsubscribe-email`)
-- Datenbank, RLS, Onboarding, Discover, Chats, UI
-- Alte Secrets (`SEND_EMAIL_HOOK_SECRET`, `RESEND_API_KEY`) — werden nicht mehr genutzt, kosten aber nichts; bewusst nicht entfernt, um Seiteneffekte zu vermeiden
+**`src/components/onboarding/Step5Interests.tsx`**
+- `minSelect={3}` → `minSelect={2}`
+- Untertitel: "(min. 2, max. 6)"
+- `isValid = interests.length >= 2`
 
-### Erfolgskriterien
-- Auth-Logs: `POST /signup → 200` (kein 429 mehr)
-- `auth-email-hook`-Logs: eingehender Webhook mit `emailType: signup` nach jedem Signup-Versuch
-- Bestätigungsmail trifft im Postfach ein, Lomaria-Look, Absender aus dem `notify.lomaria.at`-Setup
+### Einheitliches Stern-Styling
+
+Jedes Pflichtfeld-Label bekommt:
+```tsx
+<span>Vorname <span className="text-primary">*</span></span>
+```
+Der Stern in Gold (`text-primary` = `#C6A94D`), passend zum bestehenden Pattern in Step5 ("min. 3" ist bereits gold).
+
+### Datenbank & Profil-Speicherung
+
+Keine DB-Migration nötig. `last_name`, `gender`, `study_program`, `study_phase` sind bereits nullable bzw. werden beim Speichern leer übergeben. Die Settings-Seite (`EditProfileForm`) erlaubt bereits das Nachtragen aller Felder — kein zusätzlicher Code dort.
+
+### Was unverändert bleibt
+- Schritt 6 (Tutoring) — bleibt konditional
+- Schritt 7 (Bio) — bleibt optional
+- Schritt 8 (Preview) — keine Anpassung
+- Profilbild bleibt Pflicht in Schritt 1
+- Submit-Logik in `Onboarding.tsx` — keine Änderung nötig
 
