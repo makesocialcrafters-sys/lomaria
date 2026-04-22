@@ -207,7 +207,7 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
           className="hidden"
         />
         <p className="text-xs text-muted-foreground">
-          {profileImage ? "Tippen zum Ändern" : "Profilbild hochladen *"}
+          {profileImage ? "Tippen zum Ändern" : <>Profilbild hochladen <span className="text-primary">*</span></>}
         </p>
       </div>
 
