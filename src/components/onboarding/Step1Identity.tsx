@@ -213,18 +213,26 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
 
       {/* Name Fields */}
       <div className="space-y-4">
-        <Input
-          placeholder="Vorname"
-          value={firstName}
-          onChange={(e) => onUpdate({ first_name: e.target.value })}
-          className="input-elegant"
-        />
-        <Input
-          placeholder="Nachname"
-          value={lastName}
-          onChange={(e) => onUpdate({ last_name: e.target.value })}
-          className="input-elegant"
-        />
+        <div>
+          <label className="text-sm text-muted-foreground mb-2 block">
+            Vorname <span className="text-primary">*</span>
+          </label>
+          <Input
+            placeholder="Vorname"
+            value={firstName}
+            onChange={(e) => onUpdate({ first_name: e.target.value })}
+            className="input-elegant"
+          />
+        </div>
+        <div>
+          <label className="text-sm text-muted-foreground mb-2 block">Nachname</label>
+          <Input
+            placeholder="Nachname (optional)"
+            value={lastName}
+            onChange={(e) => onUpdate({ last_name: e.target.value })}
+            className="input-elegant"
+          />
+        </div>
       </div>
 
       <div className="flex justify-center pt-4">
