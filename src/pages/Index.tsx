@@ -86,7 +86,7 @@ const Index = () => {
                 Co-Founding & Business
               </h4>
               <p className="font-display text-sm text-foreground/50 leading-relaxed">
-                Du suchst einen Co-Founder oder Partner für ein Projekt? Finde Macher aus allen Unis.
+                Du suchst einen Co-Founder oder Partner für ein Projekt? Finde Macher aus allen Universitäten.
               </p>
             </div>
             
