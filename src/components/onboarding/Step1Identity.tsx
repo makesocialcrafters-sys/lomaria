@@ -25,8 +25,8 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Profile image is REQUIRED
-  const isValid = firstName.trim().length > 0 && lastName.trim().length > 0 && !!profileImage;
+  // Profile image is REQUIRED, last name is optional
+  const isValid = firstName.trim().length > 0 && !!profileImage;
 
   // Generate signed URL for preview when profileImage changes
   useEffect(() => {
@@ -207,24 +207,32 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
           className="hidden"
         />
         <p className="text-xs text-muted-foreground">
-          {profileImage ? "Tippen zum Ändern" : "Profilbild hochladen *"}
+          {profileImage ? "Tippen zum Ändern" : <>Profilbild hochladen <span className="text-primary">*</span></>}
         </p>
       </div>
 
       {/* Name Fields */}
       <div className="space-y-4">
-        <Input
-          placeholder="Vorname"
-          value={firstName}
-          onChange={(e) => onUpdate({ first_name: e.target.value })}
-          className="input-elegant"
-        />
-        <Input
-          placeholder="Nachname"
-          value={lastName}
-          onChange={(e) => onUpdate({ last_name: e.target.value })}
-          className="input-elegant"
-        />
+        <div>
+          <label className="text-sm text-muted-foreground mb-2 block">
+            Vorname <span className="text-primary">*</span>
+          </label>
+          <Input
+            placeholder="Vorname"
+            value={firstName}
+            onChange={(e) => onUpdate({ first_name: e.target.value })}
+            className="input-elegant"
+          />
+        </div>
+        <div>
+          <label className="text-sm text-muted-foreground mb-2 block">Nachname</label>
+          <Input
+            placeholder="Nachname (optional)"
+            value={lastName}
+            onChange={(e) => onUpdate({ last_name: e.target.value })}
+            className="input-elegant"
+          />
+        </div>
       </div>
 
       <div className="flex justify-center pt-4">

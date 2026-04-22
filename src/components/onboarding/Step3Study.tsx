@@ -19,7 +19,7 @@ interface Step3Props {
 }
 
 export function Step3Study({ studyProgram, studyPhase, onUpdate, onNext, onBack }: Step3Props) {
-  const isValid = studyProgram !== null;
+  const isValid = studyProgram !== null && studyProgram !== "";
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -32,7 +32,7 @@ export function Step3Study({ studyProgram, studyPhase, onUpdate, onNext, onBack 
 
       <div className="space-y-6">
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Hochschule</label>
+          <label className="text-sm text-muted-foreground mb-2 block">Hochschule <span className="text-primary">*</span></label>
           <Select value={studyProgram ?? ""} onValueChange={(v) => onUpdate({ study_program: v })}>
             <SelectTrigger className="input-elegant border-0 border-b border-primary/50 rounded-none focus:border-primary">
               <SelectValue placeholder="Auswählen" />
@@ -49,7 +49,7 @@ export function Step3Study({ studyProgram, studyPhase, onUpdate, onNext, onBack 
 
         {studyProgram && (
           <div className="animate-fade-in">
-            <label className="text-sm text-muted-foreground mb-2 block">Studienrichtung</label>
+            <label className="text-sm text-muted-foreground mb-2 block">Studienrichtung <span className="text-muted-foreground/50">(optional)</span></label>
             <Input
               variant="elegant"
               placeholder="z.B. Informatik, BWL, Jus..."

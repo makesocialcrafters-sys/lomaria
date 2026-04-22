@@ -18,7 +18,7 @@ interface Step2Props {
 }
 
 export function Step2Demographics({ age, gender, onUpdate, onNext, onBack }: Step2Props) {
-  const isValid = age !== null && age >= 16 && age <= 100 && gender !== null;
+  const isValid = age !== null && age >= 16 && age <= 100;
 
   const handleAgeChange = (value: string) => {
     const parsedAge = parseInt(value, 10);
@@ -40,7 +40,7 @@ export function Step2Demographics({ age, gender, onUpdate, onNext, onBack }: Ste
 
       <div className="space-y-6">
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Alter</label>
+          <label className="text-sm text-muted-foreground mb-2 block">Alter <span className="text-primary">*</span></label>
           <Input
             type="number"
             placeholder="z.B. 21"
