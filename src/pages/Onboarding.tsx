@@ -58,12 +58,24 @@ export default function Onboarding() {
       return;
     }
 
-    // DEBUG: Verify session is still active
-    const { data: sessionData } = await supabase.auth.getSession();
-    console.log("[Onboarding] Current session before save:", {
-      hasSession: !!sessionData.session,
-      userId: sessionData.session?.user?.id
+    // Verify session is still active AND auth user still exists
+    const { data: userCheck, error: userCheckError } = await supabase.auth.getUser();
+    console.log("[Onboarding] Auth user check before save:", {
+      hasUser: !!userCheck.user,
+      userId: userCheck.user?.id,
+      error: userCheckError,
     });
+
+    if (userCheckError || !userCheck.user) {
+      toast({
+        title: "Sitzung abgelaufen",
+        description: "Bitte melde dich erneut an.",
+        variant: "destructive",
+      });
+      await supabase.auth.signOut();
+      navigate("/auth");
+      return;
+    }
 
     setSaving(true);
     try {
