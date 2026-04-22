@@ -58,12 +58,24 @@ export default function Onboarding() {
       return;
     }
 
-    // DEBUG: Verify session is still active
-    const { data: sessionData } = await supabase.auth.getSession();
-    console.log("[Onboarding] Current session before save:", {
-      hasSession: !!sessionData.session,
-      userId: sessionData.session?.user?.id
+    // Verify session is still active AND auth user still exists
+    const { data: userCheck, error: userCheckError } = await supabase.auth.getUser();
+    console.log("[Onboarding] Auth user check before save:", {
+      hasUser: !!userCheck.user,
+      userId: userCheck.user?.id,
+      error: userCheckError,
     });
+
+    if (userCheckError || !userCheck.user) {
+      toast({
+        title: "Sitzung abgelaufen",
+        description: "Bitte melde dich erneut an.",
+        variant: "destructive",
+      });
+      await supabase.auth.signOut();
+      navigate("/auth");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -148,8 +160,21 @@ const profileData = {
       navigate("/discover", { replace: true });
     } catch (err) {
       console.error("[Onboarding] Save error:", err);
-      const message = err instanceof Error ? err.message : (err as any)?.message || "Unbekannter Fehler";
-      toast({ title: "Fehler beim Speichern", description: message, variant: "destructive" });
+      const rawMessage = err instanceof Error ? err.message : (err as any)?.message || "Unbekannter Fehler";
+      
+      // Specific handling for FK violation (auth user no longer exists)
+      if (rawMessage.includes("users_auth_user_id_fkey") || rawMessage.includes("foreign key constraint")) {
+        toast({
+          title: "Sitzung ungültig",
+          description: "Dein Account wurde nicht gefunden. Bitte melde dich erneut an.",
+          variant: "destructive",
+        });
+        await supabase.auth.signOut();
+        navigate("/auth");
+        return;
+      }
+      
+      toast({ title: "Fehler beim Speichern", description: rawMessage, variant: "destructive" });
     } finally {
       setSaving(false);
     }
