@@ -12,7 +12,7 @@ interface Step5Props {
 
 export function Step5Interests({ interests, onUpdate, onNext, onBack }: Step5Props) {
   const { toast } = useToast();
-  const isValid = interests.length >= 3;
+  const isValid = interests.length >= 2;
 
   const handleMaxExceeded = () => {
     toast({ title: "Maximal 6 Interessen auswählbar.", variant: "destructive" });
@@ -25,7 +25,7 @@ export function Step5Interests({ interests, onUpdate, onNext, onBack }: Step5Pro
           INTERESSEN
         </h2>
         <p className="text-muted-foreground text-sm">
-          Was interessiert dich? <span className="text-primary">(min. 3, max. 6)</span>
+          Was interessiert dich? <span className="text-primary">(min. 2, max. 6) *</span>
         </p>
       </div>
 
@@ -33,7 +33,7 @@ export function Step5Interests({ interests, onUpdate, onNext, onBack }: Step5Pro
         options={INTERESTS}
         selected={interests}
         onChange={(selected) => onUpdate({ interests: selected })}
-        minSelect={3}
+        minSelect={2}
         maxSelect={6}
         onMaxExceeded={handleMaxExceeded}
       />

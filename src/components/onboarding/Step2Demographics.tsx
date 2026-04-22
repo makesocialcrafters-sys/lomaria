@@ -40,7 +40,7 @@ export function Step2Demographics({ age, gender, onUpdate, onNext, onBack }: Ste
 
       <div className="space-y-6">
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Alter</label>
+          <label className="text-sm text-muted-foreground mb-2 block">Alter <span className="text-primary">*</span></label>
           <Input
             type="number"
             placeholder="z.B. 21"

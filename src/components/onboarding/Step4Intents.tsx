@@ -33,7 +33,7 @@ export function Step4Intents({
   
   const showTutoring = intents.includes("nachhilfe_anbieten");
   const tutoringValid = !showTutoring || tutoringData.tutoring_subject.trim().length > 0;
-  const isValid = intents.length >= 3 && tutoringValid;
+  const isValid = intents.length >= 2 && tutoringValid;
 
   const handleMaxExceeded = () => {
     toast({ title: "Maximal 6 Intents auswählbar.", variant: "destructive" });
@@ -74,7 +74,7 @@ export function Step4Intents({
           INTENTS
         </h2>
         <p className="text-muted-foreground text-sm">
-          Was suchst du? <span className="text-primary">(min. 3, max. 6)</span>
+          Was suchst du? <span className="text-primary">(min. 2, max. 6) *</span>
         </p>
       </div>
 
