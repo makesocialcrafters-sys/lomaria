@@ -160,8 +160,21 @@ const profileData = {
       navigate("/discover", { replace: true });
     } catch (err) {
       console.error("[Onboarding] Save error:", err);
-      const message = err instanceof Error ? err.message : (err as any)?.message || "Unbekannter Fehler";
-      toast({ title: "Fehler beim Speichern", description: message, variant: "destructive" });
+      const rawMessage = err instanceof Error ? err.message : (err as any)?.message || "Unbekannter Fehler";
+      
+      // Specific handling for FK violation (auth user no longer exists)
+      if (rawMessage.includes("users_auth_user_id_fkey") || rawMessage.includes("foreign key constraint")) {
+        toast({
+          title: "Sitzung ungültig",
+          description: "Dein Account wurde nicht gefunden. Bitte melde dich erneut an.",
+          variant: "destructive",
+        });
+        await supabase.auth.signOut();
+        navigate("/auth");
+        return;
+      }
+      
+      toast({ title: "Fehler beim Speichern", description: rawMessage, variant: "destructive" });
     } finally {
       setSaving(false);
     }
