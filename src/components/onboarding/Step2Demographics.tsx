@@ -18,7 +18,7 @@ interface Step2Props {
 }
 
 export function Step2Demographics({ age, gender, onUpdate, onNext, onBack }: Step2Props) {
-  const isValid = age !== null && age >= 16 && age <= 100 && gender !== null;
+  const isValid = age !== null && age >= 16 && age <= 100;
 
   const handleAgeChange = (value: string) => {
     const parsedAge = parseInt(value, 10);
