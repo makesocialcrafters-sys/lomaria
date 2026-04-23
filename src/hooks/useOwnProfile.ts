@@ -19,7 +19,6 @@ export interface OwnProfileData {
   bio: string | null;
   intent_details: Record<string, Record<string, string | string[]>> | null;
   email_notifications_enabled: boolean;
-  is_founder: boolean;
 }
 
 export function useOwnProfile() {
@@ -40,13 +39,6 @@ export function useOwnProfile() {
       const row = Array.isArray(data) ? data[0] : data;
       if (!row) return null;
 
-      // is_founder is not exposed via get_own_profile RPC — fetch separately.
-      const { data: founderRow } = await supabase
-        .from("users")
-        .select("is_founder")
-        .eq("auth_user_id", user.id)
-        .maybeSingle();
-
       return {
         first_name: row.first_name ?? null,
         last_name: row.last_name ?? null,
@@ -64,7 +56,6 @@ export function useOwnProfile() {
         bio: row.bio ?? null,
         intent_details: (row.intent_details as Record<string, Record<string, string | string[]>>) ?? null,
         email_notifications_enabled: row.email_notifications_enabled ?? true,
-        is_founder: (founderRow as { is_founder?: boolean } | null)?.is_founder ?? false,
       };
     },
     enabled: !!user,

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { GoldLoader } from "@/components/ui/gold-loader";
 import { ContactRequestDialog } from "@/components/profile/ContactRequestDialog";
 import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
-import { FounderBadge } from "@/components/ui/founder-badge";
 import { useBlockedUserIds } from "@/hooks/useBlockedUserIds";
 import { 
   STUDY_PROGRAMS, 
@@ -33,7 +32,6 @@ interface UserProfile {
   tutoring_desc: string | null;
   tutoring_price: number | null;
   bio: string | null;
-  is_founder?: boolean | null;
 }
 
 // Connection types for role-based CTA logic
@@ -284,9 +282,8 @@ export default function ProfileDetail() {
         </div>
 
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-display text-foreground inline-flex items-center gap-2">
+          <h1 className="text-2xl font-display text-foreground">
             {profile.first_name}
-            {profile.is_founder && <FounderBadge />}
           </h1>
           {age && (
             <p className="text-sm text-muted-foreground mt-1">{age}</p>
