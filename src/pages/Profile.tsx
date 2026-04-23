@@ -14,6 +14,7 @@ import {
   getIntentDetailFieldTitle 
 } from "@/lib/onboarding-constants";
 import { EditProfileForm } from "@/components/settings/EditProfileForm";
+import { FounderBadge } from "@/components/ui/founder-badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { ProfileFormData } from "@/types/user";
@@ -176,8 +177,9 @@ export default function Profile() {
 
         {/* Name + Age + Gender */}
         <div className="text-center mb-6">
-          <h2 className="text-xl font-display text-foreground">
-            {userData?.first_name} {userData?.last_name}
+          <h2 className="text-xl font-display text-foreground inline-flex items-center gap-2 flex-wrap justify-center">
+            <span>{userData?.first_name} {userData?.last_name}</span>
+            {userData?.is_founder && <FounderBadge />}
           </h2>
           <p className="text-muted-foreground">
             {userData?.age && `${userData.age} Jahre`}
