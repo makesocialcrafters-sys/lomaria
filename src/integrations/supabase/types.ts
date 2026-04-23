@@ -265,6 +265,7 @@ export type Database = {
           intent_details: Json | null
           intents: string[] | null
           interests: string[] | null
+          is_founder: boolean
           last_active_at: string | null
           last_name: string | null
           profile_image: string | null
@@ -292,6 +293,7 @@ export type Database = {
           intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
+          is_founder?: boolean
           last_active_at?: string | null
           last_name?: string | null
           profile_image?: string | null
@@ -319,6 +321,7 @@ export type Database = {
           intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
+          is_founder?: boolean
           last_active_at?: string | null
           last_name?: string | null
           profile_image?: string | null
@@ -345,6 +348,7 @@ export type Database = {
           id: string | null
           intents: string[] | null
           interests: string[] | null
+          is_founder: boolean | null
           last_active_at: string | null
           last_name: string | null
           profile_image: string | null
@@ -364,6 +368,7 @@ export type Database = {
           id?: string | null
           intents?: string[] | null
           interests?: string[] | null
+          is_founder?: boolean | null
           last_active_at?: string | null
           last_name?: string | null
           profile_image?: string | null
@@ -383,6 +388,7 @@ export type Database = {
           id?: string | null
           intents?: string[] | null
           interests?: string[] | null
+          is_founder?: boolean | null
           last_active_at?: string | null
           last_name?: string | null
           profile_image?: string | null
