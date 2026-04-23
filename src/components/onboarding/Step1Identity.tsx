@@ -25,8 +25,8 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Profile image is REQUIRED, last name is optional
-  const isValid = firstName.trim().length > 0 && !!profileImage;
+  // Profile image is OPTIONAL (recommended), last name is optional
+  const isValid = firstName.trim().length > 0;
 
   // Generate signed URL for preview when profileImage changes
   useEffect(() => {
@@ -207,7 +207,7 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
           className="hidden"
         />
         <p className="text-xs text-muted-foreground">
-          {profileImage ? "Tippen zum Ändern" : <>Profilbild hochladen <span className="text-primary">*</span></>}
+          {profileImage ? "Tippen zum Ändern" : "Profilbild (optional, empfohlen)"}
         </p>
       </div>
 
