@@ -425,6 +425,10 @@ export type Database = {
           tutoring_subject: string
         }[]
       }
+      is_realtime_topic_participant: {
+        Args: { _topic: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
