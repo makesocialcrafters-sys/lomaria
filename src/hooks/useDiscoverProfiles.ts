@@ -104,8 +104,13 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
     };
 
     const sorted = sortByRelevance(query.data, scoringContext);
+    // Stable secondary sort: profiles without a profile image are pushed to the bottom
+    const withImageFirst = [
+      ...sorted.filter((p) => !!p.profile_image),
+      ...sorted.filter((p) => !p.profile_image),
+    ];
     const startIndex = page * PAGE_SIZE;
-    return sorted.slice(startIndex, startIndex + PAGE_SIZE);
+    return withImageFirst.slice(startIndex, startIndex + PAGE_SIZE);
   }, [query.data, ownProfile?.intents, ownProfile?.study_program, ownProfile?.study_phase, page]);
 
   return {

@@ -209,6 +209,11 @@ export function Step1Identity({ firstName, lastName, profileImage, onUpdate, onN
         <p className="text-xs text-muted-foreground">
           {profileImage ? "Tippen zum Ändern" : "Profilbild (optional, empfohlen)"}
         </p>
+        {!profileImage && (
+          <p className="text-[11px] text-muted-foreground/80 text-center max-w-[240px] leading-relaxed">
+            Hinweis: Ohne Profilbild erscheinst du im Discover ganz unten.
+          </p>
+        )}
       </div>
 
       {/* Name Fields */}
