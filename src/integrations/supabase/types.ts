@@ -268,6 +268,8 @@ export type Database = {
           last_active_at: string | null
           last_name: string | null
           profile_image: string | null
+          reminder_24h_sent_at: string | null
+          reminder_3d_sent_at: string | null
           semester: string | null
           study_phase: string | null
           study_program: string | null
@@ -293,6 +295,8 @@ export type Database = {
           last_active_at?: string | null
           last_name?: string | null
           profile_image?: string | null
+          reminder_24h_sent_at?: string | null
+          reminder_3d_sent_at?: string | null
           semester?: string | null
           study_phase?: string | null
           study_program?: string | null
@@ -318,6 +322,8 @@ export type Database = {
           last_active_at?: string | null
           last_name?: string | null
           profile_image?: string | null
+          reminder_24h_sent_at?: string | null
+          reminder_3d_sent_at?: string | null
           semester?: string | null
           study_phase?: string | null
           study_program?: string | null

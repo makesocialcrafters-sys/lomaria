@@ -60,7 +60,8 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
         .select("id, first_name, last_name, profile_image, age, study_program, study_phase, semester, intents, interests, tutoring_subject, last_active_at")
         .neq("id", currentUser.id)
         .not("first_name", "is", null)
-        .not("study_program", "is", null);
+        .not("study_program", "is", null)
+        .not("intents", "is", null);
 
       if (studyProgram) q = q.eq("study_program", studyProgram);
       if (tutoringSubject) q = q.ilike("tutoring_subject", `%${tutoringSubject}%`);
@@ -74,6 +75,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
       }
 
       const filteredProfiles = (data || [])
+        .filter(profile => (profile.intents?.length ?? 0) >= 1)
         .filter(profile => {
           const conn = connections?.find(c =>
             (c.from_user === currentUser.id && c.to_user === profile.id) ||
