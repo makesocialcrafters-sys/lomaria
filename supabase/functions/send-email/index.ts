@@ -188,6 +188,40 @@ const templates = {
       </a>
     `),
   }),
+
+  onboarding_reminder: (data: { appUrl: string; variant?: string }) => {
+    const isThreeDay = data.variant === "3d";
+    const headline = isThreeDay
+      ? "Letzte Erinnerung — vervollständige dein Profil"
+      : "Dein Lomaria-Profil wartet auf dich";
+    const intro = isThreeDay
+      ? "Du hast dich vor ein paar Tagen bei Lomaria registriert, aber dein Profil ist noch nicht vollständig. Ohne abgeschlossenes Onboarding bist du für andere unsichtbar — das wäre schade!"
+      : "Du hast dich gestern bei Lomaria registriert, aber dein Profil ist noch nicht vollständig. Erst nach dem kurzen Onboarding kannst du andere Studierende entdecken und selbst gefunden werden.";
+    return {
+      subject: "Dein Lomaria-Profil wartet auf dich 👋",
+      html: emailWrapper(`
+        <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 600; color: ${BRAND_COLORS.text};">
+          ${headline}
+        </h2>
+        <p style="margin: 0 0 24px 0; font-size: 15px; color: ${BRAND_COLORS.text}; line-height: 1.6;">
+          ${intro}
+        </p>
+        <div style="background-color: ${BRAND_COLORS.background}; border-radius: 12px; padding: 20px; margin-bottom: 28px; border-left: 3px solid ${BRAND_COLORS.gold};">
+          <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.textMuted}; line-height: 1.6;">
+            Es dauert nur <strong style="color: ${BRAND_COLORS.gold};">2 Minuten</strong>: Vorname, Studium, deine Ziele und Interessen — fertig.
+          </p>
+        </div>
+        <div style="text-align: center;">
+          <a href="${data.appUrl}/onboarding" style="display: inline-block; background: linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.goldLight}); color: ${BRAND_COLORS.background}; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">
+            Profil vervollständigen
+          </a>
+        </div>
+        <p style="margin: 28px 0 0 0; font-size: 12px; color: ${BRAND_COLORS.textMuted}; text-align: center; line-height: 1.5;">
+          Falls du Lomaria nicht mehr nutzen möchtest, kannst du diese E-Mail einfach ignorieren.
+        </p>
+      `),
+    };
+  },
 };
 
 type EmailType = keyof typeof templates;
