@@ -70,13 +70,13 @@ const Index = () => {
           <div className="w-16 h-px bg-primary/40 mx-auto mb-16" role="presentation" aria-hidden="true" />
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-            {/* Pillar 1: Campus Dating */}
+            {/* Pillar 1: Campus Kennenlernen */}
             <div className="flex flex-col items-center text-center">
               <Heart className="w-8 h-8 text-primary mb-6" />
               <h4 className="font-display text-sm text-primary tracking-[0.15em] uppercase mb-4">
-                Campus Dating
+                Campus Kennenlernen
               </h4>
-              <p className="font-display text-sm text-foreground/50 leading-relaxed">Keine Randoms. Keine Bots. Triff Studierende, die deinen Lifestyle verstehen. Vom Feiermodus bis zum Lern-Date in der Bib.</p>
+              <p className="font-display text-sm text-foreground/50 leading-relaxed">Keine Randoms. Keine Bots. Triff Studierende, die zu dir passen — für echte Gespräche, neue Freundschaften und gemeinsame Lernsessions in der Bib.</p>
             </div>
             
             {/* Pillar 2: Co-Founding & Business */}
