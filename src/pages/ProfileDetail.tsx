@@ -32,6 +32,7 @@ interface UserProfile {
   tutoring_desc: string | null;
   tutoring_price: number | null;
   bio: string | null;
+  is_founder?: boolean;
 }
 
 // Connection types for role-based CTA logic

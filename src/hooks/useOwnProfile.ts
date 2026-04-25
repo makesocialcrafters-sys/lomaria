@@ -19,6 +19,7 @@ export interface OwnProfileData {
   bio: string | null;
   intent_details: Record<string, Record<string, string | string[]>> | null;
   email_notifications_enabled: boolean;
+  is_founder: boolean;
 }
 
 export function useOwnProfile() {
@@ -56,6 +57,7 @@ export function useOwnProfile() {
         bio: row.bio ?? null,
         intent_details: (row.intent_details as Record<string, Record<string, string | string[]>>) ?? null,
         email_notifications_enabled: row.email_notifications_enabled ?? true,
+        is_founder: (row as { is_founder?: boolean }).is_founder ?? false,
       };
     },
     enabled: !!user,
