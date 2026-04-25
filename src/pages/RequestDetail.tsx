@@ -230,6 +230,11 @@ export default function RequestDetail() {
           <h1 className="text-2xl font-display text-foreground">
             {request.sender.first_name} {request.sender.last_name}
           </h1>
+          {request.sender.is_founder && (
+            <div className="mt-2">
+              <FounderBadge size="md" />
+            </div>
+          )}
           {studyProgramLabel && (
             <p className="text-muted-foreground mt-1">{studyProgramLabel}</p>
           )}
