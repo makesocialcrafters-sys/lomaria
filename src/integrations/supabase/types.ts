@@ -416,6 +416,7 @@ export type Database = {
           intent_details: Json
           intents: string[]
           interests: string[]
+          is_founder: boolean
           last_name: string
           profile_image: string
           study_phase: string
