@@ -59,6 +59,7 @@ export default function Contacts() {
                   studyProgram={getStudyProgramLabel(req.sender.study_program)}
                   studyPhase={getStudyPhaseLabel(req.sender.study_phase)}
                   message={req.message}
+                  isFounder={req.sender.is_founder}
                 />
               ))}
             </div>
