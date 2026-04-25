@@ -14,6 +14,7 @@ import {
   getIntentDetailFieldTitle 
 } from "@/lib/onboarding-constants";
 import { EditProfileForm } from "@/components/settings/EditProfileForm";
+import { FounderBadge } from "@/components/ui/FounderBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { ProfileFormData } from "@/types/user";
@@ -184,6 +185,11 @@ export default function Profile() {
             {userData?.age && genderLabel && " · "}
             {genderLabel}
           </p>
+          {userData?.is_founder && (
+            <div className="mt-3 flex justify-center">
+              <FounderBadge size="md" />
+            </div>
+          )}
         </div>
 
         {/* Study Info */}

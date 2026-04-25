@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { STUDY_PROGRAMS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import type { UserProfile } from "@/hooks/useDiscoverProfiles";
 import { SignedAvatar } from "@/components/ui/SignedAvatar";
+import { FounderBadge } from "@/components/ui/FounderBadge";
 
 interface UserProfileCardProps {
   user: UserProfile;
@@ -47,9 +48,10 @@ const UserProfileCardInner = ({ user, onClick }: UserProfileCardProps) => {
         />
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-lg font-display tracking-wide text-foreground truncate">{user.first_name}</h3>
             {age && <span className="text-sm text-muted-foreground/70">· {age}</span>}
+            {user.is_founder && <FounderBadge size="sm" />}
           </div>
 
           {(studyProgramLabel || user.study_phase) && (
