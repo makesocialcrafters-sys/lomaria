@@ -72,7 +72,7 @@ export default function RequestDetail() {
         // Get sender profile from user_profiles view
         const { data: senderProfile } = await supabase
           .from("user_profiles")
-          .select("id, first_name, last_name, profile_image, study_program, semester")
+          .select("id, first_name, last_name, profile_image, study_program, semester, is_founder")
           .eq("id", connection.from_user)
           .maybeSingle();
 
@@ -84,7 +84,10 @@ export default function RequestDetail() {
         setRequest({
           id: connection.id,
           message: connection.message,
-          sender: senderProfile,
+          sender: {
+            ...senderProfile,
+            is_founder: senderProfile.is_founder ?? false,
+          },
         });
       } catch (err) {
         console.error("Error:", err);
