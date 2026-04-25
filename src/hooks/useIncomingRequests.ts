@@ -11,6 +11,7 @@ export interface IncomingRequest {
     profile_image: string | null;
     study_program: string | null;
     study_phase: string | null;
+    is_founder: boolean;
   };
 }
 
@@ -41,7 +42,7 @@ export function useIncomingRequests() {
       const senderIds = pendingData.map((r) => r.from_user);
       const { data: senderProfiles } = await supabase
         .from("user_profiles")
-        .select("id, first_name, profile_image, study_program, study_phase")
+        .select("id, first_name, profile_image, study_program, study_phase, is_founder")
         .in("id", senderIds);
 
       return pendingData.map((req) => {
@@ -55,6 +56,7 @@ export function useIncomingRequests() {
             profile_image: sender?.profile_image || null,
             study_program: sender?.study_program || null,
             study_phase: sender?.study_phase || null,
+            is_founder: sender?.is_founder ?? false,
           },
         };
       });

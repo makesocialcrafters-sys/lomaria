@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { SignedAvatar } from "@/components/ui/SignedAvatar";
+import { FounderBadge } from "@/components/ui/FounderBadge";
 
 interface IncomingRequestCardProps {
   connectionId: string;
@@ -9,6 +10,7 @@ interface IncomingRequestCardProps {
   studyProgram: string | null;
   studyPhase: string | null;
   message: string | null;
+  isFounder?: boolean;
 }
 
 export function IncomingRequestCard({
@@ -19,6 +21,7 @@ export function IncomingRequestCard({
   studyProgram,
   studyPhase,
   message,
+  isFounder = false,
 }: IncomingRequestCardProps) {
   const navigate = useNavigate();
 
@@ -39,7 +42,10 @@ export function IncomingRequestCard({
       />
 
       <div className="flex-1 min-w-0">
-        <p className="font-display text-foreground truncate">{senderName}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="font-display text-foreground truncate">{senderName}</p>
+          {isFounder && <FounderBadge size="sm" />}
+        </div>
         {studyProgram && (
           <p className="text-sm text-muted-foreground truncate">
             {studyProgram}{studyPhase ? ` · ${studyPhase}` : ""}

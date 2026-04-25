@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { SignedAvatar } from "@/components/ui/SignedAvatar";
+import { FounderBadge } from "@/components/ui/FounderBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ interface RequestData {
     profile_image: string | null;
     study_program: string | null;
     semester: string | null;
+    is_founder: boolean;
   };
 }
 
@@ -70,7 +72,7 @@ export default function RequestDetail() {
         // Get sender profile from user_profiles view
         const { data: senderProfile } = await supabase
           .from("user_profiles")
-          .select("id, first_name, last_name, profile_image, study_program, semester")
+          .select("id, first_name, last_name, profile_image, study_program, semester, is_founder")
           .eq("id", connection.from_user)
           .maybeSingle();
 
@@ -82,7 +84,10 @@ export default function RequestDetail() {
         setRequest({
           id: connection.id,
           message: connection.message,
-          sender: senderProfile,
+          sender: {
+            ...senderProfile,
+            is_founder: senderProfile.is_founder ?? false,
+          },
         });
       } catch (err) {
         console.error("Error:", err);
@@ -225,6 +230,11 @@ export default function RequestDetail() {
           <h1 className="text-2xl font-display text-foreground">
             {request.sender.first_name} {request.sender.last_name}
           </h1>
+          {request.sender.is_founder && (
+            <div className="mt-2">
+              <FounderBadge size="md" />
+            </div>
+          )}
           {studyProgramLabel && (
             <p className="text-muted-foreground mt-1">{studyProgramLabel}</p>
           )}
