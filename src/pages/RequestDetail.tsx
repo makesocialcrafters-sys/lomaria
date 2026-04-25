@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { SignedAvatar } from "@/components/ui/SignedAvatar";
+import { FounderBadge } from "@/components/ui/FounderBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ interface RequestData {
     profile_image: string | null;
     study_program: string | null;
     semester: string | null;
+    is_founder: boolean;
   };
 }
 
