@@ -11,6 +11,7 @@ export interface IncomingRequest {
     profile_image: string | null;
     study_program: string | null;
     study_phase: string | null;
+    is_founder: boolean;
   };
 }
 
