@@ -11,6 +11,7 @@ import { ContactRequestDialog } from "@/components/profile/ContactRequestDialog"
 import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
 import { useBlockedUserIds } from "@/hooks/useBlockedUserIds";
 import { FounderBadge } from "@/components/ui/FounderBadge";
+import { CofounderBadge } from "@/components/ui/CofounderBadge";
 import { 
   STUDY_PROGRAMS, 
   INTENTS, 
