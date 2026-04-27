@@ -12,6 +12,7 @@ export interface IncomingRequest {
     study_program: string | null;
     study_phase: string | null;
     is_founder: boolean;
+    is_cofounder: boolean;
   };
 }
 
