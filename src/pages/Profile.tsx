@@ -186,9 +186,10 @@ export default function Profile() {
             {userData?.age && genderLabel && " · "}
             {genderLabel}
           </p>
-          {userData?.is_founder && (
-            <div className="mt-3 flex justify-center">
-              <FounderBadge size="md" />
+          {(userData?.is_founder || userData?.is_cofounder) && (
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              {userData?.is_founder && <FounderBadge size="md" />}
+              {userData?.is_cofounder && <CofounderBadge size="md" />}
             </div>
           )}
         </div>
