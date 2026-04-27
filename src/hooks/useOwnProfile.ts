@@ -20,6 +20,7 @@ export interface OwnProfileData {
   intent_details: Record<string, Record<string, string | string[]>> | null;
   email_notifications_enabled: boolean;
   is_founder: boolean;
+  is_cofounder: boolean;
 }
 
 export function useOwnProfile() {
