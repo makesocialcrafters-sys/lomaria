@@ -20,6 +20,7 @@ export interface UserProfile {
   tutoring_subject: string | null;
   last_active_at?: string | null;
   is_founder?: boolean;
+  is_cofounder?: boolean;
 }
 
 interface UseDiscoverProfilesParams {
