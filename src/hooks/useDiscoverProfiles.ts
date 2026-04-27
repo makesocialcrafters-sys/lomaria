@@ -111,8 +111,13 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
       ...sorted.filter((p) => !!p.profile_image),
       ...sorted.filter((p) => !p.profile_image),
     ];
+    // Top priority: Founders and Co-founders always appear first (founders before co-founders)
+    const founders = withImageFirst.filter((p) => p.is_founder);
+    const cofounders = withImageFirst.filter((p) => !p.is_founder && p.is_cofounder);
+    const rest = withImageFirst.filter((p) => !p.is_founder && !p.is_cofounder);
+    const prioritized = [...founders, ...cofounders, ...rest];
     const startIndex = page * PAGE_SIZE;
-    return withImageFirst.slice(startIndex, startIndex + PAGE_SIZE);
+    return prioritized.slice(startIndex, startIndex + PAGE_SIZE);
   }, [query.data, ownProfile?.intents, ownProfile?.study_program, ownProfile?.study_phase, page]);
 
   return {
