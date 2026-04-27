@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { SignedAvatar } from "@/components/ui/SignedAvatar";
 import { FounderBadge } from "@/components/ui/FounderBadge";
+import { CofounderBadge } from "@/components/ui/CofounderBadge";
 
 interface IncomingRequestCardProps {
   connectionId: string;
