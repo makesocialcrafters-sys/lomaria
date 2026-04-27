@@ -48,6 +48,7 @@ export function IncomingRequestCard({
         <div className="flex items-center gap-2 flex-wrap">
           <p className="font-display text-foreground truncate">{senderName}</p>
           {isFounder && <FounderBadge size="sm" />}
+          {isCofounder && <CofounderBadge size="sm" />}
         </div>
         {studyProgram && (
           <p className="text-sm text-muted-foreground truncate">
