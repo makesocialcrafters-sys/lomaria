@@ -22,6 +22,7 @@ interface RequestData {
     study_program: string | null;
     semester: string | null;
     is_founder: boolean;
+    is_cofounder: boolean;
   };
 }
 
