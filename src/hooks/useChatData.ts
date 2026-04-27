@@ -42,10 +42,10 @@ export function useChatData(connectionId: string | undefined, authUserId: string
 
       if (!currentUser) return null;
 
-      // Get the connection
+      // Get the connection (including original request message + created_at)
       const { data: connection, error: connError } = await supabase
         .from("connections")
-        .select("id, from_user, to_user, status")
+        .select("id, from_user, to_user, status, message, created_at")
         .eq("id", connectionId)
         .maybeSingle();
 
