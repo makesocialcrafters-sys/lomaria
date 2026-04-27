@@ -4,6 +4,7 @@ import { STUDY_PROGRAMS, INTENTS, INTERESTS } from "@/lib/onboarding-constants";
 import type { UserProfile } from "@/hooks/useDiscoverProfiles";
 import { SignedAvatar } from "@/components/ui/SignedAvatar";
 import { FounderBadge } from "@/components/ui/FounderBadge";
+import { CofounderBadge } from "@/components/ui/CofounderBadge";
 
 interface UserProfileCardProps {
   user: UserProfile;
