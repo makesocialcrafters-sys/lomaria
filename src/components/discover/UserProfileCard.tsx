@@ -53,6 +53,7 @@ const UserProfileCardInner = ({ user, onClick }: UserProfileCardProps) => {
             <h3 className="text-lg font-display tracking-wide text-foreground truncate">{user.first_name}</h3>
             {age && <span className="text-sm text-muted-foreground/70">· {age}</span>}
             {user.is_founder && <FounderBadge size="sm" />}
+            {user.is_cofounder && <CofounderBadge size="sm" />}
           </div>
 
           {(studyProgramLabel || user.study_phase) && (
