@@ -12,6 +12,7 @@ interface IncomingRequestCardProps {
   studyPhase: string | null;
   message: string | null;
   isFounder?: boolean;
+  isCofounder?: boolean;
 }
 
 export function IncomingRequestCard({
