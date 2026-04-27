@@ -234,9 +234,10 @@ export default function RequestDetail() {
           <h1 className="text-2xl font-display text-foreground">
             {request.sender.first_name} {request.sender.last_name}
           </h1>
-          {request.sender.is_founder && (
-            <div className="mt-2">
-              <FounderBadge size="md" />
+          {(request.sender.is_founder || request.sender.is_cofounder) && (
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+              {request.sender.is_founder && <FounderBadge size="md" />}
+              {request.sender.is_cofounder && <CofounderBadge size="md" />}
             </div>
           )}
           {studyProgramLabel && (
