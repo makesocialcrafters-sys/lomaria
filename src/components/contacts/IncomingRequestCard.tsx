@@ -24,6 +24,7 @@ export function IncomingRequestCard({
   studyPhase,
   message,
   isFounder = false,
+  isCofounder = false,
 }: IncomingRequestCardProps) {
   const navigate = useNavigate();
 
