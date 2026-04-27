@@ -15,6 +15,7 @@ import {
 } from "@/lib/onboarding-constants";
 import { EditProfileForm } from "@/components/settings/EditProfileForm";
 import { FounderBadge } from "@/components/ui/FounderBadge";
+import { CofounderBadge } from "@/components/ui/CofounderBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { ProfileFormData } from "@/types/user";
