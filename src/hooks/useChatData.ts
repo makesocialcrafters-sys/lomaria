@@ -42,10 +42,10 @@ export function useChatData(connectionId: string | undefined, authUserId: string
 
       if (!currentUser) return null;
 
-      // Get the connection
+      // Get the connection (including original request message + created_at)
       const { data: connection, error: connError } = await supabase
         .from("connections")
-        .select("id, from_user, to_user, status")
+        .select("id, from_user, to_user, status, message, created_at")
         .eq("id", connectionId)
         .maybeSingle();
 
@@ -77,8 +77,24 @@ export function useChatData(connectionId: string | undefined, authUserId: string
       const otherIntents = otherUserProfile?.intents || [];
       const sharedIntents = currentIntents.filter((i: string) => otherIntents.includes(i));
 
+      // Prepend the original connection request message as a virtual first message
+      const realMessages = messagesData || [];
+      const requestMessage: Message | null = connection.message && connection.message.trim()
+        ? {
+            id: `request-${connection.id}`,
+            sender_id: connection.from_user,
+            text: connection.message,
+            created_at: connection.created_at,
+            read_at: connection.created_at,
+          }
+        : null;
+
+      const allMessages = requestMessage
+        ? [requestMessage, ...realMessages.filter((m) => m.id !== requestMessage.id)]
+        : realMessages;
+
       return {
-        messages: messagesData || [],
+        messages: allMessages,
         otherUser: otherUserProfile,
         currentUserId: currentUser.id,
         connectionId,
