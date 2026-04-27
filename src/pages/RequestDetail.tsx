@@ -74,7 +74,7 @@ export default function RequestDetail() {
         // Get sender profile from user_profiles view
         const { data: senderProfile } = await supabase
           .from("user_profiles")
-          .select("id, first_name, last_name, profile_image, study_program, semester, is_founder")
+          .select("id, first_name, last_name, profile_image, study_program, semester, is_founder, is_cofounder")
           .eq("id", connection.from_user)
           .maybeSingle();
 
@@ -83,12 +83,14 @@ export default function RequestDetail() {
           return;
         }
 
+        const sp = senderProfile as typeof senderProfile & { is_founder?: boolean; is_cofounder?: boolean };
         setRequest({
           id: connection.id,
           message: connection.message,
           sender: {
             ...senderProfile,
-            is_founder: senderProfile.is_founder ?? false,
+            is_founder: sp.is_founder ?? false,
+            is_cofounder: sp.is_cofounder ?? false,
           },
         });
       } catch (err) {
