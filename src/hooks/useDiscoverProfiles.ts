@@ -20,6 +20,7 @@ export interface UserProfile {
   tutoring_subject: string | null;
   last_active_at?: string | null;
   is_founder?: boolean;
+  is_cofounder?: boolean;
 }
 
 interface UseDiscoverProfilesParams {
@@ -58,7 +59,7 @@ export function useDiscoverProfiles({ studyProgram, tutoringSubject, intent, pag
 
       let q = supabase
         .from("user_profiles")
-        .select("id, first_name, last_name, profile_image, age, study_program, study_phase, semester, intents, interests, tutoring_subject, last_active_at, is_founder")
+        .select("id, first_name, last_name, profile_image, age, study_program, study_phase, semester, intents, interests, tutoring_subject, last_active_at, is_founder, is_cofounder")
         .neq("id", currentUser.id)
         .not("first_name", "is", null)
         .not("study_program", "is", null)

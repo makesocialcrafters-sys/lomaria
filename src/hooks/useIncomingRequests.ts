@@ -12,6 +12,7 @@ export interface IncomingRequest {
     study_program: string | null;
     study_phase: string | null;
     is_founder: boolean;
+    is_cofounder: boolean;
   };
 }
 
@@ -42,11 +43,13 @@ export function useIncomingRequests() {
       const senderIds = pendingData.map((r) => r.from_user);
       const { data: senderProfiles } = await supabase
         .from("user_profiles")
-        .select("id, first_name, profile_image, study_program, study_phase, is_founder")
+        .select("id, first_name, profile_image, study_program, study_phase, is_founder, is_cofounder")
         .in("id", senderIds);
 
       return pendingData.map((req) => {
-        const sender = senderProfiles?.find((p) => p.id === req.from_user);
+        const sender = senderProfiles?.find((p) => p.id === req.from_user) as
+          | { id: string; first_name: string; profile_image: string | null; study_program: string | null; study_phase: string | null; is_founder: boolean; is_cofounder: boolean }
+          | undefined;
         return {
           id: req.id,
           message: req.message,
@@ -57,6 +60,7 @@ export function useIncomingRequests() {
             study_program: sender?.study_program || null,
             study_phase: sender?.study_phase || null,
             is_founder: sender?.is_founder ?? false,
+            is_cofounder: sender?.is_cofounder ?? false,
           },
         };
       });

@@ -265,6 +265,7 @@ export type Database = {
           intent_details: Json | null
           intents: string[] | null
           interests: string[] | null
+          is_cofounder: boolean
           is_founder: boolean
           last_active_at: string | null
           last_name: string | null
@@ -293,6 +294,7 @@ export type Database = {
           intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
+          is_cofounder?: boolean
           is_founder?: boolean
           last_active_at?: string | null
           last_name?: string | null
@@ -321,6 +323,7 @@ export type Database = {
           intent_details?: Json | null
           intents?: string[] | null
           interests?: string[] | null
+          is_cofounder?: boolean
           is_founder?: boolean
           last_active_at?: string | null
           last_name?: string | null
@@ -348,6 +351,7 @@ export type Database = {
           id: string | null
           intents: string[] | null
           interests: string[] | null
+          is_cofounder: boolean | null
           is_founder: boolean | null
           last_active_at: string | null
           last_name: string | null
@@ -368,6 +372,7 @@ export type Database = {
           id?: string | null
           intents?: string[] | null
           interests?: string[] | null
+          is_cofounder?: boolean | null
           is_founder?: boolean | null
           last_active_at?: string | null
           last_name?: string | null
@@ -388,6 +393,7 @@ export type Database = {
           id?: string | null
           intents?: string[] | null
           interests?: string[] | null
+          is_cofounder?: boolean | null
           is_founder?: boolean | null
           last_active_at?: string | null
           last_name?: string | null
@@ -416,6 +422,7 @@ export type Database = {
           intent_details: Json
           intents: string[]
           interests: string[]
+          is_cofounder: boolean
           is_founder: boolean
           last_name: string
           profile_image: string

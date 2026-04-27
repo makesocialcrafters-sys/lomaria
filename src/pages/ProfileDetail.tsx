@@ -11,6 +11,7 @@ import { ContactRequestDialog } from "@/components/profile/ContactRequestDialog"
 import { UserActionMenu } from "@/components/user-actions/UserActionMenu";
 import { useBlockedUserIds } from "@/hooks/useBlockedUserIds";
 import { FounderBadge } from "@/components/ui/FounderBadge";
+import { CofounderBadge } from "@/components/ui/CofounderBadge";
 import { 
   STUDY_PROGRAMS, 
   INTENTS, 
@@ -34,6 +35,7 @@ interface UserProfile {
   tutoring_price: number | null;
   bio: string | null;
   is_founder?: boolean;
+  is_cofounder?: boolean;
 }
 
 // Connection types for role-based CTA logic
@@ -290,9 +292,10 @@ export default function ProfileDetail() {
           {age && (
             <p className="text-sm text-muted-foreground mt-1">{age}</p>
           )}
-          {profile.is_founder && (
-            <div className="mt-3 flex justify-center">
-              <FounderBadge size="md" />
+          {(profile.is_founder || profile.is_cofounder) && (
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              {profile.is_founder && <FounderBadge size="md" />}
+              {profile.is_cofounder && <CofounderBadge size="md" />}
             </div>
           )}
         </div>

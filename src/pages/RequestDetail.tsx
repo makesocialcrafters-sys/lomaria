@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { SignedAvatar } from "@/components/ui/SignedAvatar";
 import { FounderBadge } from "@/components/ui/FounderBadge";
+import { CofounderBadge } from "@/components/ui/CofounderBadge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ interface RequestData {
     study_program: string | null;
     semester: string | null;
     is_founder: boolean;
+    is_cofounder: boolean;
   };
 }
 
@@ -72,7 +74,7 @@ export default function RequestDetail() {
         // Get sender profile from user_profiles view
         const { data: senderProfile } = await supabase
           .from("user_profiles")
-          .select("id, first_name, last_name, profile_image, study_program, semester, is_founder")
+          .select("id, first_name, last_name, profile_image, study_program, semester, is_founder, is_cofounder")
           .eq("id", connection.from_user)
           .maybeSingle();
 
@@ -81,12 +83,14 @@ export default function RequestDetail() {
           return;
         }
 
+        const sp = senderProfile as typeof senderProfile & { is_founder?: boolean; is_cofounder?: boolean };
         setRequest({
           id: connection.id,
           message: connection.message,
           sender: {
             ...senderProfile,
-            is_founder: senderProfile.is_founder ?? false,
+            is_founder: sp.is_founder ?? false,
+            is_cofounder: sp.is_cofounder ?? false,
           },
         });
       } catch (err) {
@@ -230,9 +234,10 @@ export default function RequestDetail() {
           <h1 className="text-2xl font-display text-foreground">
             {request.sender.first_name} {request.sender.last_name}
           </h1>
-          {request.sender.is_founder && (
-            <div className="mt-2">
-              <FounderBadge size="md" />
+          {(request.sender.is_founder || request.sender.is_cofounder) && (
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+              {request.sender.is_founder && <FounderBadge size="md" />}
+              {request.sender.is_cofounder && <CofounderBadge size="md" />}
             </div>
           )}
           {studyProgramLabel && (
