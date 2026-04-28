@@ -212,6 +212,30 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Kontakt Section */}
+      <section className="py-16 px-6 border-t border-primary/10">
+        <div className="max-w-2xl mx-auto text-center">
+          <h3 className="font-display text-sm text-primary tracking-[0.15em] uppercase mb-8">
+            Kontakt
+          </h3>
+          <div className="w-16 h-px bg-primary/40 mx-auto mb-8" role="presentation" aria-hidden="true" />
+          <div className="flex flex-col gap-3">
+            <a
+              href="tel:+436763349124"
+              className="font-display text-sm text-foreground/60 tracking-[0.05em] hover:text-primary transition-colors duration-500"
+            >
+              0676 3349124
+            </a>
+            <a
+              href="mailto:support@lomaria.at"
+              className="font-display text-sm text-foreground/60 tracking-[0.05em] hover:text-primary transition-colors duration-500"
+            >
+              support@lomaria.at
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-12 flex flex-col items-center gap-4">
         <div className="flex gap-1">
