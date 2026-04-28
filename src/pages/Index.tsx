@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
-import { Heart, Rocket, BookOpen, ChevronDown } from "lucide-react";
+import { Heart, Rocket, BookOpen, ChevronDown, Instagram } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import PublicHeader from "@/components/layout/PublicHeader";
 const Index = () => {
@@ -231,6 +231,29 @@ const Index = () => {
               className="font-display text-sm text-foreground/60 tracking-[0.05em] hover:text-primary transition-colors duration-500"
             >
               support@lomaria.at
+            </a>
+          </div>
+          <div className="w-16 h-px bg-primary/40 mx-auto mt-10 mb-8" role="presentation" aria-hidden="true" />
+          <div className="flex items-center justify-center gap-6">
+            <a
+              href="https://www.instagram.com/lomaria_official"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground/60 hover:text-primary transition-colors duration-500"
+            >
+              <Instagram className="w-5 h-5" strokeWidth={1.5} />
+            </a>
+            <a
+              href="https://www.tiktok.com/@lomaria.official"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TikTok"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground/60 hover:text-primary transition-colors duration-500"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.51a8.16 8.16 0 0 0 4.77 1.52V6.59a4.85 4.85 0 0 1-1.84-.1z"/>
+              </svg>
             </a>
           </div>
         </div>
