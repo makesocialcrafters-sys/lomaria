@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
-import { Heart, Rocket, BookOpen, ChevronDown } from "lucide-react";
+import { Heart, Rocket, BookOpen, ChevronDown, Instagram } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import PublicHeader from "@/components/layout/PublicHeader";
 const Index = () => {
