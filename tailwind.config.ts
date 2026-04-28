@@ -15,8 +15,8 @@ export default {
     extend: {
       /* Wes Anderson Typography */
       fontFamily: {
-        display: ["Josefin Sans", "sans-serif"],
-        sans: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        display: ["EB Garamond", "serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
       },
       /* Lomaria Color System */
       colors: {
