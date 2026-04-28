@@ -9,7 +9,7 @@ export const ImpressumContent = () =>
         <p><span className="text-foreground/90">Adresse:</span><br />Adresse:
 Forsthausgasse 15/6/9
 1200 Wien, Österreich<br />1020 Wien, Österreich</p>
-        <p><span className="text-foreground/90">Kontakt:</span><br />(Kommt bald)</p>
+        <p><span className="text-foreground/90">Kontakt:</span><br />Tel: <a href="tel:+436763349124" className="hover:text-primary transition-colors">0676 3349124</a><br />E-Mail: <a href="mailto:support@lomaria.at" className="hover:text-primary transition-colors">support@lomaria.at</a></p>
         <p><span className="text-foreground/90">Verantwortlich für den Inhalt:</span><br />Omar AL Azawi</p>
         <p><span className="text-foreground/90">Unternehmensform:</span><br />Einzelunternehmer</p>
         <p><span className="text-foreground/90">Gerichtsstand:</span><br />Österreich</p>
@@ -262,7 +262,7 @@ export const DatenschutzContent = () =>
           <li>Datenübertragbarkeit</li>
           <li>Widerruf deiner Einwilligung</li>
         </ul>
-        <p className="pt-3">Kontakt: contact@lomaria.at</p>
+        <p className="pt-3">Kontakt: <a href="mailto:support@lomaria.at" className="hover:text-primary transition-colors">support@lomaria.at</a> · Tel: <a href="tel:+436763349124" className="hover:text-primary transition-colors">0676 3349124</a></p>
       </div>
     </section>
   </div>;
