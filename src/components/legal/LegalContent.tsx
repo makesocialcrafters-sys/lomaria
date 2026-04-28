@@ -262,7 +262,7 @@ export const DatenschutzContent = () =>
           <li>Datenübertragbarkeit</li>
           <li>Widerruf deiner Einwilligung</li>
         </ul>
-        <p className="pt-3">Kontakt: contact@lomaria.at</p>
+        <p className="pt-3">Kontakt: <a href="mailto:support@lomaria.at" className="hover:text-primary transition-colors">support@lomaria.at</a> · Tel: <a href="tel:+436763349124" className="hover:text-primary transition-colors">0676 3349124</a></p>
       </div>
     </section>
   </div>;
