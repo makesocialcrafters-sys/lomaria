@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Info } from "lucide-react";
+import { Info, Smartphone, X } from "lucide-react";
 import { useDiscoverProfiles, UserProfile } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
