@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Info } from "lucide-react";
+import { Info, Smartphone, X } from "lucide-react";
 import { useDiscoverProfiles, UserProfile } from "@/hooks/useDiscoverProfiles";
 import { UserProfileCard } from "@/components/discover/UserProfileCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
@@ -25,6 +25,15 @@ export default function Discover() {
   const [page, setPage] = useState(0);
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [pwaNoticeDismissed, setPwaNoticeDismissed] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("lomaria_pwa_notice_dismissed") === "1";
+  });
+
+  const dismissPwaNotice = () => {
+    localStorage.setItem("lomaria_pwa_notice_dismissed", "1");
+    setPwaNoticeDismissed(true);
+  };
 
   // React Query for cached data
   const { data: pageProfiles, isLoading, isFetching } = useDiscoverProfiles({
@@ -201,6 +210,42 @@ export default function Discover() {
           </Popover>
         </div>
         
+
+        
+
+        {/* PWA Announcement */}
+        {!pwaNoticeDismissed && (
+          <div className="relative mb-6 overflow-hidden rounded-md border border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background p-5 animate-cinematic-enter">
+            <button
+              onClick={dismissPwaNotice}
+              className="absolute top-2 right-2 text-muted-foreground hover:text-primary transition-colors duration-500"
+              aria-label="Hinweis schließen"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 mt-1">
+                <div className="w-10 h-10 rounded-full border border-primary/40 flex items-center justify-center bg-primary/5">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                </div>
+              </div>
+              <div className="flex-1 space-y-2">
+                <p className="font-display text-[10px] tracking-[0.25em] uppercase text-primary/70">
+                  Neu
+                </p>
+                <h2 className="font-serif text-lg leading-tight text-foreground">
+                  Lomaria ist jetzt eine App
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Installiere Lomaria direkt auf deinem Home-Bildschirm — kein App Store nötig. Schneller Zugriff, Vollbild-Erlebnis, immer dabei.
+                </p>
+                <p className="text-xs text-primary/60 pt-1">
+                  iOS: Teilen → „Zum Home-Bildschirm" · Android: Menü → „App installieren"
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="mb-6">
