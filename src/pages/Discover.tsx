@@ -240,7 +240,7 @@ export default function Discover() {
                   Installiere Lomaria direkt auf deinem Home-Bildschirm — kein App Store nötig. Schneller Zugriff, Vollbild-Erlebnis, immer dabei.
                 </p>
                 <p className="text-xs text-primary/60 pt-1">
-                  iOS: Teilen → „Zum Home-Bildschirm" · Android: Menü → „App installieren"
+                  iOS: Teilen → „Zum Home-Bildschirm" · Android: Menü → „Zum Home-Bildschirm"
                 </p>
               </div>
             </div>
