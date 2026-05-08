@@ -1,10 +1,19 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, Link } from "react-router-dom";
-import { Heart, Rocket, BookOpen, ChevronDown, Instagram } from "lucide-react";
+import { Heart, Rocket, BookOpen, ChevronDown, Instagram, Smartphone, X } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import PublicHeader from "@/components/layout/PublicHeader";
 const Index = () => {
   const navigate = useNavigate();
+  const [pwaNoticeDismissed, setPwaNoticeDismissed] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("lomaria_pwa_notice_dismissed_home") === "1";
+  });
+  const dismissPwaNotice = () => {
+    localStorage.setItem("lomaria_pwa_notice_dismissed_home", "1");
+    setPwaNoticeDismissed(true);
+  };
   const scrollToContent = () => {
     document.getElementById("content")?.scrollIntoView({
       behavior: "smooth"
