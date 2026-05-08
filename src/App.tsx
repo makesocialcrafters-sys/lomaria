@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AppStateProvider } from "@/contexts/AppStateContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppShell } from "@/components/layout/AppShell";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -52,6 +53,7 @@ const App = () => (
           <AppStateProvider>
             <Toaster />
             <Sonner />
+            <InstallPrompt />
             <BrowserRouter>
               <a href="#main-content" className="skip-link">
                 Zum Hauptinhalt springen
