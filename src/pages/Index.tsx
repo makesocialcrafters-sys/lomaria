@@ -69,8 +69,6 @@ const Index = () => {
         </button>
       </section>
 
-      </section>
-
       {/* PWA Announcement */}
       {!pwaNoticeDismissed && (
         <section className="px-6 pt-4">
