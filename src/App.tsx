@@ -53,8 +53,8 @@ const App = () => (
           <AppStateProvider>
             <Toaster />
             <Sonner />
+            <InstallPrompt />
             <BrowserRouter>
-              <InstallPrompt />
               <a href="#main-content" className="skip-link">
                 Zum Hauptinhalt springen
               </a>
