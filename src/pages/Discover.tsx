@@ -25,6 +25,15 @@ export default function Discover() {
   const [page, setPage] = useState(0);
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>([]);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [pwaNoticeDismissed, setPwaNoticeDismissed] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("lomaria_pwa_notice_dismissed") === "1";
+  });
+
+  const dismissPwaNotice = () => {
+    localStorage.setItem("lomaria_pwa_notice_dismissed", "1");
+    setPwaNoticeDismissed(true);
+  };
 
   // React Query for cached data
   const { data: pageProfiles, isLoading, isFetching } = useDiscoverProfiles({
