@@ -69,6 +69,46 @@ const Index = () => {
         </button>
       </section>
 
+      </section>
+
+      {/* PWA Announcement */}
+      {!pwaNoticeDismissed && (
+        <section className="px-6 pt-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative overflow-hidden rounded-md border border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background p-5 animate-cinematic-enter">
+              <button
+                onClick={dismissPwaNotice}
+                className="absolute top-2 right-2 text-muted-foreground hover:text-primary transition-colors duration-500"
+                aria-label="Hinweis schließen"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 mt-1">
+                  <div className="w-10 h-10 rounded-full border border-primary/40 flex items-center justify-center bg-primary/5">
+                    <Smartphone className="w-5 h-5 text-primary" />
+                  </div>
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p className="font-display text-[10px] tracking-[0.25em] uppercase text-primary/70">
+                    Neu
+                  </p>
+                  <h2 className="font-serif text-lg leading-tight text-foreground">
+                    Lomaria ist jetzt eine App
+                  </h2>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Installiere Lomaria direkt auf deinem Home-Bildschirm — kein App Store nötig. Schneller Zugriff, Vollbild-Erlebnis, immer dabei.
+                  </p>
+                  <p className="text-xs text-primary/60 pt-1">
+                    iOS: Teilen → „Zum Home-Bildschirm" · Android: Menü → „Zum Home-Bildschirm"
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Section 1: Die 3 Säulen */}
       <section id="content" className="py-24 px-6">
         <div className="max-w-4xl mx-auto">
