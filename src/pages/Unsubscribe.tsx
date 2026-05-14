@@ -45,6 +45,15 @@ export default function Unsubscribe() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Helmet>
+        <title>E-Mail abmelden – Lomaria</title>
+        <meta name="description" content="Melde dich von Lomaria-Benachrichtigungs-E-Mails ab." />
+        <meta name="robots" content="noindex, follow" />
+        <link rel="canonical" href="https://lomaria.at/unsubscribe" />
+        <meta property="og:title" content="E-Mail abmelden – Lomaria" />
+        <meta property="og:description" content="Abmeldung von Lomaria-Benachrichtigungen." />
+        <meta property="og:url" content="https://lomaria.at/unsubscribe" />
+      </Helmet>
       <div className="max-w-md w-full text-center">
         {/* Logo */}
         <h1 className="font-display text-2xl font-bold tracking-[0.2em] text-primary mb-12">

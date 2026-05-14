@@ -26,6 +26,14 @@ export default function Legal() {
 
   return (
     <main className="min-h-screen bg-background animate-cinematic-enter">
+      <Helmet>
+        <title>Rechtliches – Impressum, AGB & Datenschutz | Lomaria</title>
+        <meta name="description" content="Impressum, AGB, Datenschutzerklärung und Cookie-Hinweise von Lomaria – der Networking-Plattform für Studierende." />
+        <link rel="canonical" href="https://lomaria.at/legal" />
+        <meta property="og:title" content="Rechtliches – Lomaria" />
+        <meta property="og:description" content="Impressum, AGB, Datenschutz und Cookies." />
+        <meta property="og:url" content="https://lomaria.at/legal" />
+      </Helmet>
       <div className="mx-auto max-w-2xl px-6 py-8">
         {/* Header */}
         <header className="mb-8">
