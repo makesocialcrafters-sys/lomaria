@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useSearchParams, Link } from "react-router-dom";
 import { CheckCircle, XCircle, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
