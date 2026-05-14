@@ -7,6 +7,10 @@ const About = () => {
       <Helmet>
         <title>Über Lomaria – Die Vision für Studierende</title>
         <meta name="description" content="Warum wir Lomaria gebaut haben: Schluss mit anonymem Campus-Leben. Unsere Mission für mehr Vernetzung, Gründertum und echte Kontakte an Unis." />
+        <link rel="canonical" href="https://lomaria.at/about" />
+        <meta property="og:title" content="Über Lomaria – Die Vision für Studierende" />
+        <meta property="og:description" content="Schluss mit anonymem Campus-Leben. Unsere Mission für mehr Vernetzung und echte Kontakte." />
+        <meta property="og:url" content="https://lomaria.at/about" />
       </Helmet>
 
       {/* Hero Section */}
