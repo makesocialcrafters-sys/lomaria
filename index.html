@@ -13,8 +13,7 @@
     <meta name="author" content="Lomaria" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://lomaria.at/" />
+    <!-- Canonical URL is set per-route via react-helmet-async -->
 
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -32,7 +31,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Lomaria – Das Netzwerk für Studierende" />
     <meta property="og:description" content="Lomaria ist die exklusive Networking-Plattform für Studierende." />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="https://lomaria.at/og-image.png" />
     <meta property="og:url" content="https://lomaria.at/" />
 
     <!-- Twitter -->
@@ -42,7 +41,29 @@
       name="twitter:description"
       content="Lomaria ist die exklusive Networking-Plattform für Studierende."
     />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content="https://lomaria.at/og-image.png" />
+
+    <!-- Sitewide structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Lomaria",
+        "url": "https://lomaria.at",
+        "logo": "https://lomaria.at/apple-touch-icon.png",
+        "description": "Exklusive Networking-Plattform für Studierende.",
+        "sameAs": ["https://www.instagram.com/lomaria.at"]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Lomaria",
+        "url": "https://lomaria.at",
+        "inLanguage": "de"
+      }
+    </script>
 
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://otzcvsbmswxcxpnqafpc.supabase.co; connect-src 'self' https://otzcvsbmswxcxpnqafpc.supabase.co wss://otzcvsbmswxcxpnqafpc.supabase.co;" />

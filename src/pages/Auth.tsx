@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -202,6 +203,14 @@ export default function Auth() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6 overflow-hidden">
+      <Helmet>
+        <title>{isLogin ? "Anmelden" : "Registrieren"} – Lomaria</title>
+        <meta name="description" content="Melde dich bei Lomaria an oder erstelle ein Konto – die exklusive Networking-Plattform für verifizierte Studierende." />
+        <link rel="canonical" href="https://lomaria.at/auth" />
+        <meta property="og:title" content="Anmelden bei Lomaria" />
+        <meta property="og:description" content="Login und Registrierung für Studierende auf Lomaria." />
+        <meta property="og:url" content="https://lomaria.at/auth" />
+      </Helmet>
       {/* Headline */}
       <h1 className="font-display text-2xl md:text-3xl text-primary tracking-[0.12em] mb-4 animate-cinematic-stagger-1">
         {isLogin ? "Anmelden" : "Registrieren"}

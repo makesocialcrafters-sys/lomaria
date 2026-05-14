@@ -23,8 +23,25 @@ const Index = () => {
       <PublicHeader />
       <Helmet>
         <title>Lomaria – Das Netzwerk für Studierende</title>
-        <meta name="description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv für Studierende." />
+        <meta name="description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv für verifizierte Studierende." />
         <meta name="keywords" content="Studenten, Networking, Co-Founder finden, Lerngruppe, Studierende, Universität" />
+        <link rel="canonical" href="https://lomaria.at/" />
+        <meta property="og:title" content="Lomaria – Das Netzwerk für Studierende" />
+        <meta property="og:description" content="Vernetze dich am Campus. Finde Co-Founder, Lerngruppen oder Dates – exklusiv für verifizierte Studierende." />
+        <meta property="og:url" content="https://lomaria.at/" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            { "@type": "Question", name: "Was ist Lomaria genau?", acceptedAnswer: { "@type": "Answer", text: "Lomaria ist eine Plattform, die Studierende vernetzt – ob für gemeinsame Projekte, Lerngruppen, Co-Founder-Suche oder einfach neue Freundschaften. Nur verifizierte Studierende haben Zugang." } },
+            { "@type": "Question", name: "Wie funktioniert die Verifizierung?", acceptedAnswer: { "@type": "Answer", text: "Ganz einfach per E-Mail registrieren und verifizieren. So stellen wir sicher, dass nur echte Studierende auf der Plattform sind." } },
+            { "@type": "Question", name: "Welche Unis werden unterstützt?", acceptedAnswer: { "@type": "Answer", text: "Alle Universitäten und Hochschulen sind willkommen – egal ob Uni Wien, TU, WU, BOKU, FHs oder andere Hochschulen im deutschsprachigen Raum." } },
+            { "@type": "Question", name: "Was unterscheidet Lomaria von LinkedIn oder Instagram?", acceptedAnswer: { "@type": "Answer", text: "Lomaria ist exklusiv für Studierende und fokussiert sich auf echte Verbindungen statt Follower-Zahlen. Hier geht es darum, die richtigen Leute für dein nächstes Projekt, deine Lerngruppe oder dein Startup zu finden." } },
+            { "@type": "Question", name: "Findet man mich auf Google?", acceptedAnswer: { "@type": "Answer", text: "Nein. Dein Profil ist privat und nur für eingeloggte, verifizierte Studierende sichtbar. Nichts davon erscheint in Suchmaschinen." } },
+            { "@type": "Question", name: "Wie finde ich die richtigen Leute?", acceptedAnswer: { "@type": "Answer", text: "Über Filter wie Studienrichtung, Interessen und Absichten (z.B. Lerngruppe, Startup, Nachhilfe). So siehst du nur Profile, die wirklich zu dir passen." } },
+            { "@type": "Question", name: "Was passiert mit meinen Daten?", acceptedAnswer: { "@type": "Answer", text: "Deine Daten werden ausschließlich für die Plattform verwendet und niemals an Dritte weitergegeben. Du kannst dein Konto jederzeit vollständig löschen." } }
+          ]
+        })}</script>
       </Helmet>
       
       {/* Visually hidden h1 for screen readers */}

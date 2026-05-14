@@ -1,0 +1,15 @@
+# Lomaria
+
+> Lomaria ist die exklusive Networking-Plattform für Studierende im deutschsprachigen Raum. Sie verbindet verifizierte Studierende für Lerngruppen, Co-Founder-Suche, Nachhilfe, Karrierekontakte und neue Freundschaften – ein soziales Betriebssystem für den Campus zwischen LinkedIn und Tinder.
+
+## Pages
+
+- [Startseite](/): Überblick, Vision und häufige Fragen zur Plattform.
+- [Über uns](/about): Mission, Werte und die Idee hinter Lomaria.
+- [Anmelden](/auth): Registrierung und Login für verifizierte Studierende.
+- [Rechtliches](/legal): Impressum, AGB, Datenschutz und Cookie-Hinweise.
+
+## Optional
+
+- [Passwort zurücksetzen](/reset-password): Passwort-Reset-Flow.
+- [E-Mail abmelden](/unsubscribe): Abmeldung von Benachrichtigungs-E-Mails.
